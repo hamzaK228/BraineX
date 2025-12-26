@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Fields & Disciplines - MentoraX</title>
+    <style id="critical-css">*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1.6;color:#333}header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:1rem 0;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.1)}.container{max-width:1400px;margin:0 auto;padding:0 2rem}nav{display:flex;justify-content:space-between;align-items:center;gap:1rem}.logo{font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:.5rem}.logo-icon{width:40px;height:40px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}.nav-menu{display:flex;list-style:none;gap:2rem}.nav-menu a{color:#fff;text-decoration:none}.mobile-menu-btn{display:none}@media(max-width:768px){.mobile-menu-btn{display:block}.nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);flex-direction:column;padding:2rem;gap:1rem}}.hero{margin-top:80px}</style>
+<link rel="stylesheet" href="./main.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./main.css"></noscript>
+    <link rel="stylesheet" href="./fields.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./fields.css"></noscript>
+  <meta name="description" content="Explore academic fields, disciplines, and career pathways with resources and guides.">
+  <meta name="keywords" content="fields, disciplines, careers, STEM, business, social sciences, creative">
+  <meta property="og:title" content="Academic Fields & Disciplines - MentoraX">
+  <meta property="og:description" content="Discover fields, specializations, and resources.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mentorax.example/fields.html">
+  <meta property="og:image" content="https://mentorax.example/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Academic Fields & Disciplines - MentoraX">
+  <meta name="twitter:description" content="Explore fields and popular career pathways.">
+  <meta name="twitter:image" content="https://mentorax.example/og-image.png">
+  <link rel="preload" as="style" href="main.css">
+  <script>
+    window.toggleTheme = function() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+        btn.setAttribute('aria-pressed', String(next === 'dark'));
+      });
+      root.classList.add('theme-transition');
+      setTimeout(() => root.classList.remove('theme-transition'), 300);
+    };
+    (function() {
+      const saved = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav role=\"navigation\" aria-label=\"Primary navigation\">
+                <div class="logo">
+                    <div class="logo-icon">🎓</div>
+                    <span>MentoraX</span>
+                </div>
+                <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="main.html">Home</a></li>
+                    <li><a href="fields.html" class="active">Fields</a></li>
+                    <li><a href="scholarships.html">Scholarships</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="roadmaps.html">Roadmaps</a></li>
+                    <li><a href="mentors.html">Mentors</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="notion.html">My Goals</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="#login" class="btn btn-outline">Log In</a>
+                    <a href="#signup" class="btn btn-primary">Sign Up</a>
+                </div>
+                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme" aria-pressed="false">🌙 Dark</button>
+                </nav>
+        </div>
+    </header>
+    <main id="mainContent" role="main">
+
+    <!-- Hero Section -->
+    <section class="fields-hero">
+        <div class="container">
+            <h1>🌍 Explore Academic Fields</h1>
+            <p>Discover diverse academic disciplines and career paths to find your perfect educational journey</p>
+            
+            <div class="field-search">
+                <input type="text" placeholder="Search fields and disciplines..." class="search-input">
+                <button class="btn-search" onclick="performFieldSearch()">🔍 Search</button>
+            </div>
+            
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Academic Fields</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">200+</span>
+                    <span class="stat-label">Specializations</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">1000+</span>
+                    <span class="stat-label">Career Paths</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Field Categories -->
+    <section class="field-categories">
+        <div class="container">
+            <h2>🎨 Field Categories</h2>
+            <div class="categories-grid">
+                <div class="category-card stem-card" data-category="stem" onclick="alert('STEM clicked!'); window.filterByCategory('stem');" style="cursor: pointer;">
+                    <div class="category-header">
+                        <div class="category-icon">🧬</div>
+                        <h3>STEM Fields</h3>
+                        <span class="field-count">7 Fields</span>
+                    </div>
+                    <p>Science, Technology, Engineering, and Mathematics - the fields driving innovation and discovery</p>
+                    <div class="sample-fields">
+                        <span class="field-tag">Computer Science</span>
+                        <span class="field-tag">Data Science</span>
+                        <span class="field-tag">Engineering</span>
+                        <span class="field-tag">Physics</span>
+                    </div>
+                    <button class="btn-explore" onclick="event.stopPropagation(); window.filterByCategory('stem')">Explore STEM →</button>
+                </div>
+
+                <div class="category-card business-card" data-category="business" onclick="alert('Business clicked!'); window.filterByCategory('business');" style="cursor: pointer;">
+                    <div class="category-header">
+                        <div class="category-icon">📊</div>
+                        <h3>Business & Economics</h3>
+                        <span class="field-count">2 Fields</span>
+                    </div>
+                    <p>Business administration, economics, finance, and management - shaping the global economy</p>
+                    <div class="sample-fields">
+                        <span class="field-tag">Business Administration</span>
+                        <span class="field-tag">Marketing</span>
+                    </div>
+                    <button class="btn-explore" onclick="event.stopPropagation(); window.filterByCategory('business')">Explore Business →</button>
+                </div>
+
+
+                <div class="category-card social-card" data-category="social" onclick="alert('Social clicked!'); window.filterByCategory('social');" style="cursor: pointer;">
+                    <div class="category-header">
+                        <div class="category-icon">🌍</div>
+                        <h3>Social Sciences</h3>
+                        <span class="field-count">6 Fields</span>
+                    </div>
+                    <p>Psychology, law, education, and understanding society and human behavior</p>
+                    <div class="sample-fields">
+                        <span class="field-tag">Psychology</span>
+                        <span class="field-tag">Law</span>
+                        <span class="field-tag">Education</span>
+                        <span class="field-tag">Public Health</span>
+                    </div>
+                    <button class="btn-explore" onclick="event.stopPropagation(); window.filterByCategory('social')">Explore Social Sciences →</button>
+                </div>
+
+                <div class="category-card creative-card" data-category="creative" onclick="alert('Creative clicked!'); window.filterByCategory('creative');" style="cursor: pointer;">
+                    <div class="category-header">
+                        <div class="category-icon">🎨</div>
+                        <h3>Creative & Design</h3>
+                        <span class="field-count">4 Fields</span>
+                    </div>
+                    <p>Design, media, entertainment - bringing creativity and innovation to life</p>
+                    <div class="sample-fields">
+                        <span class="field-tag">Graphic Design</span>
+                        <span class="field-tag">Film Studies</span>
+                        <span class="field-tag">Architecture</span>
+                        <span class="field-tag">Journalism</span>
+                    </div>
+                    <button class="btn-explore" onclick="event.stopPropagation(); window.filterByCategory('creative')">Explore Creative →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Fields -->
+    <section class="detailed-fields" id="detailedFields">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2>📋 All Academic Fields</h2>
+                <p style="color: #4a5568; font-size: 16px; margin-top: 10px;">
+                    Explore comprehensive information about each field including salary data, job growth, required skills, and top universities
+                </p>
+            </div>
+            
+            <div class="filter-tabs" style="justify-content: center; margin-bottom: 40px;">
+                <button class=\"filter-tab active\" data-filter=\"all\" style=\"font-weight: 600;\" role=\"tab\" aria-selected=\"true\">All Fields</button>
+                <button class="filter-tab" data-filter="stem">🧬 STEM</button>
+                <button class="filter-tab" data-filter="business">📊 Business</button>
+                <button class="filter-tab" data-filter="social">🌍 Social Sciences</button>
+                <button class="filter-tab" data-filter="creative">🎨 Creative</button>
+            </div>
+
+            <!-- Sort Controls -->
+            <div class="sort-controls" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px; background: #f8f9fa; padding: 15px; border-radius: 10px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <span style="color: #2d3748; font-weight: 600; font-size: 14px;">Sort by:</span>
+                <select id="sortDropdown" onchange="sortFields()" style="
+                    padding: 8px 15px;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 8px;
+                    background: white;
+                    color: #2d3748;
+                    font-size: 14px;
+                    cursor: pointer;
+                    min-width: 150px;
+                ">
+                    <option value="name">📝 Name (A-Z)</option>
+                    <option value="name-desc">📝 Name (Z-A)</option>
+                    <option value="salary">💰 Salary (High to Low)</option>
+                    <option value="salary-asc">💰 Salary (Low to High)</option>
+                    <option value="growth">📈 Growth Rate</option>
+                    <option value="category">🏷️ Category</option>
+                </select>
+                <button onclick="resetSort()" style="
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 500;
+                ">Reset</button>
+            </div>
+
+            <div class="fields-grid" id="fieldsGrid">
+                <!-- Fields will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Career Pathways -->
+    <section class="career-pathways">
+        <div class="container">
+            <h2>🛤️ Popular Career Pathways</h2>
+            <div class="pathways-grid">
+                <div class="pathway-card">
+                    <div class="pathway-icon">🤖</div>
+                    <h3>AI & Machine Learning</h3>
+                    <div class="pathway-info">
+                        <span class="growth-rate">🔥 85% Growth</span>
+                        <span class="avg-salary">💰 $120K+ avg</span>
+                    </div>
+                    <p>Build intelligent systems and algorithms that learn from data</p>
+                    <div class="required-skills">
+                        <span class="skill">Python</span>
+                        <span class="skill">Statistics</span>
+                        <span class="skill">Deep Learning</span>
+                    </div>
+                    <button class="btn-pathway" onclick="showPathwayDetails('AI & Machine Learning')">View Pathway</button>
+                </div>
+
+                <div class="pathway-card">
+                    <div class="pathway-icon">🩺</div>
+                    <h3>Healthcare Innovation</h3>
+                    <div class="pathway-info">
+                        <span class="growth-rate">🔥 72% Growth</span>
+                        <span class="avg-salary">💰 $95K+ avg</span>
+                    </div>
+                    <p>Combine technology with healthcare to improve patient outcomes</p>
+                    <div class="required-skills">
+                        <span class="skill">Biology</span>
+                        <span class="skill">Healthcare Tech</span>
+                        <span class="skill">Data Analysis</span>
+                    </div>
+                    <button class="btn-pathway" onclick="showPathwayDetails('Healthcare Innovation')">View Pathway</button>
+                </div>
+
+                <div class="pathway-card">
+                    <div class="pathway-icon">🌱</div>
+                    <h3>Sustainable Technology</h3>
+                    <div class="pathway-info">
+                        <span class="growth-rate">🔥 90% Growth</span>
+                        <span class="avg-salary">💰 $85K+ avg</span>
+                    </div>
+                    <p>Develop solutions for environmental challenges and climate change</p>
+                    <div class="required-skills">
+                        <span class="skill">Environmental Science</span>
+                        <span class="skill">Engineering</span>
+                        <span class="skill">Policy</span>
+                    </div>
+                    <button class="btn-pathway" onclick="showPathwayDetails('Sustainable Technology')">View Pathway</button>
+                </div>
+
+                <div class="pathway-card">
+                    <div class="pathway-icon">💼</div>
+                    <h3>Digital Business</h3>
+                    <div class="pathway-info">
+                        <span class="growth-rate">🔥 68% Growth</span>
+                        <span class="avg-salary">💰 $75K+ avg</span>
+                    </div>
+                    <p>Lead digital transformation and e-commerce innovations</p>
+                    <div class="required-skills">
+                        <span class="skill">Digital Marketing</span>
+                        <span class="skill">Analytics</span>
+                        <span class="skill">Strategy</span>
+                    </div>
+                    <button class="btn-pathway" onclick="showPathwayDetails('Digital Business')">View Pathway</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Resources Section - Enhanced with Real Links -->
+    <section class="field-resources">
+        <div class="container">
+            <h2>📖 Educational Resources</h2>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">Access real online resources to help you explore and learn about different fields</p>
+            
+            <div class="resources-grid">
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('guides')">
+                    <div class="resource-icon">📚</div>
+                    <h3>Career Guides</h3>
+                    <p>Official US Bureau of Labor Statistics career guides with detailed job information</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 bls.gov/ooh</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('guides')">Browse Guides →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('videos')">
+                    <div class="resource-icon">🎥</div>
+                    <h3>Video Tutorials</h3>
+                    <p>Watch comprehensive career exploration videos and field introductions on YouTube</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 youtube.com</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('videos')">Watch Videos →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('coursera')">
+                    <div class="resource-icon">🎓</div>
+                    <h3>Online Courses</h3>
+                    <p>Free and paid courses from top universities on Coursera to learn any field</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 coursera.org</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('coursera')">Explore Courses →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('linkedin')">
+                    <div class="resource-icon">💼</div>
+                    <h3>LinkedIn Learning</h3>
+                    <p>Professional development courses and career skills training from industry experts</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 linkedin.com/learning</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('linkedin')">Start Learning →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('communities')">
+                    <div class="resource-icon">👥</div>
+                    <h3>Career Communities</h3>
+                    <p>Join Reddit career advice communities to connect with professionals and students</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 reddit.com/r/careeradvice</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('communities')">Join Communities →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('data')">
+                    <div class="resource-icon">📊</div>
+                    <h3>Salary Data</h3>
+                    <p>Research real salary information and job market trends on Glassdoor</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 glassdoor.com</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('data')">View Salaries →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('indeed')">
+                    <div class="resource-icon">💡</div>
+                    <h3>Career Advice</h3>
+                    <p>Expert career advice, interview tips, and job search strategies from Indeed</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 indeed.com/career-advice</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('indeed')">Get Advice →</button>
+                </div>
+
+                <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('khan')">
+                    <div class="resource-icon">📖</div>
+                    <h3>Khan Academy</h3>
+                    <p>Free educational content to learn fundamental concepts in any field</p>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 khanacademy.org</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('khan')">Learn Free →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </main>
+  <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Academic Fields</h4>
+                    <a href="#stem">STEM</a>
+                    <a href="#business">Business</a>
+                    <a href="#humanities">Humanities</a>
+                    <a href="#health">Health Sciences</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="#guides">Field Guides</a>
+                    <a href="#careers">Career Info</a>
+                    <a href="#comparison">Field Comparison</a>
+                    <a href="#pathways">Career Pathways</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#help">Help Center</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="#feedback">Feedback</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <a href="#">Twitter</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Newsletter</a>
+                    <a href="#">Blog</a>
+                </div>
+            </div>
+            <p>&copy; 2025 MentoraX. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login/Signup Modals -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your personalized dashboard</p>
+            <div id="loginSuccess" class="success-message">
+                <strong>Success!</strong> You have been logged in successfully.
+            </div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                    <div class="error-message" id="emailError">Please enter a valid email address</div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="password-toggle">
+                        <input type="password" id="loginPassword" name="password" required>
+                        <button type="button" onclick="togglePassword('loginPassword')">👁️</button>
+                    </div>
+                    <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe" name="remember">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+            <div class="divider"><span>or</span></div>
+            <div class="social-login">
+                <button class="btn-social" onclick="socialLogin('google')">🔍</button>
+                <button class="btn-social" onclick="socialLogin('facebook')">📘</button>
+                <button class="btn-social" onclick="socialLogin('linkedin')">💼</button>
+            </div>
+            <div class="form-footer">
+                <p>Don't have an account? <a href="#" onclick="switchToSignup()">Sign up here</a></p>
+                <p><a href="#" onclick="forgotPassword()">Forgot your password?</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <h2>Join MentoraX</h2>
+            <p>Create your account and unlock endless opportunities</p>
+            <div id="signupSuccess" class="success-message">
+                <strong>Success!</strong> Your account has been created successfully.
+            </div>
+            <form id="signupForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                        <div class="error-message" id="firstNameError">First name is required</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                        <div class="error-message" id="lastNameError">Last name is required</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" name="email" required>
+                    <div class="error-message" id="signupEmailError">Please enter a valid email address</div>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <div class="password-toggle">
+                        <input type="password" id="signupPassword" name="password" required>
+                        <button type="button" onclick="togglePassword('signupPassword')">👁️</button>
+                    </div>
+                    <div class="error-message" id="signupPasswordError">Password must be at least 6 characters</div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-toggle">
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <button type="button" onclick="togglePassword('confirmPassword')">👁️</button>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
+                </div>
+                <div class="form-group">
+                    <label for="fieldOfInterest">Field of Interest</label>
+                    <select id="fieldOfInterest" name="field" required>
+                        <option value="">Select your field</option>
+                        <option value="ai">Artificial Intelligence</option>
+                        <option value="biotech">Biotech & Health Sciences</option>
+                        <option value="climate">Climate Tech</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="entrepreneurship">Entrepreneurship</option>
+                        <option value="social">Social Impact</option>
+                        <option value="media">Digital Media</option>
+                        <option value="economics">Economics & Finance</option>
+                    </select>
+                    <div class="error-message" id="fieldError">Please select your field of interest</div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeTerms" name="terms" required>
+                    <label for="agreeTerms">I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a></label>
+                </div>
+                <button type="submit" class="btn-submit">Create Account</button>
+            </form>
+            <div class="divider"><span>or</span></div>
+            <div class="social-login">
+                <button class="btn-social" onclick="socialLogin('google')">🔍</button>
+                <button class="btn-social" onclick="socialLogin('facebook')">📘</button>
+                <button class="btn-social" onclick="socialLogin('linkedin')">💼</button>
+            </div>
+            <div class="form-footer">
+                <p>Already have an account? <a href="#" onclick="switchToLogin()">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script defer src="./global.js"></script>
+    <script defer src="./main.js"></script>
+    <script defer src="./fields.js"></script>
+  <script src="./global.js"></script>
+</body>
+</html>
