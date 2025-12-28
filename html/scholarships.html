@@ -1,13 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scholarships - MentoraX</title>
     <style id="critical-css">*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1.6;color:#333}header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:1rem 0;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.1)}.container{max-width:1400px;margin:0 auto;padding:0 2rem}nav{display:flex;justify-content:space-between;align-items:center;gap:1rem}.logo{font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:.5rem}.logo-icon{width:40px;height:40px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}.nav-menu{display:flex;list-style:none;gap:2rem}.nav-menu a{color:#fff;text-decoration:none}.mobile-menu-btn{display:none}@media(max-width:768px){.mobile-menu-btn{display:block}.nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);flex-direction:column;padding:2rem;gap:1rem}}.hero{margin-top:80px}</style>
-<link rel="stylesheet" href="./main.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./main.css"></noscript>
-    <link rel="stylesheet" href="./fields.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./fields.css"></noscript>
-    <link rel="stylesheet" href="./scholarships.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./scholarships.css"></noscript>
+<link rel="stylesheet" href="../css/main.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="../css/main.css"></noscript>
+    <link rel="stylesheet" href="../css/fields.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="../css/fields.css"></noscript>
+    <link rel="stylesheet" href="../css/scholarships.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="../css/scholarships.css"></noscript>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <meta name="description" content="Search scholarships worldwide by field, level, funding, and deadlines.">
@@ -21,7 +21,7 @@
   <meta name="twitter:title" content="Scholarships - MentoraX">
   <meta name="twitter:description" content="Discover scholarships by field and eligibility.">
   <meta name="twitter:image" content="https://mentorax.example/og-image.png">
-  <link rel="preload" as="style" href="main.css">
+  <link rel="preload" as="style" href="../css/main.css">
   <script>
     window.toggleTheme = function() {
       const root = document.documentElement;
@@ -30,7 +30,7 @@
       root.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
       document.querySelectorAll('.theme-toggle').forEach(btn => {
-        btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+        btn.innerHTML = next === 'dark' ? '?? Light' : '?? Dark';
         btn.setAttribute('aria-pressed', String(next === 'dark'));
       });
       root.classList.add('theme-transition');
@@ -47,26 +47,26 @@
         <div class="container">
             <nav role=\"navigation\" aria-label=\"Primary navigation\">
                 <div class="logo">
-                    <div class="logo-icon">🎓</div>
+                    <div class="logo-icon">??</div>
                     <span>MentoraX</span>
                 </div>
-                <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">?</button>
                 <ul class="nav-menu" id="navMenu">
-                    <li><a href="main.html">Home</a></li>
-                    <li><a href="fields.html">Fields</a></li>
-                    <li><a href="scholarships.html" class="active">Scholarships</a></li>
-                    <li><a href="projects.html">Projects</a></li>
-                    <li><a href="roadmaps.html">Roadmaps</a></li>
-                    <li><a href="mentors.html">Mentors</a></li>
-                    <li><a href="events.html">Events</a></li>
-                    <li><a href="notion.html">My Goals</a></li>
-                    <li><a href="about.html">About</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/html/fields.html">Fields</a></li>
+                    <li><a href="/html/scholarships.html" class="active">Scholarships</a></li>
+                    <li><a href="/html/projects.html">Projects</a></li>
+                    <li><a href="/html/roadmaps.html">Roadmaps</a></li>
+                    <li><a href="/html/mentors.html">Mentors</a></li>
+                    <li><a href="/html/events.html">Events</a></li>
+                    <li><a href="/html/notion.html">My Goals</a></li>
+                    <li><a href="/html/about.html">About</a></li>
                 </ul>
                 <div class="auth-buttons">
                     <a href="#login" class="btn btn-outline">Log In</a>
                     <a href="#signup" class="btn btn-primary">Sign Up</a>
                 </div>
-                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme" aria-pressed="false">🌙 Dark</button>
+                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme" aria-pressed="false">?? Dark</button>
                 </nav>
         </div>
     </header>
@@ -75,12 +75,12 @@
     <!-- Hero Section -->
     <section class="fields-hero">
         <div class="container">
-            <h1>🎓 Scholarship Opportunities</h1>
+            <h1>?? Scholarship Opportunities</h1>
             <p>Discover thousands of scholarship opportunities from universities and organizations worldwide</p>
             
             <div class="field-search">
                 <input type="text" placeholder="Search scholarships by field, amount, deadline..." class="search-input">
-                <button class="btn-search" onclick="performScholarshipSearch()">🔍 Search</button>
+                <button class="btn-search" onclick="performScholarshipSearch()">?? Search</button>
             </div>
             
             <div class="quick-stats">
@@ -103,11 +103,11 @@
     <!-- Scholarship Categories -->
     <section class="field-categories">
         <div class="container">
-            <h2>🎨 Scholarship Categories</h2>
+            <h2>?? Scholarship Categories</h2>
             <div class="categories-grid">
                 <div class="category-card stem-card" data-category="stem" onclick="filterScholarshipsByCategory('stem')" style="cursor: pointer;">
                     <div class="category-header">
-                        <div class="category-icon">🧬</div>
+                        <div class="category-icon">??</div>
                         <h3>STEM Scholarships</h3>
                         <span class="field-count">450+ Scholarships</span>
                     </div>
@@ -118,12 +118,12 @@
                         <span class="field-tag">Data Science</span>
                         <span class="field-tag">Research</span>
                     </div>
-                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('stem')">Explore STEM →</button>
+                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('stem')">Explore STEM ?</button>
                 </div>
 
                 <div class="category-card business-card" data-category="business" onclick="filterScholarshipsByCategory('business')" style="cursor: pointer;">
                     <div class="category-header">
-                        <div class="category-icon">📊</div>
+                        <div class="category-icon">??</div>
                         <h3>Business & Economics</h3>
                         <span class="field-count">320+ Scholarships</span>
                     </div>
@@ -134,12 +134,12 @@
                         <span class="field-tag">Entrepreneurship</span>
                         <span class="field-tag">Economics</span>
                     </div>
-                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('business')">Explore Business →</button>
+                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('business')">Explore Business ?</button>
                 </div>
 
                 <div class="category-card social-card" data-category="social" onclick="filterScholarshipsByCategory('social')" style="cursor: pointer;">
                     <div class="category-header">
-                        <div class="category-icon">🌍</div>
+                        <div class="category-icon">??</div>
                         <h3>Social Sciences</h3>
                         <span class="field-count">280+ Scholarships</span>
                     </div>
@@ -150,12 +150,12 @@
                         <span class="field-tag">Education</span>
                         <span class="field-tag">Public Health</span>
                     </div>
-                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('social')">Explore Social Sciences →</button>
+                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('social')">Explore Social Sciences ?</button>
                 </div>
 
                 <div class="category-card creative-card" data-category="creative" onclick="filterScholarshipsByCategory('creative')" style="cursor: pointer;">
                     <div class="category-header">
-                        <div class="category-icon">🎨</div>
+                        <div class="category-icon">??</div>
                         <h3>Arts & Creative</h3>
                         <span class="field-count">190+ Scholarships</span>
                     </div>
@@ -166,7 +166,7 @@
                         <span class="field-tag">Music</span>
                         <span class="field-tag">Architecture</span>
                     </div>
-                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('creative')">Explore Creative →</button>
+                    <button class="btn-explore" onclick="event.stopPropagation(); filterScholarshipsByCategory('creative')">Explore Creative ?</button>
                 </div>
             </div>
         </div>
@@ -241,14 +241,14 @@
                             <label><i class="fas fa-globe-americas"></i> Study Destination</label>
                             <select id="countrySelect" class="modern-select">
                                 <option value="">All Countries & Regions</option>
-                                <option value="usa">🇺🇸 United States</option>
-                                <option value="uk">🇬🇧 United Kingdom</option>
-                                <option value="canada">🇨🇦 Canada</option>
-                                <option value="australia">🇦🇺 Australia</option>
-                                <option value="germany">🇩🇪 Germany</option>
-                                <option value="netherlands">🇳🇱 Netherlands</option>
-                                <option value="singapore">🇸🇬 Singapore</option>
-                                <option value="sweden">🇸🇪 Sweden</option>
+                                <option value="usa">???? United States</option>
+                                <option value="uk">???? United Kingdom</option>
+                                <option value="canada">???? Canada</option>
+                                <option value="australia">???? Australia</option>
+                                <option value="germany">???? Germany</option>
+                                <option value="netherlands">???? Netherlands</option>
+                                <option value="singapore">???? Singapore</option>
+                                <option value="sweden">???? Sweden</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -353,7 +353,7 @@
                 <!-- Profile Match Tab Content -->
                 <div class="search-content" id="profile-search">
                     <div class="profile-match-intro">
-                        <h3>🎯 Get Personalized Matches</h3>
+                        <h3>?? Get Personalized Matches</h3>
                         <p>Answer a few questions to receive scholarship recommendations tailored specifically to your profile and achievements.</p>
                     </div>
                     
@@ -420,7 +420,7 @@
     <section class="detailed-fields">
         <div class="container">
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2>📋 All Scholarship Opportunities</h2>
+                <h2>?? All Scholarship Opportunities</h2>
                 <p style="color: #4a5568; font-size: 16px; margin-top: 10px;">
                     Browse comprehensive scholarship information including funding amounts, deadlines, and eligibility requirements
                 </p>
@@ -428,10 +428,10 @@
             
             <div class="filter-tabs" style="justify-content: center; margin-bottom: 40px;">
                 <button class="filter-tab active" data-filter="all" style="font-weight: 600;">All Scholarships</button>
-                <button class="filter-tab" data-filter="stem">🧬 STEM</button>
-                <button class="filter-tab" data-filter="business">📊 Business</button>
-                <button class="filter-tab" data-filter="social">🌍 Social Sciences</button>
-                <button class="filter-tab" data-filter="creative">🎨 Creative</button>
+                <button class="filter-tab" data-filter="stem">?? STEM</button>
+                <button class="filter-tab" data-filter="business">?? Business</button>
+                <button class="filter-tab" data-filter="social">?? Social Sciences</button>
+                <button class="filter-tab" data-filter="creative">?? Creative</button>
             </div>
 
             <!-- Sort Controls -->
@@ -447,11 +447,11 @@
                     cursor: pointer;
                     min-width: 150px;
                 ">
-                    <option value="deadline">📅 Deadline (Earliest First)</option>
-                    <option value="amount">💰 Funding Amount (High to Low)</option>
-                    <option value="name">📝 Name (A-Z)</option>
-                    <option value="popularity">⭐ Popularity</option>
-                    <option value="category">🏷️ Category</option>
+                    <option value="deadline">?? Deadline (Earliest First)</option>
+                    <option value="amount">?? Funding Amount (High to Low)</option>
+                    <option value="name">?? Name (A-Z)</option>
+                    <option value="popularity">? Popularity</option>
+                    <option value="category">??? Category</option>
                 </select>
                 <button onclick="resetSort()" style="
                     background: #667eea;
@@ -468,11 +468,11 @@
             <div class="results-header">
 
             <div class="saved-scholarships-section" style="display: none;" id="savedScholarshipsSection">
-                <h3>📚 Your Saved Scholarships</h3>
+                <h3>?? Your Saved Scholarships</h3>
                 <div class="saved-scholarships-grid" id="savedScholarshipsGrid">
                     <!-- Saved scholarships will appear here -->
                 </div>
-                <button class="btn-back-to-all" onclick="showAllScholarships()">← Back to All Scholarships</button>
+                <button class="btn-back-to-all" onclick="showAllScholarships()">? Back to All Scholarships</button>
             </div>
             
             <div class="fields-grid" id="scholarshipGrid">
@@ -496,14 +496,14 @@
     <!-- Career Pathways -->
     <section class="career-pathways">
         <div class="container">
-            <h2>⭐ Featured Scholarships</h2>
+            <h2>? Featured Scholarships</h2>
             <div class="pathways-grid">
                 <div class="pathway-card">
-                    <div class="pathway-icon">🏆</div>
+                    <div class="pathway-icon">??</div>
                     <h3>Fulbright Program</h3>
                     <div class="pathway-info">
-                        <span class="growth-rate">🔥 Most Popular</span>
-                        <span class="avg-salary">💰 Full Funding</span>
+                        <span class="growth-rate">?? Most Popular</span>
+                        <span class="avg-salary">?? Full Funding</span>
                     </div>
                     <p>Educational exchange program for international students, scholars, and professionals</p>
                     <div class="required-skills">
@@ -515,11 +515,11 @@
                 </div>
 
                 <div class="pathway-card">
-                    <div class="pathway-icon">⭐</div>
+                    <div class="pathway-icon">?</div>
                     <h3>DAAD Scholarships</h3>
                     <div class="pathway-info">
-                        <span class="growth-rate">🔥 High Success</span>
-                        <span class="avg-salary">💰 €850-1,200/mo</span>
+                        <span class="growth-rate">?? High Success</span>
+                        <span class="avg-salary">?? �850-1,200/mo</span>
                     </div>
                     <p>German Academic Exchange Service scholarships for international students</p>
                     <div class="required-skills">
@@ -531,11 +531,11 @@
                 </div>
 
                 <div class="pathway-card">
-                    <div class="pathway-icon">🚀</div>
+                    <div class="pathway-icon">??</div>
                     <h3>Google AI Scholarship</h3>
                     <div class="pathway-info">
-                        <span class="growth-rate">🔥 New Opportunity</span>
-                        <span class="avg-salary">💰 $15,000</span>
+                        <span class="growth-rate">?? New Opportunity</span>
+                        <span class="avg-salary">?? $15,000</span>
                     </div>
                     <p>Supporting underrepresented groups in artificial intelligence and machine learning</p>
                     <div class="required-skills">
@@ -552,47 +552,47 @@
     <!-- Resources Section -->
     <section class="field-resources">
         <div class="container">
-            <h2>💡 Application Tips & Resources</h2>
+            <h2>?? Application Tips & Resources</h2>
             <p style="text-align: center; color: #4a5568; margin-bottom: 30px;">Access real resources to help you write winning scholarship applications</p>
             <div class="resources-grid">
                 <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('essays')">
-                    <div class="resource-icon">📝</div>
+                    <div class="resource-icon">??</div>
                     <h3>Essay Writing Guides</h3>
                     <p>Expert guides and templates for writing compelling scholarship essays</p>
-                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 collegeboard.org</span>
-                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('essays')">Writing Guides →</button>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">?? collegeboard.org</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('essays')">Writing Guides ?</button>
                 </div>
 
                 <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('deadlines')">
-                    <div class="resource-icon">📅</div>
+                    <div class="resource-icon">??</div>
                     <h3>Deadline Trackers</h3>
                     <p>Keep track of important scholarship application deadlines and requirements</p>
-                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 scholarships.com</span>
-                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('deadlines')">Track Deadlines →</button>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">?? scholarships.com</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('deadlines')">Track Deadlines ?</button>
                 </div>
                 
                 <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('tips')">
-                    <div class="resource-icon">🌟</div>
+                    <div class="resource-icon">??</div>
                     <h3>Application Tips</h3>
                     <p>Professional advice from scholarship winners and committee members</p>
-                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 fastweb.com</span>
-                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('tips')">Get Tips →</button>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">?? fastweb.com</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('tips')">Get Tips ?</button>
                 </div>
                 
                 <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('search')">
-                    <div class="resource-icon">🔍</div>
+                    <div class="resource-icon">??</div>
                     <h3>Scholarship Search</h3>
                     <p>Discover thousands of scholarships using advanced search tools</p>
-                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 scholarship360.org</span>
-                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('search')">Search Now →</button>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">?? scholarship360.org</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('search')">Search Now ?</button>
                 </div>
                 
                 <div class="resource-card" style="cursor: pointer;" onclick="openResourceLink('interviews')">
-                    <div class="resource-icon">💬</div>
+                    <div class="resource-icon">??</div>
                     <h3>Interview Prep</h3>
                     <p>Prepare for scholarship interviews with practice questions and tips</p>
-                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">🔗 youtube.com</span>
-                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('interviews')">Practice Interview →</button>
+                    <span style="color: #667eea; font-size: 12px; display: block; margin-top: 10px;">?? youtube.com</span>
+                    <button class="btn-resource" onclick="event.stopPropagation(); openResourceLink('interviews')">Practice Interview ?</button>
                 </div>
             </div>
         </div>
@@ -655,7 +655,7 @@
                     <label for="loginPassword">Password</label>
                     <div class="password-toggle">
                         <input type="password" id="loginPassword" name="password" required>
-                        <button type="button" onclick="MentoraX.togglePassword('loginPassword')">👁️</button>
+                        <button type="button" onclick="MentoraX.togglePassword('loginPassword')">???</button>
                     </div>
                     <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
                 </div>
@@ -667,9 +667,9 @@
             </form>
             <div class="divider"><span>or</span></div>
             <div class="social-login">
-                <button class="btn-social" onclick="MentoraX.socialLogin('google')">ðŸ”</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('facebook')">ðŸ“˜</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('linkedin')">ðŸ’¼</button>
+                <button class="btn-social" onclick="MentoraX.socialLogin('google')">🔍</button>
+                <button class="btn-social" onclick="MentoraX.socialLogin('facebook')">📘</button>
+                <button class="btn-social" onclick="MentoraX.socialLogin('linkedin')">💼</button>
             </div>
             <div class="form-footer">
                 <p>Don't have an account? <a href="#" onclick="MentoraX.switchToSignup()">Sign up here</a></p>
@@ -708,7 +708,7 @@
                     <label for="signupPassword">Password</label>
                     <div class="password-toggle">
                         <input type="password" id="signupPassword" name="password" required>
-                        <button type="button" onclick="MentoraX.togglePassword('signupPassword')">👁️</button>
+                        <button type="button" onclick="MentoraX.togglePassword('signupPassword')">???</button>
                     </div>
                     <div class="error-message" id="signupPasswordError">Password must be at least 6 characters</div>
                 </div>
@@ -716,7 +716,7 @@
                     <label for="confirmPassword">Confirm Password</label>
                     <div class="password-toggle">
                         <input type="password" id="confirmPassword" name="confirmPassword" required>
-                        <button type="button" onclick="MentoraX.togglePassword('confirmPassword')">👁️</button>
+                        <button type="button" onclick="MentoraX.togglePassword('confirmPassword')">???</button>
                     </div>
                     <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
                 </div>
@@ -743,9 +743,9 @@
             </form>
             <div class="divider"><span>or</span></div>
             <div class="social-login">
-                <button class="btn-social" onclick="MentoraX.socialLogin('google')">ðŸ”</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('facebook')">ðŸ“˜</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('linkedin')">ðŸ’¼</button>
+                <button class="btn-social" onclick="MentoraX.socialLogin('google')">🔍</button>
+                <button class="btn-social" onclick="MentoraX.socialLogin('facebook')">📘</button>
+                <button class="btn-social" onclick="MentoraX.socialLogin('linkedin')">💼</button>
             </div>
             <div class="form-footer">
                 <p>Already have an account? <a href="#" onclick="MentoraX.switchToLogin()">Sign in here</a></p>
@@ -753,9 +753,9 @@
         </div>
     </div>
 
-    <script defer src="./global.js"></script>
-    <script defer src="./main.js"></script>
-    <script defer src="./scholarships.js"></script>
-  <script src="./global.js"></script>
+    <script defer src="../js/global.js"></script>
+    <script defer src="../js/main.js"></script>
+    <script defer src="../js/scholarships.js"></script>
+  <script src="../js/global.js"></script>
 </body>
 </html>

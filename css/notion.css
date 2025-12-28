@@ -1,7 +1,106 @@
 /* Notion Page Styles - MentoraX Integration */
-:root[data-theme="dark"] body { background: #0f0f1e; color: #e0e0e0; }
-:root[data-theme="dark"] .notion-page, :root[data-theme="dark"] .notion-card, :root[data-theme="dark"] .goal-card, :root[data-theme="dark"] .kanban-column { background: rgba(22,33,62,0.75); border-color: #2a2f45; color: #e0e0e0; }
-:root[data-theme="dark"] .calendar-day, :root[data-theme="dark"] .timeline, :root[data-theme="dark"] .timeline::before { background: #0f1425; border-color: #2a2f45; }
+html[data-theme='dark'] body { background: #0f0f1e; color: #e0e0e0; }
+html[data-theme='dark'] .notion-page, html[data-theme='dark'] .notion-card, html[data-theme='dark'] .goal-card, html[data-theme='dark'] .kanban-column { background: rgba(22,33,62,0.75); border-color: #2a2f45; color: #e0e0e0; }
+html[data-theme='dark'] .calendar-day, html[data-theme='dark'] .timeline, html[data-theme='dark'] .timeline::before { background: #0f1425; border-color: #2a2f45; }
+
+/* CRITICAL: Additional dark mode overrides for complete coverage */
+html[data-theme='dark'] .notion-workspace {
+    background: #0f172a !important;
+}
+
+html[data-theme='dark'] .notion-content {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .goal-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .note-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .task-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .modal-overlay {
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+html[data-theme='dark'] .modal-content {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .calendar-container {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .calendar-day {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .calendar-day.today {
+    background: #1e3a5f !important;
+    border-color: #3b82f6 !important;
+}
+
+html[data-theme='dark'] .chart-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .progress-timeline {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .toolbar-btn {
+    background: #0f172a !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .toolbar-btn:hover {
+    background: #334155 !important;
+}
+
+html[data-theme='dark'] #noteContent {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .filter-btn {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .filter-btn:hover,
+html[data-theme='dark'] .filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+html[data-theme='dark'] .sort-options select {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .btn-small.btn-outline {
+    background: #1e293b !important;
+    color: #667eea !important;
+    border-color: #667eea !important;
+}
 
 /* Skeleton Loaders */
 .skeleton-loader {
@@ -1010,13 +1109,18 @@
 }
 
 .task-item {
-    background: white;
+    background: white !important;
     border: 1px solid #e6e6e3;
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 0.8rem;
     cursor: grab;
     transition: all 0.2s ease;
+}
+
+html[data-theme='dark'] .task-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
 }
 
 .task-item:hover {

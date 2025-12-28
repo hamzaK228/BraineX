@@ -16,14 +16,17 @@ app.use(express.json());
 app.use(compression());
 app.use(express.static('.', { maxAge: '7d', etag: true }));
 
+// Serve HTML files from html/ directory
+app.use('/html', express.static(path.join(__dirname, 'html'), { maxAge: '7d', etag: true }));
+
 // Serve main.html as homepage
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'main.html'));
+    res.sendFile(path.join(__dirname, 'html', 'main.html'));
 });
 
 // Serve admin.html
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+    res.sendFile(path.join(__dirname, 'html', 'admin.html'));
 });
 
 // In-memory database (replace with real database in production)
@@ -810,8 +813,8 @@ app.listen(PORT, () => {
 🚀 MentoraX Server Running!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📊 Admin Panel: http://localhost:${PORT}/admin.html
-🌐 Website: http://localhost:${PORT}/main.html
+📊 Admin Panel: http://localhost:${PORT}/admin
+🌐 Website: http://localhost:${PORT}/
 
 API Endpoints:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━

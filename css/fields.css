@@ -1,7 +1,69 @@
 /* Fields Page Styles */
-:root[data-theme="dark"] body { background: #0f0f1e; color: #e0e0e0; }
-:root[data-theme="dark"] .field-card, :root[data-theme="dark"] .field-details-modal { background: rgba(22,33,62,0.75); border-color: #2a2f45; color: #e0e0e0; }
-:root[data-theme="dark"] .filter-tab { background: #0f1425; color: #e0e0e0; border-color: #2a2f45; }
+html[data-theme='dark'] body { background: #0f0f1e; color: #e0e0e0; }
+html[data-theme='dark'] .field-card, html[data-theme='dark'] .field-details-modal { background: rgba(22,33,62,0.75) !important; border-color: #2a2f45 !important; color: #e0e0e0 !important; }
+html[data-theme='dark'] .field-card:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: white !important; border-color: #667eea !important; }
+html[data-theme='dark'] .filter-tab { background: #0f1425 !important; color: #e0e0e0 !important; border-color: #2a2f45 !important; }
+html[data-theme='dark'] .filter-tab:hover, html[data-theme='dark'] .filter-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: white !important; border-color: #667eea !important; }
+html[data-theme='dark'] .fields-hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+html[data-theme='dark'] .fields-hero h1 { color: #ffffff !important; }
+html[data-theme='dark'] .fields-hero p { color: #e0e0e0 !important; }
+html[data-theme='dark'] .search-input { background: #0f1425 !important; color: #e0e0e0 !important; border-color: #2a2f45 !important; }
+html[data-theme='dark'] .btn-search { background: rgba(102,126,234,0.2) !important; border-color: rgba(102,126,234,0.4) !important; color: white !important; }
+html[data-theme='dark'] .btn-search:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; }
+html[data-theme='dark'] .field-categories { background: #0f0f1e !important; }
+html[data-theme='dark'] .field-categories h2 { color: #ffffff !important; }
+html[data-theme='dark'] .stat-number { color: #667eea !important; text-shadow: 0 0 12px rgba(102,126,234,0.35); }
+html[data-theme='dark'] .stat-label { color: #a0a8c0 !important; }
+
+/* CRITICAL: Additional dark mode overrides for complete coverage */
+html[data-theme='dark'] .field-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .field-details-modal {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .modal-overlay {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
+
+html[data-theme='dark'] .field-card h3 {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .field-card p {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .field-stats {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .comparison-table {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .comparison-row {
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .career-paths {
+    background: #0f172a !important;
+}
+
+html[data-theme='dark'] .career-path-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .field-categories {
+    background: #0f172a !important;
+}
 
 /* Hero Section */
 .fields-hero {
@@ -97,7 +159,7 @@
 }
 
 .category-card {
-    background: white;
+    background: white !important;
     padding: 2.5rem;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -105,6 +167,10 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+}
+
+html[data-theme='dark'] .category-card {
+    background: #1e293b !important;
 }
 
 .category-card::before {
