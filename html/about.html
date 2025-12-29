@@ -15,31 +15,12 @@
   <meta property="og:url" content="https://mentorax.example/about.html">
   <meta property="og:image" content="https://mentorax.example/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="About MentoraX">
+  <meta name="twitter:title" content="About BraineX">
   <meta name="twitter:description" content="Mission, vision, values, impact, and team.">
   <meta name="twitter:image" content="https://mentorax.example/og-image.png">
   <link rel="preload" as="style" href="../css/main.css">
   <link rel="preload" as="style" href="../css/styles.css">
-  <link rel="prefetch" href="/">
-  <script>
-    window.toggleTheme = function() {
-      const root = document.documentElement;
-      const current = root.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      document.querySelectorAll('.theme-toggle').forEach(btn => {
-        btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
-        btn.setAttribute('aria-pressed', String(next === 'dark'));
-      });
-      root.classList.add('theme-transition');
-      setTimeout(() => root.classList.remove('theme-transition'), 300);
-    };
-    (function() {
-      const saved = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', saved);
-    })();
-  </script>
+  <link rel="prefetch" href="../html/main.html">
 </head>
 <body>
     <header>
@@ -51,15 +32,15 @@
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
                 <ul class="nav-menu" id="navMenu">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/html/fields.html">Fields</a></li>
-                    <li><a href="/html/scholarships.html">Scholarships</a></li>
-                    <li><a href="/html/projects.html">Projects</a></li>
-                    <li><a href="/html/roadmaps.html">Roadmaps</a></li>
-                    <li><a href="/html/mentors.html">Mentors</a></li>
-                    <li><a href="/html/events.html">Events</a></li>
-                    <li><a href="/html/notion.html">My Goals</a></li>
-                    <li><a href="/html/about.html" class="active">About</a></li>
+                    <li><a href="./main.html">Home</a></li>
+                    <li><a href="./fields.html">Fields</a></li>
+                    <li><a href="./scholarships.html">Scholarships</a></li>
+                    <li><a href="./projects.html">Projects</a></li>
+                    <li><a href="./roadmaps.html">Roadmaps</a></li>
+                    <li><a href="./mentors.html">Mentors</a></li>
+                    <li><a href="./events.html">Events</a></li>
+                    <li><a href="./notion.html">My Goals</a></li>
+                    <li><a href="about.html" class="active">About</a></li>
                 </ul>
                 <div class="auth-buttons">
                     <a href="#login" class="btn btn-outline">Log In</a>
@@ -74,7 +55,7 @@
     <!-- Hero Section -->
     <section class="about-hero">
         <div class="container">
-            <h1>About MentoraX</h1>
+            <h1>About BraineX</h1>
             <p>Empowering students worldwide to achieve their educational dreams through innovative technology and expert guidance</p>
         </div>
     </section>
@@ -347,10 +328,10 @@
                 </div>
                 <div class="footer-section">
                     <h4>Platform</h4>
-                    <a href="/html/scholarships.html">Scholarships</a>
-                    <a href="/html/mentors.html">Mentors</a>
-                    <a href="/html/projects.html">Projects</a>
-                    <a href="/html/events.html">Events</a>
+                    <a href="scholarships.html">Scholarships</a>
+                    <a href="mentors.html">Mentors</a>
+                    <a href="projects.html">Projects</a>
+                    <a href="events.html">Events</a>
                 </div>
                 <div class="footer-section">
                     <h4>Support</h4>
@@ -374,6 +355,5 @@
     <script defer src="../js/global.js"></script>
     <script defer src="../js/main.js"></script>
     <script defer src="../js/about.js"></script>
-  <script src="../js/global.js"></script>
 </body>
 </html>

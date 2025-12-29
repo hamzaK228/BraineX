@@ -102,6 +102,323 @@ html[data-theme='dark'] .btn-small.btn-outline {
     border-color: #667eea !important;
 }
 
+/* Sidebar Dark Mode */
+html[data-theme='dark'] .sidebar {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .sidebar-header {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .sidebar-header h3 {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .sidebar-section {
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .sidebar-section h4 {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .sidebar-link {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .sidebar-link:hover {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .sidebar-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+html[data-theme='dark'] .btn-new {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+html[data-theme='dark'] .btn-template {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .btn-template:hover {
+    background: #334155 !important;
+}
+
+/* Main Content Dark Mode */
+html[data-theme='dark'] .main-content {
+    background: #0f172a !important;
+}
+
+html[data-theme='dark'] .content-section {
+    background: #0f172a !important;
+}
+
+html[data-theme='dark'] .page-header h1 {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .page-subtitle {
+    color: #94a3b8 !important;
+}
+
+/* Dashboard Cards Dark Mode */
+html[data-theme='dark'] .dashboard-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .dashboard-card h3 {
+    color: #f1f5f9 !important;
+}
+
+/* Quick Notes Dark Mode */
+html[data-theme='dark'] .quick-notes textarea {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .quick-notes textarea::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme='dark'] .quick-notes textarea:focus {
+    border-color: #667eea !important;
+    background: #1e293b !important;
+}
+
+/* Focus Items Dark Mode */
+html[data-theme='dark'] .focus-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Button Card Dark Mode */
+html[data-theme='dark'] .btn-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme='dark'] .btn-card:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-color: #667eea !important;
+}
+
+/* Goal Card Dark Mode */
+html[data-theme='dark'] .goal-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .goal-title {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .goal-meta {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .goal-priority.high {
+    background: rgba(220, 38, 38, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+html[data-theme='dark'] .goal-priority.medium {
+    background: rgba(217, 119, 6, 0.2) !important;
+    color: #fcd34d !important;
+}
+
+html[data-theme='dark'] .goal-priority.low {
+    background: rgba(22, 163, 74, 0.2) !important;
+    color: #86efac !important;
+}
+
+html[data-theme='dark'] .progress-bar {
+    background: #334155 !important;
+}
+
+html[data-theme='dark'] .progress-text {
+    color: #94a3b8 !important;
+}
+
+/* Notes Grid Dark Mode */
+html[data-theme='dark'] .notes-grid .note-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .note-card h4 {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .note-card p {
+    color: #cbd5e1 !important;
+}
+
+/* Tasks Board Dark Mode */
+html[data-theme='dark'] .tasks-column {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .tasks-column h3 {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .tasks-list {
+    background: #0f172a !important;
+}
+
+/* Calendar Dark Mode */
+html[data-theme='dark'] .calendar-header {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .calendar-nav {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .calendar-nav:hover {
+    background: #334155 !important;
+}
+
+html[data-theme='dark'] .calendar-grid {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .events-list {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* Modal Dark Mode - Goal/Note Modals */
+html[data-theme='dark'] .goal-modal-content,
+html[data-theme='dark'] .note-modal-content {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .modal-header h2 {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .form-group label {
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .form-group input,
+html[data-theme='dark'] .form-group select,
+html[data-theme='dark'] .form-group textarea {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .form-group input:focus,
+html[data-theme='dark'] .form-group select:focus,
+html[data-theme='dark'] .form-group textarea:focus {
+    border-color: #667eea !important;
+    background: #1e293b !important;
+}
+
+html[data-theme='dark'] .form-group input::placeholder,
+html[data-theme='dark'] .form-group textarea::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme='dark'] .milestone-item {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .btn-add-milestone {
+    background: #1e293b !important;
+    color: #667eea !important;
+    border-color: #667eea !important;
+}
+
+html[data-theme='dark'] .btn-secondary {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .btn-secondary:hover {
+    background: #334155 !important;
+}
+
+/* Note Editor Dark Mode */
+html[data-theme='dark'] .note-title-input {
+    background: transparent !important;
+    color: #f1f5f9 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .note-toolbar {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .note-editor {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .note-editor [contenteditable] {
+    color: #e2e8f0 !important;
+}
+
+/* Notion Guides Section Dark Mode */
+html[data-theme='dark'] #notionSearchInput {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] #notionFilterType {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .notion-result-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .notion-result-title {
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .notion-result-meta {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] #notionViewer {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] #notionViewerTitle {
+    color: #f1f5f9 !important;
+}
+
 /* Skeleton Loaders */
 .skeleton-loader {
     padding: 2rem;

@@ -19,25 +19,6 @@
   <meta name="twitter:description" content="Find academic and career roadmaps.">
   <meta name="twitter:image" content="https://mentorax.example/og-image.png">
   <link rel="preload" as="style" href="../css/main.css">
-  <script>
-    window.toggleTheme = function() {
-      const root = document.documentElement;
-      const current = root.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      document.querySelectorAll('.theme-toggle').forEach(btn => {
-        btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
-        btn.setAttribute('aria-pressed', String(next === 'dark'));
-      });
-      root.classList.add('theme-transition');
-      setTimeout(() => root.classList.remove('theme-transition'), 300);
-    };
-    (function() {
-      const saved = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', saved);
-    })();
-  </script>
 </head>
 <body>
     <header>
@@ -49,15 +30,15 @@
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
                 <ul class="nav-menu" id="navMenu">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/html/fields.html">Fields</a></li>
-                    <li><a href="/html/scholarships.html">Scholarships</a></li>
-                    <li><a href="/html/projects.html">Projects</a></li>
-                    <li><a href="/html/roadmaps.html" class="active">Roadmaps</a></li>
-                    <li><a href="/html/mentors.html">Mentors</a></li>
-                    <li><a href="/html/events.html">Events</a></li>
-                    <li><a href="/html/notion.html">My Goals</a></li>
-                    <li><a href="/html/about.html">About</a></li>
+                    <li><a href="./main.html">Home</a></li>
+                    <li><a href="./fields.html">Fields</a></li>
+                    <li><a href="./scholarships.html">Scholarships</a></li>
+                    <li><a href="./projects.html">Projects</a></li>
+                    <li><a href="./roadmaps.html" class="active">Roadmaps</a></li>
+                    <li><a href="./mentors.html">Mentors</a></li>
+                    <li><a href="./events.html">Events</a></li>
+                    <li><a href="./notion.html">My Goals</a></li>
+                    <li><a href="./about.html">About</a></li>
                 </ul>
                 <div class="auth-buttons">
                     <a href="#login" class="btn btn-outline">Log In</a>

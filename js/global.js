@@ -1015,227 +1015,8 @@ window.MentoraX = {
     }
 };
 
-// Theme handling
-(function setupTheme(){
-  const STORAGE_KEY = 'theme';
-  const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const getTheme = () => localStorage.getItem(STORAGE_KEY) || (prefersDark() ? 'dark' : 'light');
-  const setTheme = (t) => { localStorage.setItem(STORAGE_KEY, t); };
 
-  const applyTheme = (theme, smooth=false) => {
-    const root = document.documentElement;
-    if (smooth) {
-      root.classList.add('theme-transition');
-      setTimeout(()=>root.classList.remove('theme-transition'), 300);
-    }
-    root.setAttribute('data-theme', theme);
-    // Update any existing toggle buttons
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      const dark = theme === 'dark';
-      btn.setAttribute('aria-pressed', String(dark));
-      btn.innerHTML = dark ? '☀️' : '🌙';
-      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-      btn.setAttribute('aria-label', btn.title);
-    });
-  };
 
-  // Apply early to avoid FOUC
-  applyTheme(getTheme());
-
-  const ensureToggleInNav = () => {
-    // If a toggle already exists, return it
-    let btn = document.querySelector('header .theme-toggle');
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'theme-toggle';
-      btn.title = 'Switch to dark mode';
-      btn.setAttribute('aria-pressed','false');
-      // Place next to auth buttons if available
-      const auth = document.querySelector('header .auth-buttons');
-      if (auth && auth.parentElement) {
-        auth.parentElement.insertBefore(btn, auth.nextSibling);
-      } else {
-        // fallback: append to header nav
-        const nav = document.querySelector('header nav, header .nav-container, header');
-        if (nav) nav.appendChild(btn);
-      }
-    }
-    btn.addEventListener('click', () => {
-      const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-      setTheme(next);
-      applyTheme(next, true);
-    });
-    return btn;
-  };
-
-  const ensureFloatingToggle = () => {
-    // Add a floating/sticky toggle that's always visible
-    let f = document.querySelector('.theme-toggle-floating');
-    if (!f) {
-      f = document.createElement('button');
-      f.className = 'theme-toggle theme-toggle-floating';
-      f.type = 'button';
-      f.setAttribute('aria-pressed','false');
-      f.title = 'Toggle color theme';
-      f.style.position = 'fixed';
-      f.style.top = '14px';
-      f.style.right = '14px';
-      f.style.zIndex = '1200';
-      document.body.appendChild(f);
-      f.addEventListener('click', () => {
-        const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-        setTheme(next);
-        applyTheme(next, true);
-      });
-    }
-    return f;
-  };
-
-  const injectToggleStyles = () => {
-    if (document.getElementById('theme-toggle-styles')) return;
-    const s = document.createElement('style');
-    s.id = 'theme-toggle-styles';
-    s.textContent = `
-      .theme-transition, .theme-transition * { transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease; }
-      .theme-toggle { margin-left: .75rem; padding: .5rem .75rem; border-radius: 999px; border: 1px solid var(--color-border, #e2e8f0); background: var(--color-bg-alt, #f8f9fa); color: var(--color-text, #2d3748); cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-      .theme-toggle:hover { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
-      .theme-toggle-floating { position: fixed; top: 14px; right: 14px; }
-      [data-theme="dark"] .theme-toggle { background: rgba(22, 33, 62, 0.85); border-color: #2a2f45; color: #e0e0e0; }
-    `;
-    document.head.appendChild(s);
-  };
-
-  const init = () => {
-    injectToggleStyles();
-    ensureToggleInNav();
-    ensureFloatingToggle();
-    // react to system theme change if user has not chosen
-    try {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      mq.addEventListener?.('change', () => {
-        if (!localStorage.getItem(STORAGE_KEY)) {
-          applyTheme(getTheme(), true);
-        }
-      });
-    } catch(_) {}
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-
-(function setupTheme(){
-  const STORAGE_KEY = 'theme';
-  const getStored = () => localStorage.getItem(STORAGE_KEY);
-  const systemPrefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const applyTheme = (theme, smooth = false) => {
-    const root = document.documentElement;
-    if (smooth) {
-      root.classList.add('theme-transition');
-      setTimeout(()=>root.classList.remove('theme-transition'), 300);
-    }
-    root.setAttribute('data-theme', theme);
-    const btns = document.querySelectorAll('.theme-toggle');
-    btns.forEach(btn => {
-      const dark = theme === 'dark';
-      btn.setAttribute('aria-pressed', String(dark));
-      btn.innerHTML = dark ? '☀️ Light' : '🌙 Dark';
-      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-    });
-  };
-  // Apply theme ASAP to avoid FOUC
-  const initial = (localStorage.getItem(STORAGE_KEY)) || (systemPrefersDark() ? 'dark' : 'light');
-  applyTheme(initial);
-
-  const init = () => {
-    const current = getStored() || (systemPrefersDark() ? 'dark' : 'light');
-    applyTheme(current);
-    // Create toggle button in header and footer if missing
-    const createBtn = () => {
-      const b = document.createElement('button');
-      b.className = 'theme-toggle';
-      b.type = 'button';
-      b.setAttribute('aria-label','Toggle color theme');
-      b.setAttribute('aria-pressed','false');
-      b.addEventListener('click', () => {
-        const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-        localStorage.setItem(STORAGE_KEY, next);
-        applyTheme(next, true);
-      });
-      return b;
-    };
-    const ensureInHeader = () => {
-      const nav = document.querySelector('header nav') || document.querySelector('nav');
-      if (nav && !nav.querySelector('.theme-toggle')) {
-        const btn = createBtn();
-        nav.appendChild(btn);
-      }
-    };
-    const ensureInFooter = () => {
-      const footer = document.querySelector('footer .footer-bottom, footer .footer-content, footer');
-      if (footer && !footer.querySelector('.theme-toggle')) {
-        const wrapper = document.createElement('div');
-        wrapper.style.marginTop = '1rem';
-        const btn = createBtn();
-        wrapper.appendChild(btn);
-        footer.appendChild(wrapper);
-      }
-    };
-    document.addEventListener('DOMContentLoaded', ()=>{
-      ensureInHeader();
-      ensureInFooter();
-      // Bind click handlers to any existing static toggle buttons
-      const bindExisting = () => {
-        document.querySelectorAll('.theme-toggle').forEach(btn => {
-          if (btn.dataset.boundThemeToggle) return;
-          btn.dataset.boundThemeToggle = '1';
-          btn.addEventListener('click', () => {
-            const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-            localStorage.setItem(STORAGE_KEY, next);
-            applyTheme(next, true);
-          });
-        });
-      };
-      bindExisting();
-      applyTheme(document.documentElement.getAttribute('data-theme') || current);
-    });
-
-    // React to system changes if user has no explicit choice
-    if (window.matchMedia) {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      mq.addEventListener?.('change', (e)=>{
-        if (!getStored()) applyTheme(e.matches ? 'dark' : 'light');
-      });
-    }
-  };
-  // Global delegation to catch clicks on any .theme-toggle (present or future)
-  document.addEventListener('click', (e) => {
-    const t = e.target.closest && e.target.closest('.theme-toggle');
-    if (!t) return;
-    e.preventDefault();
-    const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-    localStorage.setItem(STORAGE_KEY, next);
-    applyTheme(next, true);
-  });
-
-  init();
-  
-  // Expose toggleTheme globally for inline onclick handlers
-  window.toggleTheme = function(){
-    try {
-      const STORAGE_KEY = 'theme';
-      const next=(document.documentElement.getAttribute('data-theme')==='dark')?'light':'dark';
-      localStorage.setItem(STORAGE_KEY,next);
-      applyTheme(next,true);
-    } catch(e) {
-      console.error('toggleTheme error:', e);
-    }
-  };
-})();
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -1293,6 +1074,97 @@ animationStyles.textContent = `
 `;
 document.head.appendChild(animationStyles);
 
+// Theme handling
+(function setupTheme(){
+  const STORAGE_KEY = 'theme';
+  const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const getTheme = () => localStorage.getItem(STORAGE_KEY) || (prefersDark() ? 'dark' : 'light');
+  const setTheme = (t) => { localStorage.setItem(STORAGE_KEY, t); };
+
+  const applyTheme = (theme, smooth=false) => {
+    const root = document.documentElement;
+    if (smooth) {
+      root.classList.add('theme-transition');
+      setTimeout(()=>root.classList.remove('theme-transition'), 300);
+    }
+    root.setAttribute('data-theme', theme);
+    // Update any existing toggle buttons
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      const dark = theme === 'dark';
+      btn.setAttribute('aria-pressed', String(dark));
+      btn.innerHTML = dark ? '☀️' : '🌙';
+      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+      btn.setAttribute('aria-label', btn.title);
+    });
+  };
+
+  // Apply early to avoid FOUC
+  applyTheme(getTheme());
+
+  const ensureToggleInNav = () => {
+    // If a toggle already exists, return it
+    let btn = document.querySelector('header .theme-toggle');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'theme-toggle';
+      btn.title = 'Switch to dark mode';
+      btn.setAttribute('aria-pressed','false');
+      // Place next to auth buttons if available
+      const auth = document.querySelector('header .auth-buttons');
+      if (auth && auth.parentElement) {
+        auth.parentElement.insertBefore(btn, auth.nextSibling);
+      } else {
+        // fallback: append to header nav
+        const nav = document.querySelector('header nav, header .nav-container, header');
+        if (nav) nav.appendChild(btn);
+      }
+      // Add click event listener only for newly created buttons
+      btn.addEventListener('click', () => {
+        const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+        setTheme(next);
+        applyTheme(next, true);
+      });
+    }
+    // Do not add event listener to existing buttons that have onclick attributes
+    // They should use the window.toggleTheme function
+    return btn;
+  };
+
+  const injectToggleStyles = () => {
+    if (document.getElementById('theme-toggle-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'theme-toggle-styles';
+    s.textContent = `
+      .theme-transition, .theme-transition * { transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease; }
+      .theme-toggle { margin-left: .75rem; padding: .5rem .75rem; border-radius: 999px; border: 1px solid var(--color-border, #e2e8f0); background: var(--color-bg-alt, #f8f9fa); color: var(--color-text, #2d3748); cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+      .theme-toggle:hover { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+      [data-theme="dark"] .theme-toggle { background: rgba(22, 33, 62, 0.85); border-color: #2a2f45; color: #e0e0e0; }
+    `;
+    document.head.appendChild(s);
+  };
+
+  const init = () => {
+    injectToggleStyles();
+    ensureToggleInNav();
+    // react to system theme change if user has not chosen
+    try {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      mq.addEventListener?.('change', () => {
+        if (!localStorage.getItem(STORAGE_KEY)) {
+          applyTheme(getTheme(), true);
+        }
+      });
+    } catch(_) {}
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
 // Expose global functions for backwards compatibility
 window.openModal = MentoraX.openModal.bind(MentoraX);
 window.closeModal = MentoraX.closeModal.bind(MentoraX);
@@ -1301,6 +1173,28 @@ window.switchToSignup = MentoraX.switchToSignup.bind(MentoraX);
 window.togglePassword = MentoraX.togglePassword.bind(MentoraX);
 window.socialLogin = MentoraX.socialLogin.bind(MentoraX);
 window.forgotPassword = MentoraX.forgotPassword.bind(MentoraX);
+
+// Theme toggle function for HTML onclick attributes
+window.toggleTheme = function() {
+  const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+  localStorage.setItem('theme', next);
+  (function applyTheme(theme, smooth=true) {
+    const root = document.documentElement;
+    if (smooth) {
+      root.classList.add('theme-transition');
+      setTimeout(()=>root.classList.remove('theme-transition'), 300);
+    }
+    root.setAttribute('data-theme', theme);
+    // Update any existing toggle buttons
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      const dark = theme === 'dark';
+      btn.setAttribute('aria-pressed', String(dark));
+      btn.innerHTML = dark ? '☀️ Light' : '🌙 Dark';
+      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+      btn.setAttribute('aria-label', btn.title);
+    });
+  })(next, true);
+};
 
 // Performance helpers
 MentoraX.initPerformanceOptimizations = function(){

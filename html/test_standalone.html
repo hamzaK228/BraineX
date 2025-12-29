@@ -546,26 +546,6 @@
     </main>
     
     <script>
-        // Dark mode toggle
-        window.toggleTheme = function() {
-            const root = document.documentElement;
-            const current = root.getAttribute('data-theme') || 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            
-            const btn = document.querySelector('.theme-toggle');
-            btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
-        };
-        
-        // Apply saved theme on load
-        (function() {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-            const btn = document.querySelector('.theme-toggle');
-            if (btn) btn.innerHTML = saved === 'dark' ? '☀️ Light' : '🌙 Dark';
-        })();
-        
         // Roadmap tabs
         document.addEventListener('DOMContentLoaded', function() {
             const tabs = document.querySelectorAll('.roadmap-tab');

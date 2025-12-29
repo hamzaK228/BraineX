@@ -19,25 +19,6 @@
   <meta name="twitter:description" content="Admin tools and analytics.">
   <meta name="twitter:image" content="https://mentorax.example/og-image.png">
   <link rel="preload" as="style" href="../css/main.css">
-  <script>
-    window.toggleTheme = function() {
-      const root = document.documentElement;
-      const current = root.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      document.querySelectorAll('.theme-toggle').forEach(btn => {
-        btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
-        btn.setAttribute('aria-pressed', String(next === 'dark'));
-      });
-      root.classList.add('theme-transition');
-      setTimeout(() => root.classList.remove('theme-transition'), 300);
-    };
-    (function() {
-      const saved = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', saved);
-    })();
-  </script>
 </head>
 <body>
     <header>
@@ -45,7 +26,7 @@
             <nav role="navigation" aria-label="Admin navigation">
                 <div class="logo">
                     <div class="logo-icon">🎓</div>
-                    <span>MentoraX Admin</span>
+                    <span>BraineX Admin</span>
                 </div>
                 <div class="admin-user">
                     <span>👨‍💼 Admin Dashboard</span>
@@ -487,6 +468,6 @@
     <script defer src="../js/global.js"></script>
     <script defer src="../js/main.js"></script>
     <script defer src="../js/admin.js"></script>
-    </main>\n  <script src="../js/global.js"></script>
+    </main>
 </body>
 </html>

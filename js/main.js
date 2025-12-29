@@ -2,7 +2,7 @@
 const API_BASE_URL = 'http://localhost:3000/api';
 
 // Initialize connection to admin server
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     connectToAdminServer();
     setupAllButtonHandlers();
 });
@@ -36,7 +36,7 @@ async function connectToAdminServer() {
 // Setup all button handlers with visual feedback (no notifications)
 function setupAllButtonHandlers() {
     // Add click feedback to all buttons
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const btn = e.target.closest('button, .btn, .category-card, .track-card, .benefit-card');
         if (btn && !btn.disabled) {
             // Visual feedback
@@ -116,7 +116,7 @@ function openModal(modalId) {
     if (currentModal) {
         currentModal.classList.add('show');
         document.body.style.overflow = 'hidden';
-        
+
         // Reset forms
         const form = currentModal.querySelector('form');
         if (form) {
@@ -159,29 +159,29 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Update navigation links to open modals
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Login button
     const loginLink = document.querySelector('a[href="#login"]');
     if (loginLink) {
-        loginLink.addEventListener('click', function(e) {
+        loginLink.addEventListener('click', function (e) {
             e.preventDefault();
             openModal('loginModal');
         });
     }
-    
+
     // Signup button
     const signupLink = document.querySelector('a[href="#signup"]');
     if (signupLink) {
-        signupLink.addEventListener('click', function(e) {
+        signupLink.addEventListener('click', function (e) {
             e.preventDefault();
             openModal('signupModal');
         });
     }
-    
+
     // Hero get started button
     const heroCta = document.querySelector('.hero .btn-primary');
     if (heroCta) {
-        heroCta.addEventListener('click', function(e) {
+        heroCta.addEventListener('click', function (e) {
             e.preventDefault();
             openModal('signupModal');
         });
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const button = input.nextElementSibling;
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         button.textContent = '🙈';
@@ -215,7 +215,7 @@ function validatePassword(password) {
 function showError(fieldId, message) {
     const field = document.getElementById(fieldId);
     const errorElement = document.getElementById(fieldId + 'Error');
-    
+
     if (field && errorElement) {
         field.classList.add('error');
         errorElement.textContent = message;
@@ -226,7 +226,7 @@ function showError(fieldId, message) {
 function clearError(fieldId) {
     const field = document.getElementById(fieldId);
     const errorElement = document.getElementById(fieldId + 'Error');
-    
+
     if (field && errorElement) {
         field.classList.remove('error');
         errorElement.classList.remove('show');
@@ -243,18 +243,18 @@ function clearErrors() {
 }
 
 // Login Form Handler
-document.getElementById('loginForm').addEventListener('submit', function(e) {
+document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const rememberMe = document.getElementById('rememberMe').checked;
-    
+
     let isValid = true;
-    
+
     // Clear previous errors
     clearErrors();
-    
+
     // Validate email
     if (!email) {
         showError('loginEmail', 'Email is required');
@@ -263,7 +263,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         showError('loginEmail', 'Please enter a valid email address');
         isValid = false;
     }
-    
+
     // Validate password
     if (!password) {
         showError('loginPassword', 'Password is required');
@@ -272,13 +272,13 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         showError('loginPassword', 'Password must be at least 6 characters');
         isValid = false;
     }
-    
+
     if (isValid) {
         // Show loading state
         const submitBtn = this.querySelector('.btn-submit');
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
-        
+
         // Simulate API call
         setTimeout(() => {
             // Store user data
@@ -287,25 +287,25 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 loginTime: new Date().toISOString(),
                 rememberMe: rememberMe
             };
-            
+
             if (rememberMe) {
                 localStorage.setItem('edugateway_user', JSON.stringify(userData));
             } else {
                 sessionStorage.setItem('edugateway_user', JSON.stringify(userData));
             }
-            
+
             // Show success message
             document.getElementById('loginSuccess').classList.add('show');
-            
+
             // Update UI for logged in state
             updateUIForLoggedInUser(email);
-            
+
             // Close modal after delay
             setTimeout(() => {
                 closeModal();
                 showWelcomeMessage(email);
             }, 1500);
-            
+
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
         }, 2000);
@@ -313,9 +313,9 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 });
 
 // Signup Form Handler
-document.getElementById('signupForm').addEventListener('submit', function(e) {
+document.getElementById('signupForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    
+
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const email = document.getElementById('signupEmail').value;
@@ -324,24 +324,24 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
     const field = document.getElementById('fieldOfInterest').value;
     const agreeTerms = document.getElementById('agreeTerms').checked;
     const newsletter = document.getElementById('newsletter').checked;
-    
+
     let isValid = true;
-    
+
     // Clear previous errors
     clearErrors();
-    
+
     // Validate first name
     if (!firstName.trim()) {
         showError('firstName', 'First name is required');
         isValid = false;
     }
-    
+
     // Validate last name
     if (!lastName.trim()) {
         showError('lastName', 'Last name is required');
         isValid = false;
     }
-    
+
     // Validate email
     if (!email) {
         showError('signupEmail', 'Email is required');
@@ -350,7 +350,7 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
         showError('signupEmail', 'Please enter a valid email address');
         isValid = false;
     }
-    
+
     // Validate password
     if (!password) {
         showError('signupPassword', 'Password is required');
@@ -359,7 +359,7 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
         showError('signupPassword', 'Password must be at least 6 characters');
         isValid = false;
     }
-    
+
     // Validate confirm password
     if (!confirmPassword) {
         showError('confirmPassword', 'Please confirm your password');
@@ -368,25 +368,25 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
         showError('confirmPassword', 'Passwords do not match');
         isValid = false;
     }
-    
+
     // Validate field of interest
     if (!field) {
         showError('fieldOfInterest', 'Please select your field of interest');
         isValid = false;
     }
-    
+
     // Validate terms agreement
     if (!agreeTerms) {
         alert('Please agree to the Terms of Service and Privacy Policy');
         isValid = false;
     }
-    
+
     if (isValid) {
         // Show loading state
         const submitBtn = this.querySelector('.btn-submit');
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
-        
+
         // Simulate API call
         setTimeout(() => {
             // Store user data
@@ -398,21 +398,21 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
                 newsletter: newsletter,
                 signupTime: new Date().toISOString()
             };
-            
+
             localStorage.setItem('edugateway_user', JSON.stringify(userData));
-            
+
             // Show success message
             document.getElementById('signupSuccess').classList.add('show');
-            
+
             // Update UI for logged in state
             updateUIForLoggedInUser(email, firstName);
-            
+
             // Close modal after delay
             setTimeout(() => {
                 closeModal();
                 showWelcomeMessage(firstName + ' ' + lastName);
             }, 1500);
-            
+
             submitBtn.classList.remove('loading');
             submitBtn.disabled = false;
         }, 2000);
@@ -426,9 +426,9 @@ function socialLogin(provider) {
         facebook: 'Facebook',
         linkedin: 'LinkedIn'
     };
-    
+
     alert(`${providerNames[provider]} login would redirect to ${provider} OAuth. This is a demo version.`);
-    
+
     // Simulate successful social login
     setTimeout(() => {
         const userData = {
@@ -438,7 +438,7 @@ function socialLogin(provider) {
             loginTime: new Date().toISOString(),
             provider: provider
         };
-        
+
         localStorage.setItem('edugateway_user', JSON.stringify(userData));
         updateUIForLoggedInUser(userData.email, userData.firstName);
         closeModal();
@@ -460,7 +460,7 @@ function forgotPassword() {
 function updateUIForLoggedInUser(email, firstName = null) {
     const authButtons = document.querySelector('.auth-buttons');
     const displayName = firstName || email.split('@')[0];
-    
+
     authButtons.innerHTML = `
         <div class="user-menu">
             <span class="welcome-text">Welcome, ${displayName}</span>
@@ -480,7 +480,7 @@ function showWelcomeMessage(name) {
             <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
         </div>
     `;
-    
+
     welcomeDiv.style.cssText = `
         position: fixed;
         top: 100px;
@@ -494,9 +494,9 @@ function showWelcomeMessage(name) {
         max-width: 300px;
         animation: slideInRight 0.5s ease;
     `;
-    
+
     document.body.appendChild(welcomeDiv);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (welcomeDiv.parentNode) {
@@ -509,36 +509,36 @@ function showWelcomeMessage(name) {
 function logout() {
     localStorage.removeItem('edugateway_user');
     sessionStorage.removeItem('edugateway_user');
-    
+
     // Reset auth buttons
     const authButtons = document.querySelector('.auth-buttons');
     authButtons.innerHTML = `
         <a href="#login" class="btn btn-outline">Log In</a>
         <a href="#signup" class="btn btn-primary">Sign Up</a>
     `;
-    
+
     // Re-attach event listeners
-    authButtons.querySelector('a[href="#login"]').addEventListener('click', function(e) {
+    authButtons.querySelector('a[href="#login"]').addEventListener('click', function (e) {
         e.preventDefault();
         openModal('loginModal');
     });
-    
-    authButtons.querySelector('a[href="#signup"]').addEventListener('click', function(e) {
+
+    authButtons.querySelector('a[href="#signup"]').addEventListener('click', function (e) {
         e.preventDefault();
         openModal('signupModal');
     });
-    
+
     alert('You have been logged out successfully.');
 }
 
 // Check for existing login on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const userData = localStorage.getItem('edugateway_user') || sessionStorage.getItem('edugateway_user');
     if (userData) {
         const user = JSON.parse(userData);
         updateUIForLoggedInUser(user.email, user.firstName);
     }
-    
+
     // Initialize login/signup buttons on all pages
     initializeAuthButtons();
 });
@@ -548,23 +548,23 @@ function initializeAuthButtons() {
     const loginBtn = document.querySelector('a[href="#login"]');
     const signupBtn = document.querySelector('a[href="#signup"]');
     const getStartedBtn = document.querySelector('a[href="#signup"].btn-primary');
-    
+
     if (loginBtn) {
-        loginBtn.addEventListener('click', function(e) {
+        loginBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal('loginModal');
         });
     }
-    
+
     if (signupBtn) {
-        signupBtn.addEventListener('click', function(e) {
+        signupBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal('signupModal');
         });
     }
-    
+
     if (getStartedBtn) {
-        getStartedBtn.addEventListener('click', function(e) {
+        getStartedBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openModal('signupModal');
         });
@@ -572,13 +572,13 @@ function initializeAuthButtons() {
 }
 
 // Global authentication functions
-window.openModal = function(modalId) {
+window.openModal = function (modalId) {
     closeModal(); // Close any open modal first
     currentModal = document.getElementById(modalId);
     if (currentModal) {
         currentModal.classList.add('show');
         document.body.style.overflow = 'hidden';
-        
+
         // Reset forms
         const form = currentModal.querySelector('form');
         if (form) {
@@ -588,7 +588,7 @@ window.openModal = function(modalId) {
     }
 }
 
-window.closeModal = function() {
+window.closeModal = function () {
     if (currentModal) {
         currentModal.classList.remove('show');
         document.body.style.overflow = 'auto';
@@ -596,12 +596,12 @@ window.closeModal = function() {
     }
 }
 
-window.switchToLogin = function() {
+window.switchToLogin = function () {
     closeModal();
     openModal('loginModal');
 }
 
-window.switchToSignup = function() {
+window.switchToSignup = function () {
     closeModal();
     openModal('signupModal');
 }
@@ -610,12 +610,12 @@ window.switchToSignup = function() {
 function toggleFAQ(questionElement) {
     const faqItem = questionElement.parentElement;
     const isActive = faqItem.classList.contains('active');
-    
+
     // Close all FAQ items
     document.querySelectorAll('.faq-item').forEach(item => {
         item.classList.remove('active');
     });
-    
+
     // Open current item if it wasn't active
     if (!isActive) {
         faqItem.classList.add('active');
@@ -624,15 +624,15 @@ function toggleFAQ(questionElement) {
 
 // Enhanced search functionality
 const searchBtnEl = document.querySelector('.btn-search');
-if (searchBtnEl) searchBtnEl.addEventListener('click', function() {
+if (searchBtnEl) searchBtnEl.addEventListener('click', function () {
     const field = document.querySelector('.search-input').value;
     const programType = document.querySelectorAll('.search-input')[1].value;
     const deadline = document.querySelectorAll('.search-input')[2].value;
-    
+
     // Show loading state
     this.textContent = 'Searching...';
     this.disabled = true;
-    
+
     setTimeout(() => {
         alert(`Searching for ${programType || 'opportunities'} in ${field || 'all fields'}${deadline ? ' with deadline: ' + deadline : ''}. This would redirect to search results page.`);
         this.textContent = 'Find Opportunities';
@@ -703,18 +703,18 @@ styleSheet.textContent = additionalStyles;
 document.head.appendChild(styleSheet);
 
 // Scholarship filtering
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const filterBtns = document.querySelectorAll('.filter-btn');
     const scholarshipCards = document.querySelectorAll('.scholarship-card');
-    
+
     filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const filter = this.getAttribute('data-filter');
-            
+
             // Update active button
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            
+
             // Filter cards
             scholarshipCards.forEach(card => {
                 const category = card.getAttribute('data-category');
@@ -734,15 +734,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    
+
     // Mentor connect buttons
     document.querySelectorAll('.btn-connect').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const mentorName = this.closest('.mentor-card').querySelector('h3').textContent;
             this.textContent = 'Connecting...';
             this.disabled = true;
             this.setAttribute('aria-busy', 'true');
-            
+
             setTimeout(() => {
                 alert(`Great! A connection request has been sent to ${mentorName}. They will get back to you within 24 hours.`);
                 this.textContent = 'Connected ✓';
@@ -752,15 +752,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500);
         });
     });
-    
+
     // Scholarship apply buttons
     document.querySelectorAll('.btn-apply').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const scholarshipName = this.closest('.scholarship-card').querySelector('h3').textContent;
             this.textContent = 'Loading...';
             this.disabled = true;
             this.setAttribute('aria-busy', 'true');
-            
+
             setTimeout(() => {
                 alert(`Redirecting to ${scholarshipName} application page. This would open the scholarship details and application form.`);
                 this.textContent = 'View Details';
@@ -769,15 +769,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     });
-    
+
     // Roadmap tabs - Enhanced with ARIA and smooth animations
     const roadmapTabs = document.querySelectorAll('.roadmap-tab');
     const roadmapContents = document.querySelectorAll('.roadmap-content');
-    
+
     roadmapTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
             const targetTab = this.getAttribute('data-tab');
-            
+
             // Update ARIA attributes
             roadmapTabs.forEach(t => {
                 t.classList.remove('active');
@@ -785,30 +785,30 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             this.classList.add('active');
             this.setAttribute('aria-selected', 'true');
-            
+
             // Show corresponding content with smooth fade animation
             roadmapContents.forEach(content => {
                 if (content.id === targetTab + '-roadmap') {
                     // Fade out current content first
                     content.style.display = 'none';
                     content.classList.add('active');
-                    
+
                     // Then fade in with delay
                     setTimeout(() => {
                         content.style.display = 'block';
                         content.style.opacity = '0';
-                        
+
                         // Trigger reflow to ensure transition works
                         void content.offsetWidth;
-                        
+
                         content.style.opacity = '1';
-                        
+
                         // Animate timeline items sequentially
                         const timelineItems = content.querySelectorAll('.timeline-item');
                         timelineItems.forEach((item, index) => {
                             item.style.opacity = '0';
                             item.style.transform = 'translateX(-20px)';
-                            
+
                             setTimeout(() => {
                                 item.style.opacity = '1';
                                 item.style.transform = 'translateX(0)';
@@ -826,12 +826,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Enhanced track card functionality
 document.querySelectorAll('.btn-explore').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
         const trackName = this.closest('.track-card').querySelector('h3').textContent;
         this.textContent = 'Loading...';
         this.disabled = true;
         this.setAttribute('aria-busy', 'true');
-        
+
         setTimeout(() => {
             alert(`Exploring ${trackName} track! This would redirect to a detailed page with:\n• All related scholarships\n• Relevant roadmaps\n• Matched mentors\n• Success stories\n• Resource library`);
             this.textContent = 'Explore Track';
@@ -843,9 +843,9 @@ document.querySelectorAll('.btn-explore').forEach(btn => {
 
 // Category card interactions
 document.querySelectorAll('.category-card').forEach(card => {
-    card.addEventListener('click', function() {
+    card.addEventListener('click', function () {
         const action = this.querySelector('h3').textContent.toLowerCase();
-        
+
         if (action.includes('scholarship')) {
             document.getElementById('scholarships').scrollIntoView({ behavior: 'smooth' });
         } else if (action.includes('fields') || action.includes('explore')) {
@@ -863,7 +863,7 @@ const searchInputs = document.querySelectorAll('.search-input');
 let searchTimeout;
 
 searchInputs.forEach(input => {
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             // This would normally make API calls for live search suggestions
@@ -892,13 +892,13 @@ document.querySelectorAll('.timeline-item').forEach(item => {
 // Statistics counter animation for about section
 function animateStats() {
     const stats = document.querySelectorAll('.stat-item h4');
-    
+
     stats.forEach(stat => {
         const finalNumber = parseInt(stat.textContent.replace(/[^\d]/g, ''));
         const suffix = stat.textContent.replace(/[\d,]/g, '');
         let currentNumber = 0;
         const increment = finalNumber / 50;
-        
+
         const updateStat = () => {
             if (currentNumber < finalNumber) {
                 currentNumber += increment;
@@ -909,7 +909,7 @@ function animateStats() {
                 stat.textContent = finalNumber.toLocaleString() + suffix;
             }
         };
-        
+
         updateStat();
     });
 }
@@ -933,7 +933,7 @@ if (aboutSection) {
 function createParticle() {
     const hero = document.querySelector('.hero');
     if (!hero) return;
-    
+
     const particle = document.createElement('div');
     particle.style.cssText = `
         position: absolute;
@@ -946,9 +946,9 @@ function createParticle() {
         animation: float ${3 + Math.random() * 4}s infinite ease-in-out;
         pointer-events: none;
     `;
-    
+
     hero.appendChild(particle);
-    
+
     setTimeout(() => {
         particle.remove();
     }, 7000);
@@ -972,14 +972,14 @@ animationStyle.textContent = floatAnimation;
 document.head.appendChild(animationStyle);
 
 // Enhanced mobile menu with better animations
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuBtn.addEventListener('click', function () {
             navMenu.classList.toggle('active');
-            
+
             // Animate menu items
             const menuItems = navMenu.querySelectorAll('li');
             if (navMenu.classList.contains('active')) {
@@ -999,7 +999,7 @@ function showNotification(message, type = 'info') {
         <span>${message}</span>
         <button onclick="this.parentElement.remove()">&times;</button>
     `;
-    
+
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -1016,7 +1016,7 @@ function showNotification(message, type = 'info') {
         max-width: 300px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     `;
-    
+
     notification.querySelector('button').style.cssText = `
         background: none;
         border: none;
@@ -1026,13 +1026,58 @@ function showNotification(message, type = 'info') {
         padding: 0;
         line-height: 1;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 5000);
 }
+
+// Theme Management
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    html.classList.add('theme-transition');
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    updateThemeToggleUI(newTheme);
+
+    // Remove transition class after animation completes
+    setTimeout(() => {
+        html.classList.remove('theme-transition');
+    }, 300);
+}
+
+function updateThemeToggleUI(theme) {
+    const toggleBtn = document.querySelector('.theme-toggle');
+    if (toggleBtn) {
+        toggleBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+        toggleBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+    }
+}
+
+// Initialize Theme
+document.addEventListener('DOMContentLoaded', () => {
+    // Check local storage or system preference
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    let initialTheme = 'light';
+    if (savedTheme) {
+        initialTheme = savedTheme;
+    } else if (systemPrefersDark) {
+        initialTheme = 'dark';
+    }
+
+    document.documentElement.setAttribute('data-theme', initialTheme);
+    updateThemeToggleUI(initialTheme);
+});
+
+// ... (Rest of existing initialization code if any, but adding this to the end is fine)
 
 // Show welcome notification for new users
 if (!localStorage.getItem('visited_before')) {
