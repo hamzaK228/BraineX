@@ -767,115 +767,53 @@ function populateFieldsGrid(fields) {
     
     if (fields.length === 0) {
         fieldsGrid.innerHTML = `
-            <div style="text-align: center; padding: 40px; grid-column: 1 / -1; background: white; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
-                <h3 style="margin: 0 0 15px 0; color: #2d3748;">No fields found</h3>
-                <p style="margin: 0; color: #4a5568;">Try a different search term or browse all fields.</p>
+            <div class="no-results-card">
+                <h3>No fields found</h3>
+                <p>Try a different search term or browse all fields.</p>
             </div>
         `;
         return;
     }
     
     fieldsGrid.innerHTML = fields.map(field => `
-        <div class="field-card" data-category="${field.category}" style="
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid #e2e8f0;
-            cursor: pointer;
-            position: relative;
-        " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0, 0, 0, 0.15)'"
-           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.1)'"
+        <div class="field-card" data-category="${field.category}" 
            onclick="showFieldDetails(${field.id})">
             
-            <div class="field-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="field-icon" style="font-size: 32px;">${field.icon}</div>
-                    <h4 style="margin: 0; color: #2d3748; font-size: 18px; font-weight: 600;">${field.name}</h4>
+            <div class="field-header">
+                <div class="field-title-wrapper">
+                    <div class="field-icon">${field.icon}</div>
+                    <h4>${field.name}</h4>
                 </div>
-                <span class="field-category-badge" style="
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    color: white;
-                    padding: 4px 12px;
-                    border-radius: 20px;
-                    font-size: 11px;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                ">${field.category}</span>
+                <span class="field-category-badge">${field.category}</span>
             </div>
             
-            <p class="field-description" style="
-                color: #4a5568;
-                line-height: 1.6;
-                margin-bottom: 20px;
-                font-size: 14px;
-                display: -webkit-box;
-                -webkit-line-clamp: 3;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            ">${field.description}</p>
+            <p class="field-description">${field.description}</p>
             
-            <div class="field-stats" style="
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-                margin-bottom: 15px;
-                background: #f7fafc;
-                padding: 15px;
-                border-radius: 10px;
-            ">
-                <div class="field-stat" style="text-align: center;">
-                    <span class="stat-label" style="display: block; font-size: 12px; color: #4a5568; margin-bottom: 4px;">Avg Salary</span>
-                    <span class="stat-value" style="font-weight: bold; color: #3182ce; font-size: 14px;">${field.salary}</span>
+            <div class="field-stats">
+                <div class="field-stat">
+                    <span class="stat-label">Avg Salary</span>
+                    <span class="stat-value salary-value">${field.salary}</span>
                 </div>
-                <div class="field-stat" style="text-align: center;">
-                    <span class="stat-label" style="display: block; font-size: 12px; color: #4a5568; margin-bottom: 4px;">Growth Rate</span>
-                    <span class="stat-value" style="font-weight: bold; color: #38a169; font-size: 14px;">+${field.growthRate}</span>
+                <div class="field-stat">
+                    <span class="stat-label">Growth Rate</span>
+                    <span class="stat-value growth-value">+${field.growthRate}</span>
                 </div>
             </div>
             
-            <div class="field-careers" style="margin-bottom: 20px;">
-                <h5 style="margin: 0 0 8px 0; color: #2d3748; font-size: 13px; font-weight: 600;">Popular Careers:</h5>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <div class="field-careers">
+                <h5>Popular Careers:</h5>
+                <div class="careers-list">
                     ${field.careers.slice(0, 3).map(career => `
-                        <span class="career-tag" style="
-                            background: #e2e8f0;
-                            color: #2d3748;
-                            padding: 4px 8px;
-                            border-radius: 12px;
-                            font-size: 11px;
-                            font-weight: 500;
-                        ">${career}</span>
+                        <span class="career-tag">${career}</span>
                     `).join('')}
                 </div>
             </div>
             
-            <div class=\"field-actions\" style=\"display: flex; gap: 10px; justify-content: center;\">
-                <button onclick=\"window.showFieldDetails(${field.id})\" style=\"
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 20px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    font-size: 13px;
-                \">
+            <div class="field-actions">
+                <button onclick="event.stopPropagation(); window.showFieldDetails(${field.id})" class="btn-explore-card">
                     Explore Field →
                 </button>
-                <button onclick=\"window.location.href='scholarships.html'\" style=\"
-                    background: #38a169;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 20px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    font-size: 12px;
-                    transition: all 0.3s ease;
-                \">
+                <button onclick="event.stopPropagation(); window.location.href='scholarships.html'" class="btn-scholarship-card">
                     💰 Scholarships
                 </button>
             </div>

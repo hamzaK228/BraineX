@@ -1,6 +1,13 @@
+/* ===== TYPOGRAPHY - GOOGLE FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
 /* ===== CSS CUSTOM PROPERTIES (VARIABLES) ===== */
 /* Light Theme (default) */
 :root {
+    /* Fonts */
+    --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-numbers: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    
     /* Backgrounds */
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
@@ -76,7 +83,7 @@ html[data-theme='dark'] {
     --bg-primary: #0f172a;
     --bg-secondary: #1e293b;
     --bg-tertiary: #334155;
-    --bg-hero: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --bg-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --bg-overlay: rgba(0, 0, 0, 0.85);
 
     /* Text Colors */
@@ -158,11 +165,29 @@ html.theme-transition * {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: var(--font-text);
     line-height: 1.6;
     color: var(--text-primary);
     background: var(--bg-primary);
     overflow-x: hidden;
+}
+
+/* Apply number font to all numbers */
+.stat-number,
+.stat-item .stat-number,
+.stat-card h3,
+.metric-value,
+.price,
+.scholarship-amount,
+.field-count,
+.growth-rate,
+.avg-salary {
+    font-family: var(--font-numbers) !important;
+}
+
+/* Apply text font to all text elements */
+h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select, label {
+    font-family: var(--font-text);
 }
 
 /* Theme toggle button specific styles */
@@ -174,12 +199,13 @@ body {
     background: transparent;
     color: #fff;
     cursor: pointer;
-    font-weight: 600;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
-    display: flex;
+    font-weight: 600;
+    display: inline-flex;
     align-items: center;
     gap: 0.4rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
 }
 
 .theme-toggle:hover {
@@ -194,6 +220,33 @@ html[data-theme='dark'] .theme-toggle {
 
 html[data-theme='dark'] .theme-toggle:hover {
     background: rgba(226, 232, 240, .1);
+}
+
+/* ===== HERO SECTIONS ===== */
+/* Ensure all hero sections maintain purple gradient in both light and dark modes */
+.hero,
+.events-hero,
+.fields-hero,
+.scholarships-hero,
+.projects-hero,
+.mentors-hero,
+.roadmaps-hero,
+.about-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 120px 0 80px;
+    text-align: center;
+}
+
+html[data-theme='dark'] .hero,
+html[data-theme='dark'] .events-hero,
+html[data-theme='dark'] .fields-hero,
+html[data-theme='dark'] .scholarships-hero,
+html[data-theme='dark'] .projects-hero,
+html[data-theme='dark'] .mentors-hero,
+html[data-theme='dark'] .roadmaps-hero,
+html[data-theme='dark'] .about-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 
 
@@ -301,18 +354,25 @@ html[data-theme='dark'] .nav-menu a:hover {
 }
 
 .btn-outline {
-    background: transparent;
-    border: 2px solid var(--text-inverse);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.9);
     color: var(--text-inverse);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
 .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary {
-    background: var(--bg-primary);
-    /* White on light, dark blue on dark? No, needs contrast */
+    background: #ffffff;
+    color: #667eea;
+    border: 2px solid #ffffff;
+    transition: all 0.3s ease;
 }
 
 /* Primary buttons need to stand out against the header (purple) or hero (dark/purple) */
@@ -320,6 +380,13 @@ html[data-theme='dark'] .nav-menu a:hover {
 header .btn-primary {
     background: #ffffff;
     color: #667eea;
+    font-weight: 600;
+}
+
+header .btn-primary:hover {
+    background: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
 html[data-theme='dark'] header .btn-primary {
@@ -426,19 +493,21 @@ html[data-theme='dark'] .hero .btn-primary {
 }
 
 .category-card {
-    background: var(--card-bg);
+    background: #ffffff;
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 16px;
     text-align: center;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     cursor: pointer;
-    border: 1px solid var(--card-border);
-    box-shadow: 0 2px 10px var(--card-shadow);
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
 }
 
 .category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
 }
 
 /* Fix hover state for dark mode */
@@ -601,16 +670,19 @@ html[data-theme='dark'] .benefit-card {
 
 .track-card {
     min-width: 300px;
-    background: var(--card-bg);
+    background: #ffffff;
     padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px var(--card-shadow);
-    border: 1px solid var(--card-border);
-    transition: transform 0.3s ease, background 0.3s ease;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .track-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
 }
 
 .track-card h3 {
@@ -951,20 +1023,22 @@ html[data-theme='dark'] .benefit-card {
 }
 
 .scholarship-card {
-    background: var(--card-bg);
-    border-radius: 12px;
+    background: #ffffff;
+    border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 4px 6px var(--card-shadow);
-    border: 1px solid var(--card-border);
-    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
 }
 
 .scholarship-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px var(--card-shadow-hover);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
 }
 
 .scholarship-header {
@@ -1409,5 +1483,109 @@ footer {
 
     .roadmap-stats {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ===== FAQ SECTION ===== */
+.faq {
+    padding: 4rem 0;
+    background: var(--bg-secondary);
+}
+
+.faq-grid {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.faq-item {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    box-shadow: 0 4px 16px var(--card-shadow-hover);
+}
+
+.faq-question {
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.faq-question:hover {
+    background: var(--bg-tertiary);
+}
+
+.faq-question h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    padding-right: 1rem;
+}
+
+.faq-toggle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-primary);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.faq-item.active .faq-toggle {
+    transform: rotate(45deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    background: var(--bg-tertiary);
+}
+
+.faq-item.active .faq-answer {
+    max-height: 300px;
+    padding: 1.5rem 2rem;
+}
+
+.faq-answer p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+/* FAQ Dark Mode Specifics */
+html[data-theme='dark'] .faq-question:hover {
+    background: var(--bg-tertiary);
+}
+
+html[data-theme='dark'] .faq-answer {
+    background: var(--bg-primary);
+    border-top: 1px solid var(--card-border);
+}
+
+@media (max-width: 768px) {
+    .faq-question {
+        padding: 1rem 1.25rem;
+    }
+
+    .faq-question h3 {
+        font-size: 1rem;
+    }
+
+    .faq-item.active .faq-answer {
+        padding: 1rem 1.25rem;
     }
 }

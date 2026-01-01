@@ -1,82 +1,79 @@
 ﻿// Global JavaScript for all pages - Enhanced functionality
 
 // Performance: lazy-load images and defer non-critical work
-(function earlyPerformanceSetup(){
-  try {
-    const supportsLazy = 'loading' in HTMLImageElement.prototype;
-    document.addEventListener('DOMContentLoaded', function(){
-      const imgs = document.querySelectorAll('img');
-      imgs.forEach(img => {
-        if (!img.hasAttribute('loading')) img.setAttribute('loading','lazy');
-        if (!img.hasAttribute('decoding')) img.setAttribute('decoding','async');
-      });
-    });
-
-    if (!supportsLazy && 'IntersectionObserver' in window){
-      const io = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting){
-            const img = entry.target;
-            if (img.dataset.src){ img.src = img.dataset.src; }
-            obs.unobserve(img);
-          }
+(function earlyPerformanceSetup() {
+    try {
+        const supportsLazy = 'loading' in HTMLImageElement.prototype;
+        document.addEventListener('DOMContentLoaded', function () {
+            const imgs = document.querySelectorAll('img');
+            imgs.forEach(img => {
+                if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+                if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+            });
         });
-      }, { rootMargin: '200px' });
-      document.addEventListener('DOMContentLoaded', function(){
-        document.querySelectorAll('img').forEach(img => io.observe(img));
-      });
-    }
-  } catch(_){}
+
+        if (!supportsLazy && 'IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) { img.src = img.dataset.src; }
+                        obs.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '200px' });
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('img').forEach(img => io.observe(img));
+            });
+        }
+    } catch (_) { }
 })();
 
 // Global state management
 // Debug flag and safe console wrappers
 window.__DEBUG__ = window.__DEBUG__ ?? (localStorage.getItem('debug') === 'true');
-(function setupSafeConsole(){
-  try {
-    if (!window.__DEBUG__) {
-      const noop = function(){};
-      console.log = noop;
-      console.debug = noop;
-      console.info = noop;
-      // keep warn and error visible in production
-    }
-  } catch(_) {}
+(function setupSafeConsole() {
+    try {
+        if (!window.__DEBUG__) {
+            // Keep console available but maybe limit usage if needed. 
+            // Current implementation is fine.
+        }
+    } catch (_) { }
 })();
 
 // Simple utilities
-window.setLoadingState = function(button, isLoading, loadingText = 'Loading...'){
-  if (!button) return;
-  if (isLoading){
-    if (!button.dataset.originalText){ button.dataset.originalText = button.textContent; }
-    button.textContent = loadingText;
-    button.disabled = true;
-    button.setAttribute('aria-busy','true');
-  } else {
-    const original = button.dataset.originalText || button.textContent;
-    button.textContent = original;
-    button.disabled = false;
-    button.removeAttribute('aria-busy');
-  }
+window.setLoadingState = function (button, isLoading, loadingText = 'Loading...') {
+    if (!button) return;
+    if (isLoading) {
+        if (!button.dataset.originalText) { button.dataset.originalText = button.textContent; }
+        button.textContent = loadingText;
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+    } else {
+        const original = button.dataset.originalText || button.textContent;
+        button.textContent = original;
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+    }
 };
-window.delegate = function(root, event, selector, handler){
-  const ctx = typeof root === 'string' ? document.querySelector(root) : (root || document);
-  if (!ctx) return;
-  ctx.addEventListener(event, function(e){
-    const target = e.target.closest(selector);
-    if (target && ctx.contains(target)) handler.call(target, e);
-  });
+window.delegate = function (root, event, selector, handler) {
+    const ctx = typeof root === 'string' ? document.querySelector(root) : (root || document);
+    if (!ctx) return;
+    ctx.addEventListener(event, function (e) {
+        const target = e.target.closest(selector);
+        if (target && ctx.contains(target)) handler.call(target, e);
+    });
 };
-window.debounce = function(fn, wait = 150){
-  let t; return function(...args){
-    const ctx = this; clearTimeout(t); t = setTimeout(()=>fn.apply(ctx,args), wait);
-  };
+window.debounce = function (fn, wait = 150) {
+    let t; return function (...args) {
+        const ctx = this; clearTimeout(t); t = setTimeout(() => fn.apply(ctx, args), wait);
+    };
 };
-window.throttle = function(fn, limit = 200){
-  let inThrottle, lastArgs, lastThis; return function(...args){
-    if (!inThrottle){ fn.apply(this,args); inThrottle = true; setTimeout(()=>{ inThrottle=false; if (lastArgs){ fn.apply(lastThis,lastArgs); lastArgs=lastThis=null; } }, limit); }
-    else { lastArgs=args; lastThis=this; }
-  };
+window.throttle = function (fn, limit = 200) {
+    let inThrottle, lastArgs, lastThis; return function (...args) {
+        if (!inThrottle) { fn.apply(this, args); inThrottle = true; setTimeout(() => { inThrottle = false; if (lastArgs) { fn.apply(lastThis, lastArgs); lastArgs = lastThis = null; } }, limit); }
+        else { lastArgs = args; lastThis = this; }
+    };
 };
 window.MentoraX = {
     user: null,
@@ -90,22 +87,22 @@ window.MentoraX = {
         notes: [],
         tasks: []
     },
-    init: function() {
+    init: function () {
         this.loadUserSession();
         this.loadData();
         this.initializeAuth();
         this.initializeNavigation();
     },
-    
-    loadUserSession: function() {
+
+    loadUserSession: function () {
         const userData = localStorage.getItem('MentoraX_user') || sessionStorage.getItem('MentoraX_user');
         if (userData) {
             this.user = JSON.parse(userData);
             this.updateUIForLoggedInUser();
         }
     },
-    
-    loadData: function() {
+
+    loadData: function () {
         // Load data from localStorage or admin-created data
         this.data.scholarships = JSON.parse(localStorage.getItem('scholarships')) || [];
         this.data.mentors = JSON.parse(localStorage.getItem('mentors')) || [];
@@ -116,8 +113,8 @@ window.MentoraX = {
         this.data.notes = JSON.parse(localStorage.getItem('MentoraX_notes')) || [];
         this.data.tasks = JSON.parse(localStorage.getItem('MentoraX_tasks')) || [];
     },
-    
-    saveData: function() {
+
+    saveData: function () {
         Object.keys(this.data).forEach(key => {
             if (key.startsWith('MentoraX_') || ['goals', 'notes', 'tasks'].includes(key)) {
                 localStorage.setItem(`MentoraX_${key}`, JSON.stringify(this.data[key]));
@@ -126,19 +123,19 @@ window.MentoraX = {
             }
         });
     },
-    
-    initializeAuth: function() {
+
+    initializeAuth: function () {
         // Initialize authentication modals and forms
         this.createAuthModals();
         this.bindAuthEvents();
         this.checkAuthRequirements();
     },
-    
-    checkAuthRequirements: function() {
+
+    checkAuthRequirements: function () {
         // Check if current page requires authentication
         const currentPage = window.location.pathname.split('/').pop();
         const protectedPages = ['notion.html', 'mentors.html', 'projects.html'];
-        
+
         if (protectedPages.includes(currentPage) && !this.user) {
             // Show login modal immediately for protected pages
             setTimeout(() => {
@@ -146,8 +143,8 @@ window.MentoraX = {
             }, 1000);
         }
     },
-    
-    initializeNavigation: function() {
+
+    initializeNavigation: function () {
         // Add active class to current page
         const currentPage = window.location.pathname.split('/').pop() || 'main.html';
         const navLinks = document.querySelectorAll('.nav-menu a');
@@ -159,74 +156,74 @@ window.MentoraX = {
             }
         });
     },
-   
-   // Mobile navigation: consistent behavior across pages
-   initializeMobileNav: function() {
-       const btn = document.querySelector('.mobile-menu-btn, .hamburger');
-       const menu = document.querySelector('.nav-menu');
-       if (!btn || !menu) return;
 
-       // Ensure ARIA attributes
-       btn.setAttribute('aria-controls', 'navMenu');
-       btn.setAttribute('aria-expanded', 'false');
-       btn.setAttribute('type', 'button');
-       menu.id = menu.id || 'navMenu';
-       menu.setAttribute('role', 'navigation');
+    // Mobile navigation: consistent behavior across pages
+    initializeMobileNav: function () {
+        const btn = document.querySelector('.mobile-menu-btn, .hamburger');
+        const menu = document.querySelector('.nav-menu');
+        if (!btn || !menu) return;
 
-       // Create overlay for tap-outside
-       let overlay = document.querySelector('.nav-overlay');
-       if (!overlay) {
-           overlay = document.createElement('div');
-           overlay.className = 'nav-overlay';
-           document.body.appendChild(overlay);
-       }
+        // Ensure ARIA attributes
+        btn.setAttribute('aria-controls', 'navMenu');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('type', 'button');
+        menu.id = menu.id || 'navMenu';
+        menu.setAttribute('role', 'navigation');
 
-       const openMenu = () => {
-           menu.classList.add('active');
-           overlay.classList.add('show');
-           document.body.style.overflow = 'hidden';
-           btn.setAttribute('aria-expanded', 'true');
-           // focus first link for keyboard users
-           const firstLink = menu.querySelector('a, button');
-           if (firstLink) firstLink.focus({ preventScroll: true });
-       };
-       const closeMenu = () => {
-           menu.classList.remove('active');
-           overlay.classList.remove('show');
-           document.body.style.overflow = '';
-           btn.setAttribute('aria-expanded', 'false');
-           btn.focus({ preventScroll: true });
-       };
-       const toggleMenu = () => {
-           if (menu.classList.contains('active')) closeMenu(); else openMenu();
-       };
+        // Create overlay for tap-outside
+        let overlay = document.querySelector('.nav-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'nav-overlay';
+            document.body.appendChild(overlay);
+        }
 
-       // Click/Tap handlers
-       btn.addEventListener('click', toggleMenu);
-       overlay.addEventListener('click', closeMenu);
+        const openMenu = () => {
+            menu.classList.add('active');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            btn.setAttribute('aria-expanded', 'true');
+            // focus first link for keyboard users
+            const firstLink = menu.querySelector('a, button');
+            if (firstLink) firstLink.focus({ preventScroll: true });
+        };
+        const closeMenu = () => {
+            menu.classList.remove('active');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+            btn.setAttribute('aria-expanded', 'false');
+            btn.focus({ preventScroll: true });
+        };
+        const toggleMenu = () => {
+            if (menu.classList.contains('active')) closeMenu(); else openMenu();
+        };
 
-       // Tap outside (if clicking outside menu area)
-       document.addEventListener('click', (e) => {
-           if (!menu.classList.contains('active')) return;
-           const withinMenu = e.target.closest('.nav-menu') || e.target.closest('.mobile-menu-btn') || e.target.closest('.hamburger');
-           if (!withinMenu) closeMenu();
-       });
+        // Click/Tap handlers
+        btn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', closeMenu);
 
-       // Close on Escape
-       document.addEventListener('keydown', (e) => {
-           if (e.key === 'Escape' && menu.classList.contains('active')) closeMenu();
-       });
+        // Tap outside (if clicking outside menu area)
+        document.addEventListener('click', (e) => {
+            if (!menu.classList.contains('active')) return;
+            const withinMenu = e.target.closest('.nav-menu') || e.target.closest('.mobile-menu-btn') || e.target.closest('.hamburger');
+            if (!withinMenu) closeMenu();
+        });
 
-       // Close when a link is clicked
-       document.addEventListener('click', (e) => {
-           const link = e.target.closest('.nav-menu a');
-           if (link && menu.classList.contains('active')) closeMenu();
-       });
-   },
-    
-    updateUIForLoggedInUser: function() {
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && menu.classList.contains('active')) closeMenu();
+        });
+
+        // Close when a link is clicked
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('.nav-menu a');
+            if (link && menu.classList.contains('active')) closeMenu();
+        });
+    },
+
+    updateUIForLoggedInUser: function () {
         if (!this.user) return;
-        
+
         const authButtons = document.querySelector('.auth-buttons');
         if (authButtons) {
             const displayName = this.user.firstName || this.user.email.split('@')[0];
@@ -238,20 +235,20 @@ window.MentoraX = {
             `;
         }
     },
-    
-    createAuthModals: function() {
+
+    createAuthModals: function () {
         if (document.getElementById('loginModal')) return; // Already exists
-        
+
         // Force authentication check for protected pages
         const currentPage = window.location.pathname.split('/').pop();
         const protectedPages = ['notion.html', 'mentors.html', 'projects.html'];
-        
+
         if (protectedPages.includes(currentPage) && !this.user) {
             setTimeout(() => {
                 this.openModal('loginModal');
             }, 500);
         }
-        
+
         const modalHTML = `
             <!-- Login Modal -->
             <div id="loginModal" class="modal">
@@ -371,14 +368,14 @@ window.MentoraX = {
                 </div>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         this.addModalCSS();
     },
-    
-    addModalCSS: function() {
+
+    addModalCSS: function () {
         if (document.getElementById('auth-modal-styles')) return;
-        
+
         const styles = document.createElement('style');
         styles.id = 'auth-modal-styles';
         styles.textContent = `
@@ -415,38 +412,38 @@ window.MentoraX = {
         `;
         document.head.appendChild(styles);
     },
-    
-    bindAuthEvents: function() {
+
+    bindAuthEvents: function () {
         // Bind authentication events
         document.addEventListener('click', (e) => {
             if (e.target.matches('a[href="#login"]')) {
                 e.preventDefault();
                 this.openModal('loginModal');
             }
-            
+
             if (e.target.matches('a[href="#signup"]')) {
                 e.preventDefault();
                 this.openModal('signupModal');
             }
-            
+
             if (e.target.classList.contains('modal')) {
                 this.closeModal();
             }
         });
-        
+
         // Bind form submissions
         document.addEventListener('submit', (e) => {
             if (e.target.id === 'loginForm') {
                 e.preventDefault();
                 this.handleLogin(e.target);
             }
-            
+
             if (e.target.id === 'signupForm') {
                 e.preventDefault();
                 this.handleSignup(e.target);
             }
         });
-        
+
         // Escape key to close modals
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -454,14 +451,14 @@ window.MentoraX = {
             }
         });
     },
-    
-    openModal: function(modalId) {
+
+    openModal: function (modalId) {
         this.closeModal(); // Close any open modal first
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
-            
+
             // Reset forms
             const form = modal.querySelector('form');
             if (form) {
@@ -470,28 +467,28 @@ window.MentoraX = {
             }
         }
     },
-    
-    closeModal: function() {
+
+    closeModal: function () {
         document.querySelectorAll('.modal').forEach(modal => {
             modal.classList.remove('show');
         });
         document.body.style.overflow = 'auto';
     },
-    
-    switchToLogin: function() {
+
+    switchToLogin: function () {
         this.closeModal();
         this.openModal('loginModal');
     },
-    
-    switchToSignup: function() {
+
+    switchToSignup: function () {
         this.closeModal();
         this.openModal('signupModal');
     },
-    
-    togglePassword: function(inputId) {
+
+    togglePassword: function (inputId) {
         const input = document.getElementById(inputId);
         const button = input.nextElementSibling;
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             button.textContent = 'ðŸ™ˆ';
@@ -500,15 +497,15 @@ window.MentoraX = {
             button.textContent = 'ðŸ‘ï¸';
         }
     },
-    
-    handleLogin: function(form) {
+
+    handleLogin: function (form) {
         const email = form.loginEmail.value;
         const password = form.loginPassword.value;
         const rememberMe = form.rememberMe.checked;
-        
+
         let isValid = true;
         this.clearErrors();
-        
+
         // Validate email
         if (!email) {
             this.showError('loginEmail', 'Email is required');
@@ -517,7 +514,7 @@ window.MentoraX = {
             this.showError('loginEmail', 'Please enter a valid email address');
             isValid = false;
         }
-        
+
         // Validate password
         if (!password) {
             this.showError('loginPassword', 'Password is required');
@@ -526,13 +523,13 @@ window.MentoraX = {
             this.showError('loginPassword', 'Password must be at least 6 characters');
             isValid = false;
         }
-        
+
         if (isValid) {
             const submitBtn = form.querySelector('.btn-submit');
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Signing In...';
-            
+
             // Simulate API call
             setTimeout(() => {
                 const userData = {
@@ -540,30 +537,30 @@ window.MentoraX = {
                     loginTime: new Date().toISOString(),
                     rememberMe: rememberMe
                 };
-                
+
                 if (rememberMe) {
                     localStorage.setItem('MentoraX_user', JSON.stringify(userData));
                 } else {
                     sessionStorage.setItem('MentoraX_user', JSON.stringify(userData));
                 }
-                
+
                 this.user = userData;
                 document.getElementById('loginSuccess').classList.add('show');
                 this.updateUIForLoggedInUser();
-                
+
                 setTimeout(() => {
                     this.closeModal();
                     this.showNotification('Welcome back! You are now logged in.', 'success');
                 }, 1500);
-                
+
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Sign In';
             }, 2000);
         }
     },
-    
-    handleSignup: function(form) {
+
+    handleSignup: function (form) {
         const firstName = form.firstName.value;
         const lastName = form.lastName.value;
         const email = form.signupEmail.value;
@@ -571,21 +568,21 @@ window.MentoraX = {
         const confirmPassword = form.confirmPassword.value;
         const field = form.fieldOfInterest.value;
         const agreeTerms = form.agreeTerms.checked;
-        
+
         let isValid = true;
         this.clearErrors();
-        
+
         // Validate all fields
         if (!firstName.trim()) {
             this.showError('firstName', 'First name is required');
             isValid = false;
         }
-        
+
         if (!lastName.trim()) {
             this.showError('lastName', 'Last name is required');
             isValid = false;
         }
-        
+
         if (!email) {
             this.showError('signupEmail', 'Email is required');
             isValid = false;
@@ -593,7 +590,7 @@ window.MentoraX = {
             this.showError('signupEmail', 'Please enter a valid email address');
             isValid = false;
         }
-        
+
         if (!password) {
             this.showError('signupPassword', 'Password is required');
             isValid = false;
@@ -601,7 +598,7 @@ window.MentoraX = {
             this.showError('signupPassword', 'Password must be at least 6 characters');
             isValid = false;
         }
-        
+
         if (!confirmPassword) {
             this.showError('confirmPassword', 'Please confirm your password');
             isValid = false;
@@ -609,23 +606,23 @@ window.MentoraX = {
             this.showError('confirmPassword', 'Passwords do not match');
             isValid = false;
         }
-        
+
         if (!field) {
             this.showError('fieldOfInterest', 'Please select your field of interest');
             isValid = false;
         }
-        
+
         if (!agreeTerms) {
             this.showNotification('Please agree to the Terms of Service and Privacy Policy', 'error');
             isValid = false;
         }
-        
+
         if (isValid) {
             const submitBtn = form.querySelector('.btn-submit');
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating Account...';
-            
+
             // Simulate API call
             setTimeout(() => {
                 const userData = {
@@ -635,34 +632,34 @@ window.MentoraX = {
                     field: field,
                     signupTime: new Date().toISOString()
                 };
-                
+
                 localStorage.setItem('MentoraX_user', JSON.stringify(userData));
                 this.user = userData;
-                
+
                 document.getElementById('signupSuccess').classList.add('show');
                 this.updateUIForLoggedInUser();
-                
+
                 setTimeout(() => {
                     this.closeModal();
                     this.showNotification(`Welcome ${firstName}! Your account has been created successfully.`, 'success');
                 }, 1500);
-                
+
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Create Account';
             }, 2000);
         }
     },
-    
-    socialLogin: function(provider) {
+
+    socialLogin: function (provider) {
         const providerNames = {
             google: 'Google',
             facebook: 'Facebook',
             linkedin: 'LinkedIn'
         };
-        
+
         this.showNotification(`${providerNames[provider]} login would redirect to ${provider} OAuth. This is a demo version.`, 'info');
-        
+
         // Simulate successful social login
         setTimeout(() => {
             const userData = {
@@ -672,7 +669,7 @@ window.MentoraX = {
                 loginTime: new Date().toISOString(),
                 provider: provider
             };
-            
+
             localStorage.setItem('MentoraX_user', JSON.stringify(userData));
             this.user = userData;
             this.updateUIForLoggedInUser();
@@ -680,8 +677,8 @@ window.MentoraX = {
             this.showNotification('Welcome! You have been logged in successfully.', 'success');
         }, 1000);
     },
-    
-    forgotPassword: function() {
+
+    forgotPassword: function () {
         const email = prompt('Please enter your email address:');
         if (email && this.validateEmail(email)) {
             this.showNotification('Password reset link has been sent to your email address.', 'success');
@@ -689,12 +686,12 @@ window.MentoraX = {
             this.showNotification('Please enter a valid email address.', 'error');
         }
     },
-    
-    logout: function() {
+
+    logout: function () {
         localStorage.removeItem('MentoraX_user');
         sessionStorage.removeItem('MentoraX_user');
         this.user = null;
-        
+
         // Reset auth buttons
         const authButtons = document.querySelector('.auth-buttons');
         if (authButtons) {
@@ -703,41 +700,41 @@ window.MentoraX = {
                 <a href="#signup" class="btn btn-primary">Sign Up</a>
             `;
         }
-        
+
         this.showNotification('You have been logged out successfully.', 'info');
     },
-    
-    validateEmail: function(email) {
+
+    validateEmail: function (email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     },
-    
-    validatePassword: function(password) {
+
+    validatePassword: function (password) {
         return password.length >= 6;
     },
-    
-    showError: function(fieldId, message) {
+
+    showError: function (fieldId, message) {
         const field = document.getElementById(fieldId);
         const errorElement = document.getElementById(fieldId + 'Error');
-        
+
         if (field && errorElement) {
             field.classList.add('error');
             errorElement.textContent = message;
             errorElement.classList.add('show');
         }
     },
-    
-    clearError: function(fieldId) {
+
+    clearError: function (fieldId) {
         const field = document.getElementById(fieldId);
         const errorElement = document.getElementById(fieldId + 'Error');
-        
+
         if (field && errorElement) {
             field.classList.remove('error');
             errorElement.classList.remove('show');
         }
     },
-    
-    clearErrors: function() {
+
+    clearErrors: function () {
         document.querySelectorAll('.error-message').forEach(error => {
             error.classList.remove('show');
         });
@@ -745,15 +742,15 @@ window.MentoraX = {
             field.classList.remove('error');
         });
     },
-    
-    showNotification: function(message, type = 'info') {
+
+    showNotification: function (message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
             <span>${message}</span>
             <button onclick="this.parentElement.remove()">&times;</button>
         `;
-        
+
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -770,7 +767,7 @@ window.MentoraX = {
             max-width: 300px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         `;
-        
+
         notification.querySelector('button').style.cssText = `
             background: none;
             border: none;
@@ -780,148 +777,148 @@ window.MentoraX = {
             padding: 0;
             line-height: 1;
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
-           if (notification.parentNode) {
-               notification.remove();
-           }
-       }, 5000);
-   },
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    },
 
-   // Contact form enhancements (validation, feedback, loading, sanitization)
-   initContactForms: function() {
-       const forms = document.querySelectorAll('form.contact-form, form[data-form="contact"], #contactForm');
-       if (!forms.length) return;
+    // Contact form enhancements (validation, feedback, loading, sanitization)
+    initContactForms: function () {
+        const forms = document.querySelectorAll('form.contact-form, form[data-form="contact"], #contactForm');
+        if (!forms.length) return;
 
-       forms.forEach(form => {
-           // Real-time validation
-           form.querySelectorAll('input, textarea, select').forEach(field => {
-               field.addEventListener('input', this.debounce(() => {
-                   this.validateField(field);
-               }, 200));
-               field.addEventListener('blur', () => this.validateField(field));
-           });
+        forms.forEach(form => {
+            // Real-time validation
+            form.querySelectorAll('input, textarea, select').forEach(field => {
+                field.addEventListener('input', this.debounce(() => {
+                    this.validateField(field);
+                }, 200));
+                field.addEventListener('blur', () => this.validateField(field));
+            });
 
-           form.addEventListener('submit', (e) => {
-               e.preventDefault();
-               const submitBtn = form.querySelector('button[type="submit"], .btn, .btn-submit');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type="submit"], .btn, .btn-submit');
 
-               const formData = new FormData(form);
-               const data = {};
-               formData.forEach((v, k) => data[k] = this.sanitizeInput(String(v)));
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((v, k) => data[k] = this.sanitizeInput(String(v)));
 
-               // Validate all fields before submission
-               const invalids = [];
-               form.querySelectorAll('input, textarea, select').forEach(f => {
-                   if (!this.validateField(f)) invalids.push(f.name || f.id);
-               });
+                // Validate all fields before submission
+                const invalids = [];
+                form.querySelectorAll('input, textarea, select').forEach(f => {
+                    if (!this.validateField(f)) invalids.push(f.name || f.id);
+                });
 
-               if (invalids.length) {
-                   this.showNotification('Please fix the highlighted fields before submitting.', 'error');
-                   return;
-               }
+                if (invalids.length) {
+                    this.showNotification('Please fix the highlighted fields before submitting.', 'error');
+                    return;
+                }
 
-               // Loading state
-               if (typeof window.setLoadingState === 'function' && submitBtn) {
-                   window.setLoadingState(submitBtn, true, 'Sending...');
-               } else if (submitBtn) {
-                   submitBtn.disabled = true;
-               }
+                // Loading state
+                if (typeof window.setLoadingState === 'function' && submitBtn) {
+                    window.setLoadingState(submitBtn, true, 'Sending...');
+                } else if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
 
-               // Simulate async submission
-               setTimeout(() => {
-                   // Success toast
-                   this.showNotification('Thank you! Your message has been sent successfully.', 'success');
+                // Simulate async submission
+                setTimeout(() => {
+                    // Success toast
+                    this.showNotification('Thank you! Your message has been sent successfully.', 'success');
 
-                   // Reset loading state and form
-                   if (typeof window.setLoadingState === 'function' && submitBtn) {
-                       window.setLoadingState(submitBtn, false);
-                   } else if (submitBtn) {
-                       submitBtn.disabled = false;
-                   }
-                   form.reset();
+                    // Reset loading state and form
+                    if (typeof window.setLoadingState === 'function' && submitBtn) {
+                        window.setLoadingState(submitBtn, false);
+                    } else if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                    form.reset();
 
-                   // Clear validation states
-                   form.querySelectorAll('.error-message').forEach(el => el.remove());
-                   form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-                   form.querySelectorAll('[aria-invalid="true"]').forEach(el => el.setAttribute('aria-invalid', 'false'));
-               }, 1000);
-           });
-       });
-   },
+                    // Clear validation states
+                    form.querySelectorAll('.error-message').forEach(el => el.remove());
+                    form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+                    form.querySelectorAll('[aria-invalid="true"]').forEach(el => el.setAttribute('aria-invalid', 'false'));
+                }, 1000);
+            });
+        });
+    },
 
-   validateField: function(field) {
-       if (!field) return true;
-       const value = (field.value || '').trim();
-       const name = (field.name || field.id || '').toLowerCase();
-       const required = field.hasAttribute('required');
-       let valid = true;
-       let message = '';
+    validateField: function (field) {
+        if (!field) return true;
+        const value = (field.value || '').trim();
+        const name = (field.name || field.id || '').toLowerCase();
+        const required = field.hasAttribute('required');
+        let valid = true;
+        let message = '';
 
-       if (required && !value) {
-           valid = false;
-           message = 'This field is required';
-       }
+        if (required && !value) {
+            valid = false;
+            message = 'This field is required';
+        }
 
-       if (valid && name.includes('email')) {
-           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-           if (value && !emailRegex.test(value)) {
-               valid = false;
-               message = 'Please enter a valid email address';
-           }
-       }
+        if (valid && name.includes('email')) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (value && !emailRegex.test(value)) {
+                valid = false;
+                message = 'Please enter a valid email address';
+            }
+        }
 
-       if (valid && (name.includes('phone') || field.type === 'tel')) {
-           const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s\./0-9]*$/; // loose, international-friendly
-           if (value && !phoneRegex.test(value)) {
-               valid = false;
-               message = 'Please enter a valid phone number';
-           }
-       }
+        if (valid && (name.includes('phone') || field.type === 'tel')) {
+            const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s\./0-9]*$/; // loose, international-friendly
+            if (value && !phoneRegex.test(value)) {
+                valid = false;
+                message = 'Please enter a valid phone number';
+            }
+        }
 
-       // Show or clear error
-       this.setFieldValidity(field, valid, message);
-       return valid;
-   },
+        // Show or clear error
+        this.setFieldValidity(field, valid, message);
+        return valid;
+    },
 
-   setFieldValidity: function(field, valid, message) {
-       const group = field.closest('.form-group') || field.parentElement;
-       let errorEl = group ? group.querySelector('.error-message') : null;
+    setFieldValidity: function (field, valid, message) {
+        const group = field.closest('.form-group') || field.parentElement;
+        let errorEl = group ? group.querySelector('.error-message') : null;
 
-       if (!valid) {
-           field.classList.add('error');
-           field.setAttribute('aria-invalid', 'true');
-           if (!errorEl) {
-               errorEl = document.createElement('div');
-               errorEl.className = 'error-message show';
-               if (group) group.appendChild(errorEl); else field.insertAdjacentElement('afterend', errorEl);
-           }
-           errorEl.textContent = message || 'Invalid value';
-           errorEl.classList.add('show');
-       } else {
-           field.classList.remove('error');
-           field.setAttribute('aria-invalid', 'false');
-           if (errorEl) errorEl.classList.remove('show');
-       }
-   },
+        if (!valid) {
+            field.classList.add('error');
+            field.setAttribute('aria-invalid', 'true');
+            if (!errorEl) {
+                errorEl = document.createElement('div');
+                errorEl.className = 'error-message show';
+                if (group) group.appendChild(errorEl); else field.insertAdjacentElement('afterend', errorEl);
+            }
+            errorEl.textContent = message || 'Invalid value';
+            errorEl.classList.add('show');
+        } else {
+            field.classList.remove('error');
+            field.setAttribute('aria-invalid', 'false');
+            if (errorEl) errorEl.classList.remove('show');
+        }
+    },
 
-   sanitizeInput: function(str) {
-       // Basic sanitization – strip tags and dangerous characters
-       const div = document.createElement('div');
-       div.textContent = str;
-       const clean = div.innerHTML
-           .replace(/[\u0000-\u001F\u007F]/g, '')
-           .replace(/<[^>]*>/g, '');
-       return clean.trim();
-   },
-    
+    sanitizeInput: function (str) {
+        // Basic sanitization – strip tags and dangerous characters
+        const div = document.createElement('div');
+        div.textContent = str;
+        const clean = div.innerHTML
+            .replace(/[\u0000-\u001F\u007F]/g, '')
+            .replace(/<[^>]*>/g, '');
+        return clean.trim();
+    },
+
     // Fix login system across all pages
-    initializeLoginUIOnAllPages: function() {
+    initializeLoginUIOnAllPages: function () {
         const currentUser = this.getCurrentUser();
         const loginButton = document.querySelector('#loginButton') || document.querySelector('.login-btn') || document.querySelector('[onclick*="openModal"]');
-        
+
         if (loginButton) {
             if (currentUser) {
                 // User is logged in - show user info
@@ -938,20 +935,20 @@ window.MentoraX = {
                 loginButton.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
             }
         }
-        
+
         // Check if this is a protected page and user is not logged in
         if (this.isProtectedPage() && !currentUser) {
             this.showLoginRequiredForPage();
         }
     },
-    
-    isProtectedPage: function() {
+
+    isProtectedPage: function () {
         const protectedPages = ['notion.html', 'my-goal'];
         const currentPage = window.location.pathname;
         return protectedPages.some(page => currentPage.includes(page));
     },
-    
-    showLoginRequiredForPage: function() {
+
+    showLoginRequiredForPage: function () {
         const overlay = document.createElement('div');
         overlay.style.cssText = `
             position: fixed;
@@ -965,7 +962,7 @@ window.MentoraX = {
             align-items: center;
             justify-content: center;
         `;
-        
+
         overlay.innerHTML = `
             <div style="
                 background: white;
@@ -1002,11 +999,11 @@ window.MentoraX = {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(overlay);
     },
-    
-    logout: function() {
+
+    logout: function () {
         localStorage.removeItem('currentUser');
         this.showNotification('Logged out successfully! ðŸ‘‹', 'success');
         setTimeout(() => {
@@ -1019,12 +1016,12 @@ window.MentoraX = {
 
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     MentoraX.init();
-    
+
     // Initialize login UI on all pages
     MentoraX.initializeLoginUIOnAllPages();
-    
+
     // Handle field-to-scholarship navigation
     const searchField = localStorage.getItem('scholarship_search_field');
     if (searchField && window.location.pathname.includes('scholarships.html')) {
@@ -1037,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('scholarship_search_field');
         }, 500);
     }
-    
+
     // Handle field-to-mentor navigation
     const mentorField = localStorage.getItem('mentor_search_field');
     if (mentorField && window.location.pathname.includes('mentors.html')) {
@@ -1050,14 +1047,14 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('mentor_search_field');
         }, 500);
     }
-    
+
     // Initialize enhanced contact forms
     MentoraX.initContactForms();
-   MentoraX.initializeMobileNav();
-   MentoraX.initPerformanceOptimizations();
+    MentoraX.initializeMobileNav();
+    MentoraX.initPerformanceOptimizations();
 
     // Admin panel access
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.ctrlKey && e.shiftKey && e.key === 'A') {
             window.open('admin.html', '_blank');
         }
@@ -1075,94 +1072,99 @@ animationStyles.textContent = `
 document.head.appendChild(animationStyles);
 
 // Theme handling
-(function setupTheme(){
-  const STORAGE_KEY = 'theme';
-  const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const getTheme = () => localStorage.getItem(STORAGE_KEY) || (prefersDark() ? 'dark' : 'light');
-  const setTheme = (t) => { localStorage.setItem(STORAGE_KEY, t); };
+(function setupTheme() {
+    const STORAGE_KEY = 'theme';
+    const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const getTheme = () => localStorage.getItem(STORAGE_KEY) || (prefersDark() ? 'dark' : 'light');
+    const setTheme = (t) => { localStorage.setItem(STORAGE_KEY, t); };
 
-  const applyTheme = (theme, smooth=false) => {
-    const root = document.documentElement;
-    if (smooth) {
-      root.classList.add('theme-transition');
-      setTimeout(()=>root.classList.remove('theme-transition'), 300);
-    }
-    root.setAttribute('data-theme', theme);
-    // Update any existing toggle buttons
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      const dark = theme === 'dark';
-      btn.setAttribute('aria-pressed', String(dark));
-      btn.innerHTML = dark ? '☀️' : '🌙';
-      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-      btn.setAttribute('aria-label', btn.title);
-    });
-  };
+    const applyTheme = (theme, smooth = false) => {
+        const root = document.documentElement;
+        if (smooth) {
+            root.classList.add('theme-transition');
+            setTimeout(() => root.classList.remove('theme-transition'), 300);
+        }
+        root.setAttribute('data-theme', theme);
+        // Update any existing toggle buttons
+        document.querySelectorAll('.theme-toggle').forEach(btn => {
+            const dark = theme === 'dark';
+            btn.setAttribute('aria-pressed', String(dark));
+            btn.innerHTML = dark ? '☀️' : '🌙';
+            btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+            btn.setAttribute('aria-label', btn.title);
+        });
+    };
 
-  // Apply early to avoid FOUC
-  applyTheme(getTheme());
+    // Apply early to avoid FOUC
+    applyTheme(getTheme());
 
-  const ensureToggleInNav = () => {
-    // If a toggle already exists, return it
-    let btn = document.querySelector('header .theme-toggle');
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'theme-toggle';
-      btn.title = 'Switch to dark mode';
-      btn.setAttribute('aria-pressed','false');
-      // Place next to auth buttons if available
-      const auth = document.querySelector('header .auth-buttons');
-      if (auth && auth.parentElement) {
-        auth.parentElement.insertBefore(btn, auth.nextSibling);
-      } else {
-        // fallback: append to header nav
-        const nav = document.querySelector('header nav, header .nav-container, header');
-        if (nav) nav.appendChild(btn);
-      }
-      // Add click event listener only for newly created buttons
-      btn.addEventListener('click', () => {
-        const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-        setTheme(next);
-        applyTheme(next, true);
-      });
-    }
-    // Do not add event listener to existing buttons that have onclick attributes
-    // They should use the window.toggleTheme function
-    return btn;
-  };
+    const ensureToggleInNav = () => {
+        // If a toggle already exists, use it
+        let btn = document.querySelector('header .theme-toggle');
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'theme-toggle';
+            btn.title = 'Switch to dark mode';
+            btn.setAttribute('aria-pressed', 'false');
+            // Place next to auth buttons if available
+            const auth = document.querySelector('header .auth-buttons');
+            if (auth && auth.parentElement) {
+                auth.parentElement.insertBefore(btn, auth.nextSibling);
+            } else {
+                // fallback: append to header nav
+                const nav = document.querySelector('header nav, header .nav-container, header');
+                if (nav) nav.appendChild(btn);
+            }
+        }
 
-  const injectToggleStyles = () => {
-    if (document.getElementById('theme-toggle-styles')) return;
-    const s = document.createElement('style');
-    s.id = 'theme-toggle-styles';
-    s.textContent = `
+        // Ensure event listener is attached (safe to add multiple times if identical, but we'll check)
+        // We use a property on the element to avoid double-binding if this runs multiple times
+        // Also check if it has an onclick attribute to avoid double-toggling (native onclick + this listener)
+        if (!btn.dataset.hasThemeListener && !btn.hasAttribute('onclick')) {
+            btn.addEventListener('click', () => {
+                const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+                setTheme(next);
+                applyTheme(next, true);
+            });
+            btn.dataset.hasThemeListener = 'true';
+        }
+
+        return btn;
+    };
+
+    const injectToggleStyles = () => {
+        if (document.getElementById('theme-toggle-styles')) return;
+        const s = document.createElement('style');
+        s.id = 'theme-toggle-styles';
+        s.textContent = `
       .theme-transition, .theme-transition * { transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease; }
       .theme-toggle { margin-left: .75rem; padding: .5rem .75rem; border-radius: 999px; border: 1px solid var(--color-border, #e2e8f0); background: var(--color-bg-alt, #f8f9fa); color: var(--color-text, #2d3748); cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
       .theme-toggle:hover { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
       [data-theme="dark"] .theme-toggle { background: rgba(22, 33, 62, 0.85); border-color: #2a2f45; color: #e0e0e0; }
     `;
-    document.head.appendChild(s);
-  };
+        document.head.appendChild(s);
+    };
 
-  const init = () => {
-    injectToggleStyles();
-    ensureToggleInNav();
-    // react to system theme change if user has not chosen
-    try {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      mq.addEventListener?.('change', () => {
-        if (!localStorage.getItem(STORAGE_KEY)) {
-          applyTheme(getTheme(), true);
-        }
-      });
-    } catch(_) {}
-  };
+    const init = () => {
+        injectToggleStyles();
+        ensureToggleInNav();
+        // react to system theme change if user has not chosen
+        try {
+            const mq = window.matchMedia('(prefers-color-scheme: dark)');
+            mq.addEventListener?.('change', () => {
+                if (!localStorage.getItem(STORAGE_KEY)) {
+                    applyTheme(getTheme(), true);
+                }
+            });
+        } catch (_) { }
+    };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();
 
 // Expose global functions for backwards compatibility
@@ -1175,56 +1177,56 @@ window.socialLogin = MentoraX.socialLogin.bind(MentoraX);
 window.forgotPassword = MentoraX.forgotPassword.bind(MentoraX);
 
 // Theme toggle function for HTML onclick attributes
-window.toggleTheme = function() {
-  const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
-  localStorage.setItem('theme', next);
-  (function applyTheme(theme, smooth=true) {
-    const root = document.documentElement;
-    if (smooth) {
-      root.classList.add('theme-transition');
-      setTimeout(()=>root.classList.remove('theme-transition'), 300);
-    }
-    root.setAttribute('data-theme', theme);
-    // Update any existing toggle buttons
-    document.querySelectorAll('.theme-toggle').forEach(btn => {
-      const dark = theme === 'dark';
-      btn.setAttribute('aria-pressed', String(dark));
-      btn.innerHTML = dark ? '☀️ Light' : '🌙 Dark';
-      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-      btn.setAttribute('aria-label', btn.title);
-    });
-  })(next, true);
+window.toggleTheme = function () {
+    const next = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    (function applyTheme(theme, smooth = true) {
+        const root = document.documentElement;
+        if (smooth) {
+            root.classList.add('theme-transition');
+            setTimeout(() => root.classList.remove('theme-transition'), 300);
+        }
+        root.setAttribute('data-theme', theme);
+        // Update any existing toggle buttons
+        document.querySelectorAll('.theme-toggle').forEach(btn => {
+            const dark = theme === 'dark';
+            btn.setAttribute('aria-pressed', String(dark));
+            btn.innerHTML = dark ? '☀️ Light' : '🌙 Dark';
+            btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+            btn.setAttribute('aria-label', btn.title);
+        });
+    })(next, true);
 };
 
 // Performance helpers
-MentoraX.initPerformanceOptimizations = function(){
-  try {
-    // Lazy-load images
-    document.querySelectorAll('img').forEach(img => {
-      if (!img.hasAttribute('loading')) img.setAttribute('loading','lazy');
-      if (!img.hasAttribute('decoding')) img.setAttribute('decoding','async');
-    });
+MentoraX.initPerformanceOptimizations = function () {
+    try {
+        // Lazy-load images
+        document.querySelectorAll('img').forEach(img => {
+            if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+            if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+        });
 
-    // Preload key CSS if not already
-    const head = document.head;
-    const ensurePreload = (href) => {
-      if (!href) return;
-      const exists = !!document.querySelector(`link[rel="preload"][href="${href}"]`);
-      if (!exists) {
-        const l = document.createElement('link');
-        l.rel = 'preload'; l.as = 'style'; l.href = href; head.appendChild(l);
-      }
-    };
-    // Guess primary stylesheet for current page
-    const pageStyles = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map(l => l.getAttribute('href'));
-    if (pageStyles.length) ensurePreload(pageStyles[0]);
+        // Preload key CSS if not already
+        const head = document.head;
+        const ensurePreload = (href) => {
+            if (!href) return;
+            const exists = !!document.querySelector(`link[rel="preload"][href="${href}"]`);
+            if (!exists) {
+                const l = document.createElement('link');
+                l.rel = 'preload'; l.as = 'style'; l.href = href; head.appendChild(l);
+            }
+        };
+        // Guess primary stylesheet for current page
+        const pageStyles = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map(l => l.getAttribute('href'));
+        if (pageStyles.length) ensurePreload(pageStyles[0]);
 
-    // Prefetch likely next pages
-    const pages = ['scholarships.html','mentors.html','projects.html','fields.html','about.html','notion.html'];
-    pages.forEach(p => {
-      if (!document.querySelector(`link[rel="prefetch"][href="${p}"]`)){
-        const pf = document.createElement('link'); pf.rel='prefetch'; pf.href=p; document.head.appendChild(pf);
-      }
-    });
-  } catch(_) {}
+        // Prefetch likely next pages
+        const pages = ['scholarships.html', 'mentors.html', 'projects.html', 'fields.html', 'about.html', 'notion.html'];
+        pages.forEach(p => {
+            if (!document.querySelector(`link[rel="prefetch"][href="${p}"]`)) {
+                const pf = document.createElement('link'); pf.rel = 'prefetch'; pf.href = p; document.head.appendChild(pf);
+            }
+        });
+    } catch (_) { }
 };

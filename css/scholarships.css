@@ -1100,3 +1100,156 @@ html[data-theme='dark'] .scholarship-card {
     border-left: 5px solid #51cf66;
     background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
 }
+/* --- Refactored Sort Controls (Matching Fields Page) --- */
+.sort-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sort-label {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.sort-select {
+    padding: 8px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #2d3748;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.btn-reset {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Filter Tabs alignment */
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+/* --- Dark Mode Overrides for Sort Controls --- */
+html[data-theme='dark'] .sort-controls {
+    background: #1e293b !important;
+}
+
+html[data-theme='dark'] .sort-label {
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .sort-select {
+    background: #0f1425 !important;
+    color: #e2e8f0 !important;
+    border-color: #2a2f45 !important;
+}
+
+/* --- Dark Mode Overrides for Stats and Categories --- */
+
+/* Quick Stats */
+html[data-theme='dark'] .scholarship-stats .stat-item {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .scholarship-stats .stat-number {
+    /* Retain gradient text if possible, or fallback to white */
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+html[data-theme='dark'] .scholarship-stats .stat-label {
+    color: #cbd5e1 !important;
+}
+
+/* Category Cards (if not covered by fields.css) */
+html[data-theme='dark'] .category-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme='dark'] .category-card p {
+    color: #cbd5e1 !important;
+}
+
+/* Auth Buttons consistency */
+html[data-theme='dark'] .btn-outline {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    border-color: #e2e8f0 !important;
+}
+
+html[data-theme='dark'] .btn-outline:hover {
+    background: white !important;
+    color: #1e293b !important;
+}
+
+/* Fix "All Scholarships" / Filter Tabs active state in dark mode */
+html[data-theme='dark'] .filter-tab {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+}
+
+html[data-theme='dark'] .filter-tab:hover,
+html[data-theme='dark'] .filter-tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+
+/* Detailed Fields / Saved Scholarships Button */
+.btn-saved-scholarships {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 20px auto;
+    display: table; /* Center it if appended to block */
+    transition: all 0.3s ease;
+}
+
+.btn-saved-scholarships:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+html[data-theme='dark'] .btn-saved-scholarships {
+    background: transparent;
+    color: #cbd5e1;
+    border-color: #667eea;
+}
+
+html[data-theme='dark'] .btn-saved-scholarships:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}

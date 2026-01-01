@@ -48,6 +48,7 @@ function setupAllButtonHandlers() {
     });
 }
 
+// Enhanced slider // Mobile Menu Toggle
 function toggleMenu() {
     const menu = document.getElementById('navMenu');
     menu.classList.toggle('active');
@@ -490,10 +491,10 @@ function showWelcomeMessage(name) {
         border: 2px solid #667eea;
         border-radius: 12px;
         padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        max-width: 300px;
-        animation: slideInRight 0.5s ease;
-    `;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 300px;
+            animation: slideInRight 0.5s ease;
+        `;
 
     document.body.appendChild(welcomeDiv);
 
@@ -503,6 +504,57 @@ function showWelcomeMessage(name) {
             welcomeDiv.remove();
         }
     }, 5000);
+}
+
+// Theme Management
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    html.classList.add('theme-transition');
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    updateThemeToggleUI(newTheme);
+
+    // Remove transition class after animation completes
+    setTimeout(() => {
+        html.classList.remove('theme-transition');
+    }, 300);
+}
+
+function updateThemeToggleUI(theme) {
+    const toggleBtn = document.querySelector('.theme-toggle');
+    if (toggleBtn) {
+        toggleBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+        toggleBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+    }
+}
+
+// Initialize Theme
+document.addEventListener('DOMContentLoaded', () => {
+    // Check local storage or system preference
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    let initialTheme = 'light';
+    if (savedTheme) {
+        initialTheme = savedTheme;
+    } else if (systemPrefersDark) {
+        initialTheme = 'dark';
+    }
+
+    document.documentElement.setAttribute('data-theme', initialTheme);
+    updateThemeToggleUI(initialTheme);
+});
+
+// Show welcome notification for new users
+if (!localStorage.getItem('visited_before')) {
+    setTimeout(() => {
+        showNotification('Welcome to MentoraX! Explore scholarships and connect with mentors.', 'success');
+        localStorage.setItem('visited_before', 'true');
+    }, 2000);
 }
 
 // Logout function
@@ -882,13 +934,6 @@ const observerForTimeline = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.1 });
 
-document.querySelectorAll('.timeline-item').forEach(item => {
-    item.style.opacity = '0';
-    item.style.transform = 'translateX(-30px)';
-    item.style.transition = 'all 0.6s ease-out';
-    observerForTimeline.observe(item);
-});
-
 // Statistics counter animation for about section
 function animateStats() {
     const stats = document.querySelectorAll('.stat-item h4');
@@ -970,119 +1015,3 @@ const floatAnimation = `
 const animationStyle = document.createElement('style');
 animationStyle.textContent = floatAnimation;
 document.head.appendChild(animationStyle);
-
-// Enhanced mobile menu with better animations
-document.addEventListener('DOMContentLoaded', function () {
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const navMenu = document.querySelector('.nav-menu');
-
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', function () {
-            navMenu.classList.toggle('active');
-
-            // Animate menu items
-            const menuItems = navMenu.querySelectorAll('li');
-            if (navMenu.classList.contains('active')) {
-                menuItems.forEach((item, index) => {
-                    item.style.animation = `fadeInDown 0.3s ease forwards ${index * 0.1}s`;
-                });
-            }
-        });
-    }
-});
-
-// Add notification system for important updates
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <span>${message}</span>
-        <button onclick="this.parentElement.remove()">&times;</button>
-    `;
-
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#667eea'};
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        z-index: 3000;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        animation: slideInRight 0.3s ease;
-        max-width: 300px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    `;
-
-    notification.querySelector('button').style.cssText = `
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-// Theme Management
-function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-    html.classList.add('theme-transition');
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-
-    updateThemeToggleUI(newTheme);
-
-    // Remove transition class after animation completes
-    setTimeout(() => {
-        html.classList.remove('theme-transition');
-    }, 300);
-}
-
-function updateThemeToggleUI(theme) {
-    const toggleBtn = document.querySelector('.theme-toggle');
-    if (toggleBtn) {
-        toggleBtn.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-        toggleBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
-    }
-}
-
-// Initialize Theme
-document.addEventListener('DOMContentLoaded', () => {
-    // Check local storage or system preference
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    let initialTheme = 'light';
-    if (savedTheme) {
-        initialTheme = savedTheme;
-    } else if (systemPrefersDark) {
-        initialTheme = 'dark';
-    }
-
-    document.documentElement.setAttribute('data-theme', initialTheme);
-    updateThemeToggleUI(initialTheme);
-});
-
-// ... (Rest of existing initialization code if any, but adding this to the end is fine)
-
-// Show welcome notification for new users
-if (!localStorage.getItem('visited_before')) {
-    setTimeout(() => {
-        showNotification('Welcome to MentoraX! Explore scholarships and connect with mentors.', 'success');
-        localStorage.setItem('visited_before', 'true');
-    }, 2000);
-}
