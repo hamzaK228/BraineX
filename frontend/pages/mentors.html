@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Mentors - MentoraX</title>
+    <style id="critical-css">*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1.6;color:#333}header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:1rem 0;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.1)}.container{max-width:1400px;margin:0 auto;padding:0 2rem}nav{display:flex;justify-content:space-between;align-items:center;gap:1rem}.logo{font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:.5rem}.logo-icon{width:40px;height:40px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}.nav-menu{display:flex;list-style:none;gap:2rem}.nav-menu a{color:#fff;text-decoration:none}.mobile-menu-btn{display:none}@media(max-width:768px){.mobile-menu-btn{display:block}.nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);flex-direction:column;padding:2rem;gap:1rem}}.hero{margin-top:80px}</style>
+<link rel="stylesheet" href="../assets/css/main.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="../assets/css/main.css"></noscript>
+    <link rel="stylesheet" href="../assets/css/mentors.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="../assets/css/mentors.css"></noscript>
+    <link rel="stylesheet" href="../assets/css/unified-cards.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="../assets/css/unified-cards.css"></noscript>
+  <meta name="description" content="Find expert mentors across fields for personalized guidance and career success.">
+  <meta name="keywords" content="mentors, mentorship, career guidance, student mentors, experts">
+  <meta property="og:title" content="Expert Mentors - MentoraX">
+  <meta property="og:description" content="Connect with expert mentors and get personalized guidance.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mentorax.example/mentors.html">
+  <meta property="og:image" content="https://mentorax.example/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Expert Mentors - MentoraX">
+  <meta name="twitter:description" content="Browse mentors by field, experience, and location.">
+  <meta name="twitter:image" content="https://mentorax.example/og-image.png">
+  <link rel="preload" as="style" href="../assets/css/mentors.css">
+  <link rel="prefetch" href="./projects.html">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav role=\"navigation\" aria-label=\"Primary navigation\">
+                <div class="logo">
+                    <div class="logo-icon">🎓</div>
+                    <span>MentoraX</span>
+                </div>
+                <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="./main.html">Home</a></li>
+                    <li><a href="./fields.html">Fields</a></li>
+                    <li><a href="./scholarships.html">Scholarships</a></li>
+                    <li><a href="./projects.html">Projects</a></li>
+                    <li><a href="./roadmaps.html">Roadmaps</a></li>
+                    <li><a href="./mentors.html" class="active">Mentors</a></li>
+                    <li><a href="./events.html">Events</a></li>
+                    <li><a href="./notion.html">My Goals</a></li>
+                    <li><a href="./about.html">About</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="#login" class="btn btn-outline">Log In</a>
+                    <a href="#signup" class="btn btn-primary">Sign Up</a>
+                </div>
+                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme" aria-pressed="false">🌙 Dark</button>
+                </nav>
+        </div>
+    </header>
+    <main id="mainContent" role="main">
+
+    <!-- Hero Section -->
+    <section class="mentors-hero">
+        <div class="container">
+            <h1>Connect with Expert Mentors</h1>
+            <p>Get personalized guidance from industry professionals and successful alumni who have walked your path</p>
+            
+            <div class="mentor-search">
+                <div class="search-filters">
+                    <select class="filter-select" id="fieldFilter">
+                        <option value="">All Fields</option>
+                        <option value="technology">Technology</option>
+                        <option value="business">Business</option>
+                        <option value="medicine">Medicine</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="arts">Arts & Design</option>
+                        <option value="law">Law</option>
+                        <option value="science">Science</option>
+                    </select>
+                    
+                    <select class="filter-select" id="experienceFilter">
+                        <option value="">Experience Level</option>
+                        <option value="entry">0-5 years</option>
+                        <option value="mid">5-10 years</option>
+                        <option value="senior">10+ years</option>
+                    </select>
+                    
+                    <select class="filter-select" id="locationFilter">
+                        <option value="">Location</option>
+                        <option value="usa">United States</option>
+                        <option value="canada">Canada</option>
+                        <option value="uk">United Kingdom</option>
+                        <option value="germany">Germany</option>
+                        <option value="australia">Australia</option>
+                        <option value="singapore">Singapore</option>
+                    </select>
+                    
+                    <button class=\"btn-search-mentors\" aria-label=\"Find mentors\">Find Mentors</button>
+                </div>
+            </div>
+
+            <div class="mentor-stats">
+                <div class="stat">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Expert Mentors</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">10,000+</span>
+                    <span class="stat-label">Students Mentored</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">4.9⭐</span>
+                    <span class="stat-label">Average Rating</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">150+</span>
+                    <span class="stat-label">Companies</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Mentors -->
+    <section class="featured-mentors">
+        <div class="container">
+            <h2>🌟 Featured Mentors</h2>
+            <div class="featured-grid">
+                <div class="mentor-featured-card">
+                    <div class="mentor-badge">🏆 Top Rated</div>
+                    <div class="mentor-avatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3ESJ%3C/text%3E%3C/svg%3E" alt="Dr. Sarah Johnson">
+                    </div>
+                    <h3>Dr. Sarah Johnson</h3>
+                    <p class="mentor-role">AI Research Director</p>
+                    <p class="mentor-company">🏢 Google DeepMind</p>
+                    
+                    <div class="mentor-highlights">
+                        <span class="highlight">🎓 Stanford PhD</span>
+                        <span class="highlight">📊 200+ Mentees</span>
+                        <span class="highlight">⭐ 5.0 Rating</span>
+                    </div>
+                    
+                    <p class="mentor-bio">Leading AI researcher with 15+ years experience. Helped 200+ students get into top PhD programs and tech companies.</p>
+                    
+                    <div class="mentor-expertise">
+                        <span class="expertise-tag">Machine Learning</span>
+                        <span class="expertise-tag">PhD Applications</span>
+                        <span class="expertise-tag">Research</span>
+                        <span class="expertise-tag">Career Strategy</span>
+                    </div>
+                    
+                    <div class="mentor-pricing">
+                        <span class="price">$150/hour</span>
+                        <span class="session-type">1-on-1 Session</span>
+                    </div>
+                    
+                    <button class="btn-connect-featured">Connect Now</button>
+                </div>
+                
+                <div class="mentor-featured-card">
+                    <div class="mentor-badge">🚀 Rising Star</div>
+                    <div class="mentor-avatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EMC%3C/text%3E%3C/svg%3E" alt="Michael Chen">
+                    </div>
+                    <h3>Michael Chen</h3>
+                    <p class="mentor-role">Investment Banking VP</p>
+                    <p class="mentor-company">🏢 Goldman Sachs</p>
+                    
+                    <div class="mentor-highlights">
+                        <span class="highlight">🎓 Wharton MBA</span>
+                        <span class="highlight">📊 150+ Mentees</span>
+                        <span class="highlight">⭐ 4.9 Rating</span>
+                    </div>
+                    
+                    <p class="mentor-bio">Investment banking expert specializing in finance careers and MBA applications. 10+ years on Wall Street.</p>
+                    
+                    <div class="mentor-expertise">
+                        <span class="expertise-tag">Investment Banking</span>
+                        <span class="expertise-tag">MBA Applications</span>
+                        <span class="expertise-tag">Finance Careers</span>
+                        <span class="expertise-tag">Interview Prep</span>
+                    </div>
+                    
+                    <div class="mentor-pricing">
+                        <span class="price">$120/hour</span>
+                        <span class="session-type">1-on-1 Session</span>
+                    </div>
+                    
+                    <button class="btn-connect-featured">Connect Now</button>
+                </div>
+                
+                <div class="mentor-featured-card">
+                    <div class="mentor-badge">💡 Innovation Expert</div>
+                    <div class="mentor-avatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23667eea'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EAP%3C/text%3E%3C/svg%3E" alt="Dr. Aisha Patel">
+                    </div>
+                    <h3>Dr. Aisha Patel</h3>
+                    <p class="mentor-role">Medical Researcher</p>
+                    <p class="mentor-company">🏢 Johns Hopkins</p>
+                    
+                    <div class="mentor-highlights">
+                        <span class="highlight">🎓 Harvard MD/PhD</span>
+                        <span class="highlight">📊 120+ Mentees</span>
+                        <span class="highlight">⭐ 5.0 Rating</span>
+                    </div>
+                    
+                    <p class="mentor-bio">Leading medical researcher and physician. Expert in medical school admissions and healthcare career paths.</p>
+                    
+                    <div class="mentor-expertise">
+                        <span class="expertise-tag">Medical School</span>
+                        <span class="expertise-tag">Research</span>
+                        <span class="expertise-tag">Healthcare Careers</span>
+                        <span class="expertise-tag">MD/PhD Programs</span>
+                    </div>
+                    
+                    <div class="mentor-pricing">
+                        <span class="price">$140/hour</span>
+                        <span class="session-type">1-on-1 Session</span>
+                    </div>
+                    
+                    <button class="btn-connect-featured">Connect Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentor Directory -->
+    <section class="mentor-directory">
+        <div class="container">
+            <div class="directory-header">
+                <h2>Mentor Directory</h2>
+                <div class="directory-controls">
+                    <div class="view-toggle">
+                        <button class=\"view-btn active\" data-view=\"grid\" aria-pressed=\"true\">Grid</button>
+                        <button class=\"view-btn\" data-view=\"list\" aria-pressed=\"false\">List</button>
+                    </div>
+                    <select class="sort-select">
+                        <option value="rating">Sort by Rating</option>
+                        <option value="experience">Sort by Experience</option>
+                        <option value="price">Sort by Price</option>
+                        <option value="reviews">Sort by Reviews</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mentors-grid" id="mentorsGrid">
+                <!-- Mentors will be populated here -->
+            </div>
+
+            <div class="load-more">
+                <button class="btn-load-more">Load More Mentors</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>How Mentorship Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">🔍</div>
+                    <h3>Find Your Mentor</h3>
+                    <p>Browse our directory of expert mentors and filter by field, experience, and location to find the perfect match for your goals.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">📅</div>
+                    <h3>Book a Session</h3>
+                    <p>Schedule a session at your convenience. Choose from 30-minute consultations to multi-hour deep-dive sessions.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">💬</div>
+                    <h3>Get Guidance</h3>
+                    <p>Have meaningful conversations about your career, education, and goals. Get actionable advice and insider insights.</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">🚀</div>
+                    <h3>Achieve Success</h3>
+                    <p>Apply what you've learned and take concrete steps toward your goals with ongoing support from your mentor.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentorship Plans -->
+    <section class="mentorship-plans">
+        <div class="container">
+            <h2>Mentorship Plans</h2>
+            <div class="plans-grid">
+                <div class="plan-card">
+                    <h3>💬 Single Session</h3>
+                    <div class="plan-price">
+                        <span class="price">$50-200</span>
+                        <span class="duration">/session</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 30-60 minute session</li>
+                        <li>✅ Career guidance</li>
+                        <li>✅ Resume review</li>
+                        <li>✅ Q&A session</li>
+                        <li>✅ Follow-up resources</li>
+                    </ul>
+                    <button class="btn-plan">Book Session</button>
+                </div>
+                
+                <div class="plan-card featured">
+                    <div class="plan-badge">Most Popular</div>
+                    <h3>📈 Monthly Mentorship</h3>
+                    <div class="plan-price">
+                        <span class="price">$300-800</span>
+                        <span class="duration">/month</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 4 sessions per month</li>
+                        <li>✅ Goal setting & tracking</li>
+                        <li>✅ Resume & portfolio review</li>
+                        <li>✅ Interview preparation</li>
+                        <li>✅ Network introductions</li>
+                        <li>✅ Email support</li>
+                    </ul>
+                    <button class="btn-plan">Start Mentorship</button>
+                </div>
+                
+                <div class="plan-card">
+                    <h3>🎯 Intensive Program</h3>
+                    <div class="plan-price">
+                        <span class="price">$1,500-3,000</span>
+                        <span class="duration">/3 months</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 12+ sessions</li>
+                        <li>✅ Personalized roadmap</li>
+                        <li>✅ Application support</li>
+                        <li>✅ Mock interviews</li>
+                        <li>✅ Industry connections</li>
+                        <li>✅ 24/7 chat support</li>
+                    </ul>
+                    <button class="btn-plan">Learn More</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section class="mentor-success-stories">
+        <div class="container">
+            <h2>Success Stories</h2>
+            <div class="stories-slider">
+                <div class="story-card">
+                    <div class="story-content">
+                        <p>"My mentor helped me navigate the complex world of investment banking. Thanks to their guidance, I landed my dream job at Goldman Sachs!"</p>
+                        <div class="story-author">
+                            <div class="author-avatar">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2328a745'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3EJD%3C/text%3E%3C/svg%3E" alt="John Davis">
+                            </div>
+                            <div class="author-info">
+                                <h4>John Davis</h4>
+                                <span>Investment Banking Analyst at Goldman Sachs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="story-card">
+                    <div class="story-content">
+                        <p>"The PhD application process was overwhelming until I found my mentor. They helped me craft a compelling research proposal and get into Stanford!"</p>
+                        <div class="story-author">
+                            <div class="author-avatar">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2328a745'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3ELT%3C/text%3E%3C/svg%3E" alt="Lisa Thompson">
+                            </div>
+                            <div class="author-info">
+                                <h4>Lisa Thompson</h4>
+                                <span>PhD Student at Stanford University</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="story-card">
+                    <div class="story-content">
+                        <p>"My mentor's insights into medical school admissions were invaluable. I'm now studying at Harvard Medical School thanks to their guidance!"</p>
+                        <div class="story-author">
+                            <div class="author-avatar">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2328a745'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3ERK%3C/text%3E%3C/svg%3E" alt="Raj Kumar">
+                            </div>
+                            <div class="author-info">
+                                <h4>Raj Kumar</h4>
+                                <span>Medical Student at Harvard Medical School</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentor Application -->
+    <section class="become-mentor">
+        <div class="container">
+            <div class="become-mentor-content">
+                <div class="become-mentor-text">
+                    <h2>Become a Mentor</h2>
+                    <p>Share your expertise and help the next generation of professionals achieve their goals. Join our community of expert mentors and make a meaningful impact.</p>
+                    
+                    <div class="mentor-benefits">
+                        <div class="benefit">
+                            <span class="benefit-icon">💰</span>
+                            <div>
+                                <h4>Earn Extra Income</h4>
+                                <p>Set your own rates and schedule. Top mentors earn $200+/hour.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit">
+                            <span class="benefit-icon">🌟</span>
+                            <div>
+                                <h4>Make an Impact</h4>
+                                <p>Guide students and professionals to achieve their dreams.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit">
+                            <span class="benefit-icon">📈</span>
+                            <div>
+                                <h4>Build Your Brand</h4>
+                                <p>Establish thought leadership and expand your network.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-become-mentor">Apply to Become a Mentor</button>
+                </div>
+                
+                <div class="become-mentor-image">
+                    <div class="mentor-illustration">
+                        👨‍🏫
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    </main>
+     <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Find Mentors</h4>
+                    <a href="#technology">Technology</a>
+                    <a href="#business">Business</a>
+                    <a href="#medicine">Medicine</a>
+                    <a href="#law">Law</a>
+                </div>
+                <div class="footer-section">
+                    <h4>For Mentors</h4>
+                    <a href="#apply">Become a Mentor</a>
+                    <a href="#resources">Mentor Resources</a>
+                    <a href="#training">Training</a>
+                    <a href="#community">Community</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#help">Help Center</a>
+                    <a href="#safety">Safety</a>
+                    <a href="#trust">Trust & Safety</a>
+                    <a href="#contact">Contact Us</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="#about">About Us</a>
+                    <a href="#careers">Careers</a>
+                    <a href="#press">Press</a>
+                    <a href="#blog">Blog</a>
+                </div>
+            </div>
+            <p>&copy; 2025 MentoraX. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script defer src="../assets/js/global.js"></script>
+    <script defer src="../assets/js/main.js"></script>
+    <script defer src="../assets/js/mentors.js"></script>
+</body>
+</html>
