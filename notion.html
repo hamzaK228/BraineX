@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Goals - MentoraX</title>
+    <style id="critical-css">*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1.6;color:#333}header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:1rem 0;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.1)}.container{max-width:1400px;margin:0 auto;padding:0 2rem}nav{display:flex;justify-content:space-between;align-items:center;gap:1rem}.logo{font-size:1.5rem;font-weight:700;display:flex;align-items:center;gap:.5rem}.logo-icon{width:40px;height:40px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem}.nav-menu{display:flex;list-style:none;gap:2rem}.nav-menu a{color:#fff;text-decoration:none}.mobile-menu-btn{display:none}@media(max-width:768px){.mobile-menu-btn{display:block}.nav-menu{display:none;position:absolute;top:100%;left:0;right:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);flex-direction:column;padding:2rem;gap:1rem}}.hero{margin-top:80px}</style>
+<link rel="stylesheet" href="./main.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./main.css"></noscript>
+    <link rel="stylesheet" href="./notion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="./notion.css"></noscript>
+  <meta name="description" content="Track goals, notes, and progress with MentoraX's Notion-inspired workspace.">
+  <meta name="keywords" content="goals, notes, tasks, calendar, notion, dashboard">
+  <meta property="og:title" content="My Goals - MentoraX">
+  <meta property="og:description" content="Organize your goals, notes, and deadlines in one place.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mentorax.example/notion.html">
+  <meta property="og:image" content="https://mentorax.example/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="My Goals - MentoraX">
+  <meta name="twitter:description" content="Track goals and progress with a simple dashboard.">
+  <meta name="twitter:image" content="https://mentorax.example/og-image.png">
+  <link rel="preload" as="style" href="main.css">
+  <script>
+    window.toggleTheme = function() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.innerHTML = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+        btn.setAttribute('aria-pressed', String(next === 'dark'));
+      });
+      root.classList.add('theme-transition');
+      setTimeout(() => root.classList.remove('theme-transition'), 300);
+    };
+    (function() {
+      const saved = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav role="navigation" aria-label="Primary navigation">
+                <div class="logo">
+                    <div class="logo-icon">🎓</div>
+                    <span>MentoraX</span>
+                </div>
+                <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="main.html">Home</a></li>
+                    <li><a href="fields.html">Fields</a></li>
+                    <li><a href="scholarships.html">Scholarships</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="roadmaps.html">Roadmaps</a></li>
+                    <li><a href="mentors.html">Mentors</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="notion.html" class="active">My Goals</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="#login" class="btn btn-outline">Log In</a>
+                    <a href="#signup" class="btn btn-primary">Sign Up</a>
+                </div>
+                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme" aria-pressed="false">🌙 Dark</button>
+                </nav>
+        </div>
+    </header>
+    <main id="mainContent" role="main">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>📋 My Workspace</h3>
+            <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Close sidebar">×</button>
+        </div>
+        
+        <div class="sidebar-section">
+            <h4>📊 Dashboard</h4>
+            <ul class="sidebar-menu">
+                <li><a href="#overview" class="sidebar-link active" data-section="overview">🏠 Overview</a></li>
+                <li><a href="#goals" class="sidebar-link" data-section="goals">🎯 Goals</a></li>
+                <li><a href="#progress" class="sidebar-link" data-section="progress">📈 Progress</a></li>
+                <li><a href="#calendar" class="sidebar-link" data-section="calendar">📅 Calendar</a></li>
+                <li><a href="#notion-guides" class="sidebar-link" data-section="notion-guides">🧭 Notion Guides</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <h4>📝 Notes & Planning</h4>
+            <ul class="sidebar-menu">
+                <li><a href="#notes" class="sidebar-link" data-section="notes">📔 Notes</a></li>
+                <li><a href="#tasks" class="sidebar-link" data-section="tasks">✅ Tasks</a></li>
+                <li><a href="#projects-plan" class="sidebar-link" data-section="projects">📁 Projects</a></li>
+                <li><a href="#resources" class="sidebar-link" data-section="resources">🔗 Resources</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <h4>🎓 Academic</h4>
+            <ul class="sidebar-menu">
+                <li><a href="#courses" class="sidebar-link" data-section="courses">📚 Courses</a></li>
+                <li><a href="#applications" class="sidebar-link" data-section="applications">📄 Applications</a></li>
+                <li><a href="#scholarships-tracker" class="sidebar-link" data-section="scholarships-tracker">💰 Scholarship Tracker</a></li>
+                <li><a href="#deadlines" class="sidebar-link" data-section="deadlines">⏰ Deadlines</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-actions">
+            <button class="btn-new" onclick="createNewItem()">+ New Page</button>
+            <button class="btn-template" onclick="showTemplates()">📋 Templates</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <button class="sidebar-open" onclick="toggleSidebar()" aria-label="Open sidebar">☰</button>
+        
+        <!-- Overview Section -->
+        <section class="content-section active" id="overview">
+            <div class="page-header">
+                <h1>🏠 Welcome to Your Goals Dashboard</h1>
+                <p class="page-subtitle">Track your academic journey, set goals, and achieve your dreams</p>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3 id="totalGoals">0</h3>
+                        <p>Active Goals</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 id="completedTasks">0</h3>
+                        <p>Tasks Completed</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <h3 id="progressPercent">0%</h3>
+                        <p>Overall Progress</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-content">
+                        <h3 id="currentStreak">0</h3>
+                        <p>Day Streak</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>📅 Upcoming Deadlines</h3>
+                    <div class="deadline-list" id="upcomingDeadlines">
+                        <!-- Deadlines will be populated here -->
+                    </div>
+                    <button class="btn-card" onclick="switchSection('deadlines')">View All Deadlines</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>🎯 Recent Goals</h3>
+                    <div class="goals-preview" id="recentGoals">
+                        <!-- Goals will be populated here -->
+                    </div>
+                    <button class="btn-card" onclick="switchSection('goals')">Manage Goals</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>📝 Quick Notes</h3>
+                    <div class="quick-notes">
+                        <textarea placeholder="Jot down quick thoughts..." id="quickNote"></textarea>
+                        <button class="btn-save-note" onclick="saveQuickNote()">Save</button>
+                    </div>
+                    <button class="btn-card" onclick="switchSection('notes')">View All Notes</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>📊 This Week's Focus</h3>
+                    <div class="focus-area" id="weeklyFocus">
+                        <div class="focus-item">
+                            <span class="focus-emoji">🎓</span>
+                            <span>Complete scholarship applications</span>
+                        </div>
+                        <div class="focus-item">
+                            <span class="focus-emoji">📚</span>
+                            <span>Prepare for midterm exams</span>
+                        </div>
+                    </div>
+                    <button class="btn-card" onclick="editWeeklyFocus()">Edit Focus</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section class="content-section" id="goals">
+            <div class="page-header">
+                <h1>🎯 My Goals</h1>
+                <p class="page-subtitle">Set, track, and achieve your academic and personal objectives</p>
+                <button class="btn-primary" onclick="openGoalModal()">+ Add New Goal</button>
+            </div>
+
+            <div class="goals-filters">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All Goals</button>
+                    <button class="filter-btn" data-filter="academic">🎓 Academic</button>
+                    <button class="filter-btn" data-filter="career">💼 Career</button>
+                    <button class="filter-btn" data-filter="personal">🌟 Personal</button>
+                    <button class="filter-btn" data-filter="health">💪 Health</button>
+                </div>
+                <div class="sort-options">
+                    <select id="goalSort">
+                        <option value="date">Sort by Date</option>
+                        <option value="priority">Sort by Priority</option>
+                        <option value="progress">Sort by Progress</option>
+                        <option value="deadline">Sort by Deadline</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="goals-container" id="goalsContainer">
+                <!-- Goals will be populated here -->
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section class="content-section" id="progress">
+            <div class="page-header">
+                <h1>📈 Progress Tracking</h1>
+                <p class="page-subtitle">Visualize your achievements and growth over time</p>
+            </div>
+
+            <div class="progress-charts">
+                <div class="chart-card">
+                    <h3>📊 Goals Completion Rate</h3>
+                    <div class="chart-container">
+                        <canvas id="goalsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>📈 Monthly Progress</h3>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-timeline">
+                <h3>🏆 Achievement Timeline</h3>
+                <div class="timeline" id="achievementTimeline">
+                    <!-- Timeline items will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section class="content-section" id="notes">
+            <div class="page-header">
+                <h1>📔 My Notes</h1>
+                <p class="page-subtitle">Capture ideas, thoughts, and important information</p>
+                <button class="btn-primary" onclick="createNewNote()">+ New Note</button>
+            </div>
+
+            <div class="notes-grid" id="notesGrid">
+                <!-- Notes will be populated here -->
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section class="content-section" id="tasks">
+            <div class="page-header">
+                <h1>✅ Task Manager</h1>
+                <p class="page-subtitle">Organize and prioritize your daily tasks</p>
+                <button class="btn-primary" onclick="addNewTask()">+ Add Task</button>
+            </div>
+
+            <div class="tasks-board">
+                <div class="tasks-column">
+                    <h3>📝 To Do</h3>
+                    <div class="tasks-list" id="todoTasks">
+                        <!-- Tasks will be populated here -->
+                    </div>
+                </div>
+                <div class="tasks-column">
+                    <h3>⏳ In Progress</h3>
+                    <div class="tasks-list" id="inProgressTasks">
+                        <!-- Tasks will be populated here -->
+                    </div>
+                </div>
+                <div class="tasks-column">
+                    <h3>✅ Completed</h3>
+                    <div class="tasks-list" id="completedTasks">
+                        <!-- Tasks will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar Section -->
+        <section class="content-section" id="calendar">
+            <div class="page-header">
+                <h1>📅 Calendar & Deadlines</h1>
+                <p class="page-subtitle">Stay organized with important dates and deadlines</p>
+                <button class="btn-primary" onclick="addEvent()">+ Add Event</button>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="previousMonth()">&lt;</button>
+                    <h3 id="currentMonth">December 2024</h3>
+                    <button class="calendar-nav" onclick="nextMonth()">&gt;</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be populated here -->
+                </div>
+            </div>
+
+            <div class="calendar-events">
+                <h3>📋 Upcoming Events</h3>
+                <div class="events-list" id="eventsList">
+                    <!-- Events will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Notion Guides Section -->
+        <section class="content-section" id="notion-guides">
+            <div class="page-header">
+                <h1>🧭 Notion Guides & Roadmaps</h1>
+                <p class="page-subtitle">Search and view guides from your connected Notion workspace</p>
+            </div>
+
+            <div class="goals-filters" style="margin-bottom: 1rem;">
+                <div style="display:flex; gap:.5rem; flex:1;">
+                    <input id="notionSearchInput" type="text" placeholder="Search Notion pages, databases..." style="flex:1; padding:.7rem 1rem; border:1px solid #e6e6e3; border-radius:8px;">
+                    <select id="notionFilterType" style="padding:.7rem 1rem; border:1px solid #e6e6e3; border-radius:8px;">
+                        <option value="all">All</option>
+                        <option value="page">Pages</option>
+                        <option value="database">Databases</option>
+                    </select>
+                    <button class="btn-primary" id="notionSearchBtn">Search</button>
+                </div>
+            </div>
+
+            <div id="notionStatus" class="notification info" style="display:none;"></div>
+
+            <div id="notionResults" class="notes-grid" aria-live="polite">
+                <!-- Results populated here -->
+            </div>
+
+            <div id="notionViewer" style="margin-top:2rem; display:none;">
+                <div class="page-header" style="margin-bottom:1rem;">
+                    <h2 id="notionViewerTitle" style="margin-bottom:.5rem;">Selected Page</h2>
+                    <div style="display:flex; gap:.5rem;">
+                        <a id="notionOpenLink" href="#" target="_blank" rel="noopener" class="btn btn-outline">Open in Notion ↗</a>
+                        <button class="btn-secondary" id="closeViewerBtn">Close</button>
+                    </div>
+                </div>
+                <div id="notionContent" class="notion-content skeleton"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Goal Modal -->
+    <div class="modal" id="goalModal">
+        <div class="modal-content goal-modal-content">
+            <div class="modal-header">
+                <h2 id="goalModalTitle">Create New Goal</h2>
+                <button class="close-modal" onclick="closeGoalModal()" aria-label="Close modal">&times;</button>
+            </div>
+            
+            <form id="goalForm">
+                <div class="form-group">
+                    <label for="goalTitle">Goal Title *</label>
+                    <input type="text" id="goalTitle" required placeholder="Enter your goal title">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goalCategory">Category *</label>
+                        <select id="goalCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="academic">🎓 Academic</option>
+                            <option value="career">💼 Career</option>
+                            <option value="personal">🌟 Personal</option>
+                            <option value="health">💪 Health</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalPriority">Priority *</label>
+                        <select id="goalPriority" required>
+                            <option value="">Select Priority</option>
+                            <option value="high">🔴 High</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="low">🟢 Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goalDescription">Description</label>
+                    <textarea id="goalDescription" placeholder="Describe your goal in detail..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goalStartDate">Start Date</label>
+                        <input type="date" id="goalStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="goalEndDate">Target Date</label>
+                        <input type="date" id="goalEndDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goalMilestones">Milestones</label>
+                    <div class="milestones-container" id="milestonesContainer">
+                        <div class="milestone-item">
+                            <input type="text" placeholder="Add a milestone...">
+                            <button type="button" onclick="removeMilestone(this)">×</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add-milestone" onclick="addMilestone()">+ Add Milestone</button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeGoalModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Note Editor Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content note-modal-content">
+            <div class="modal-header">
+                <input type="text" id="noteTitle" placeholder="Untitled Note" class="note-title-input">
+                <button class="close-modal" onclick="closeNoteModal()" aria-label="Close modal">&times;</button>
+            </div>
+            
+            <div class="note-toolbar">
+                <button class="toolbar-btn" onclick="formatText('bold')"><b>B</b></button>
+                <button class="toolbar-btn" onclick="formatText('italic')"><i>I</i></button>
+                <button class="toolbar-btn" onclick="formatText('underline')"><u>U</u></button>
+                <button class="toolbar-btn" onclick="insertList()">• List</button>
+                <button class="toolbar-btn" onclick="insertLink()">🔗 Link</button>
+            </div>
+            
+            <div class="note-editor">
+                <div id="noteContent" contenteditable="true" placeholder="Start writing..."></div>
+            </div>
+            
+            <div class="note-actions">
+                <button class="btn-secondary" onclick="closeNoteModal()">Close</button>
+                <button class="btn-primary" onclick="saveNote()">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <script defer src="./global.js"></script>
+    <script defer src="./main.js"></script>
+    <script defer src="./notion.js"></script>
+  </main>
+  <script src="./global.js"></script>
+</body>
+</html>
