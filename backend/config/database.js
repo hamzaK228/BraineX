@@ -1,0 +1,42 @@
+// Database configuration
+const mongoose = require('mongoose');
+
+const connectDB = async () => {
+    try {
+        const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/brainex';
+
+        const conn = await mongoose.connect(mongoURI, {
+            // Mongoose 8 defaults are good, but we'll be explicit
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
+
+        console.log(`📦 MongoDB Connected: ${conn.connection.host}`);
+
+        // Handle connection events
+        mongoose.connection.on('error', (err) => {
+            console.error('MongoDB connection error:', err);
+        });
+
+        mongoose.connection.on('disconnected', () => {
+            console.log('MongoDB disconnected');
+        });
+
+        // Graceful shutdown
+        process.on('SIGINT', async () => {
+            await mongoose.connection.close();
+            console.log('MongoDB connection closed due to app termination');
+            process.exit(0);
+        });
+
+        return conn;
+    } catch (error) {
+        console.warn('⚠️  MongoDB connection failed:', error.message);
+        console.log('🔧 Running in DEMO MODE without database');
+        console.log('   (User registration/login will work but data won\'t persist)');
+        return null;
+    }
+};
+
+module.exports = connectDB;

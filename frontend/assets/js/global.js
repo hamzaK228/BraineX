@@ -95,6 +95,14 @@ window.MentoraX = {
     },
 
     loadUserSession: function () {
+        // Try new auth system first (brainex_user from auth-api.js)
+        if (window.authAPI && window.authAPI.isAuthenticated()) {
+            this.user = window.authAPI.user;
+            this.updateUIForLoggedInUser();
+            return;
+        }
+
+        // Fallback to legacy storage
         const userData = localStorage.getItem('MentoraX_user') || sessionStorage.getItem('MentoraX_user');
         if (userData) {
             this.user = JSON.parse(userData);
@@ -230,7 +238,7 @@ window.MentoraX = {
             authButtons.innerHTML = `
                 <div class="user-menu">
                     <span class="welcome-text">Welcome, ${displayName}</span>
-                    <button class="btn btn-outline" onclick="MentoraX.logout()">Logout</button>
+                    <button class="btn btn-outline js-logout-btn">Logout</button>
                 </div>
             `;
         }
@@ -429,6 +437,11 @@ window.MentoraX = {
             if (e.target.classList.contains('modal')) {
                 this.closeModal();
             }
+
+            if (e.target.matches('.js-logout-btn') || e.target.closest('.js-logout-btn')) {
+                e.preventDefault();
+                this.logout();
+            }
         });
 
         // Bind form submissions
@@ -498,10 +511,10 @@ window.MentoraX = {
         }
     },
 
-    handleLogin: function (form) {
+    handleLogin: async function (form) {
         const email = form.loginEmail.value;
         const password = form.loginPassword.value;
-        const rememberMe = form.rememberMe.checked;
+        const rememberMe = form.rememberMe ? form.rememberMe.checked : false;
 
         let isValid = true;
         this.clearErrors();
@@ -530,37 +543,34 @@ window.MentoraX = {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Signing In...';
 
-            // Simulate API call
-            setTimeout(() => {
-                const userData = {
-                    email: email,
-                    loginTime: new Date().toISOString(),
-                    rememberMe: rememberMe
-                };
+            try {
+                // Use real API call
+                const result = await window.authAPI.login(email, password);
 
-                if (rememberMe) {
-                    localStorage.setItem('MentoraX_user', JSON.stringify(userData));
+                if (result.success) {
+                    this.user = result.data;
+                    document.getElementById('loginSuccess').classList.add('show');
+                    this.updateUIForLoggedInUser();
+
+                    setTimeout(() => {
+                        this.closeModal();
+                        this.showNotification('Welcome back! You are now logged in.', 'success');
+                    }, 1500);
                 } else {
-                    sessionStorage.setItem('MentoraX_user', JSON.stringify(userData));
+                    this.showNotification(result.error || 'Login failed', 'error');
                 }
-
-                this.user = userData;
-                document.getElementById('loginSuccess').classList.add('show');
-                this.updateUIForLoggedInUser();
-
-                setTimeout(() => {
-                    this.closeModal();
-                    this.showNotification('Welcome back! You are now logged in.', 'success');
-                }, 1500);
-
+            } catch (error) {
+                console.error('Login error:', error);
+                this.showNotification('Login failed. Please try again.', 'error');
+            } finally {
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Sign In';
-            }, 2000);
+            }
         }
     },
 
-    handleSignup: function (form) {
+    handleSignup: async function (form) {
         const firstName = form.firstName.value;
         const lastName = form.lastName.value;
         const email = form.signupEmail.value;
@@ -623,31 +633,36 @@ window.MentoraX = {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating Account...';
 
-            // Simulate API call
-            setTimeout(() => {
-                const userData = {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    field: field,
-                    signupTime: new Date().toISOString()
-                };
+            try {
+                // Use real API call
+                const result = await window.authAPI.register({
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                    field
+                });
 
-                localStorage.setItem('MentoraX_user', JSON.stringify(userData));
-                this.user = userData;
+                if (result.success) {
+                    this.user = result.data;
+                    document.getElementById('signupSuccess').classList.add('show');
+                    this.updateUIForLoggedInUser();
 
-                document.getElementById('signupSuccess').classList.add('show');
-                this.updateUIForLoggedInUser();
-
-                setTimeout(() => {
-                    this.closeModal();
-                    this.showNotification(`Welcome ${firstName}! Your account has been created successfully.`, 'success');
-                }, 1500);
-
+                    setTimeout(() => {
+                        this.closeModal();
+                        this.showNotification(`Welcome ${firstName}! Your account has been created successfully.`, 'success');
+                    }, 1500);
+                } else {
+                    this.showNotification(result.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                this.showNotification('Registration failed. Please try again.', 'error');
+            } finally {
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Create Account';
-            }, 2000);
+            }
         }
     },
 
@@ -687,7 +702,13 @@ window.MentoraX = {
         }
     },
 
-    logout: function () {
+    logout: async function () {
+        // Use real API logout if available
+        if (window.authAPI) {
+            await window.authAPI.logout();
+        }
+
+        // Also clear legacy storage
         localStorage.removeItem('MentoraX_user');
         sessionStorage.removeItem('MentoraX_user');
         this.user = null;
@@ -923,9 +944,9 @@ window.MentoraX = {
             if (currentUser) {
                 // User is logged in - show user info
                 loginButton.innerHTML = `
-                    <span style="margin-right: 8px;">ðŸ‘‹</span>
+                    <span style="margin-right: 8px;">👋</span>
                     <span>${currentUser.name}</span>
-                    <span style="margin-left: 8px; cursor: pointer;" onclick="MentoraX.logout()">ðŸšª</span>
+                    <span style="margin-left: 8px; cursor: pointer;" class="js-logout-btn">🚪</span>
                 `;
                 loginButton.style.background = 'linear-gradient(135deg, #38a169, #2f855a)';
             } else {
@@ -951,28 +972,28 @@ window.MentoraX = {
     showLoginRequiredForPage: function () {
         const overlay = document.createElement('div');
         overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100 %;
+                height: 100 %;
+                background: rgba(0, 0, 0, 0.8);
+                z - index: 10000;
+                display: flex;
+                align - items: center;
+                justify - content: center;
+                `;
 
         overlay.innerHTML = `
-            <div style="
+                    < div style = "
                 background: white;
                 padding: 40px;
-                border-radius: 20px;
-                text-align: center;
-                max-width: 500px;
+                border - radius: 20px;
+                text - align: center;
+                max - width: 500px;
                 margin: 20px;
-            ">
-                <div style="font-size: 48px; margin-bottom: 20px;">ðŸ”</div>
+                ">
+                    < div style = "font-size: 48px; margin-bottom: 20px;" > ðŸ”</div >
                 <h2 style="margin: 0 0 15px 0; color: #2d3748;">Login Required</h2>
                 <p style="margin: 0 0 25px 0; color: #4a5568;">
                     You need to be logged in to access this section. Please login or create an account to continue.
@@ -997,8 +1018,8 @@ window.MentoraX = {
                         cursor: pointer;
                     ">Go Home</button>
                 </div>
-            </div>
-        `;
+            </div >
+                    `;
 
         document.body.appendChild(overlay);
     },
@@ -1064,11 +1085,11 @@ document.addEventListener('DOMContentLoaded', function () {
 // Add slide animation CSS
 const animationStyles = document.createElement('style');
 animationStyles.textContent = `
-    @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(100%); }
+                @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(100 %); }
         to { opacity: 1; transform: translateX(0); }
-    }
-`;
+                }
+                `;
 document.head.appendChild(animationStyles);
 
 // Theme handling
@@ -1138,11 +1159,12 @@ document.head.appendChild(animationStyles);
         const s = document.createElement('style');
         s.id = 'theme-toggle-styles';
         s.textContent = `
-      .theme-transition, .theme-transition * { transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease; }
-      .theme-toggle { margin-left: .75rem; padding: .5rem .75rem; border-radius: 999px; border: 1px solid var(--color-border, #e2e8f0); background: var(--color-bg-alt, #f8f9fa); color: var(--color-text, #2d3748); cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-      .theme-toggle:hover { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
-      [data-theme="dark"] .theme-toggle { background: rgba(22, 33, 62, 0.85); border-color: #2a2f45; color: #e0e0e0; }
-    `;
+                    .theme - transition, .theme - transition * { transition: background - color .3s ease, color .3s ease, border- color .3s ease, box - shadow .3s ease;
+            }
+      .theme - toggle { margin - left: .75rem; padding: .5rem .75rem; border - radius: 999px; border: 1px solid var(--color - border, #e2e8f0); background: var(--color - bg - alt, #f8f9fa); color: var(--color - text, #2d3748); cursor: pointer; display: inline - flex; align - items: center; gap: .5rem; box - shadow: 0 2px 8px rgba(0, 0, 0, .08); }
+      .theme - toggle:hover { box - shadow: 0 4px 14px rgba(0, 0, 0, .12); }
+[data - theme="dark"].theme - toggle { background: rgba(22, 33, 62, 0.85); border - color: #2a2f45; color: #e0e0e0; }
+`;
         document.head.appendChild(s);
     };
 
@@ -1211,7 +1233,7 @@ MentoraX.initPerformanceOptimizations = function () {
         const head = document.head;
         const ensurePreload = (href) => {
             if (!href) return;
-            const exists = !!document.querySelector(`link[rel="preload"][href="${href}"]`);
+            const exists = !!document.querySelector(`link[rel = "preload"][href = "${href}"]`);
             if (!exists) {
                 const l = document.createElement('link');
                 l.rel = 'preload'; l.as = 'style'; l.href = href; head.appendChild(l);
@@ -1224,7 +1246,7 @@ MentoraX.initPerformanceOptimizations = function () {
         // Prefetch likely next pages
         const pages = ['scholarships.html', 'mentors.html', 'projects.html', 'fields.html', 'about.html', 'notion.html'];
         pages.forEach(p => {
-            if (!document.querySelector(`link[rel="prefetch"][href="${p}"]`)) {
+            if (!document.querySelector(`link[rel = "prefetch"][href = "${p}"]`)) {
                 const pf = document.createElement('link'); pf.rel = 'prefetch'; pf.href = p; document.head.appendChild(pf);
             }
         });
