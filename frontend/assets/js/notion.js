@@ -1020,7 +1020,7 @@ window.nextMonth = function() {
 // NOTION API INTEGRATION
 // ============================================
 // This section integrates with the Notion API via the backend server
-// to display Notion pages, databases, and content within MentoraX.
+// to display Notion pages, databases, and content within BraineX.
 // All API calls go through /api/notion/* endpoints on the server.
 
 /**

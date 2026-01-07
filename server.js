@@ -24,13 +24,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security: Helmet for HTTP headers
+// Security: Helmet for HTTP headers
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"], // Removed unsafe-inline
             imgSrc: ["'self'", "data:", "https:", "blob:"],
             connectSrc: ["'self'", "http://localhost:*", "https:"],
         },
@@ -38,54 +39,26 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: {
-        success: false,
-        error: 'Too many requests, please try again later.'
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-// Apply rate limiting to auth routes
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 auth attempts per windowMs
-    message: {
-        success: false,
-        error: 'Too many authentication attempts, please try again later.'
-    }
-});
-
 // Middleware
 app.use(cors({
     origin: process.env.CLIENT_URL || ['http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true
 }));
-app.use(express.json({ limit: '10kb' })); // Body size limit
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(compression());
 
-// Apply general rate limiting
-app.use('/api/', limiter);
+// Rate Limiter for Auth
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20, // limit each IP to 20 requests per windowMs
+    message: 'Too many login attempts, please try again after 15 minutes'
+});
 
-// Serve static files from frontend
+// Static files
 app.use(express.static(path.join(__dirname, 'frontend')));
 app.use('/assets', express.static(path.join(__dirname, 'frontend/assets')));
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({
-        success: true,
-        status: 'OK',
-        message: 'BraineX Server is running',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
-    });
-});
 
 // API Routes
 app.use('/api/auth', authLimiter, authRoutes);
@@ -97,32 +70,43 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/notion', notionRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        status: 'OK',
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Serve frontend pages
+const PAGES_DIR = path.join(__dirname, 'frontend/pages');
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/main.html'));
+    res.sendFile(path.join(PAGES_DIR, 'main.html'));
 });
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/admin.html'));
+// Serve any .html file from the pages directory
+app.get('/:page', (req, res, next) => {
+    const page = req.params.page;
+    if (page.includes('.')) return next(); // Not a clean route
+
+    const filePath = path.join(PAGES_DIR, `${page}.html`);
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.sendFile(path.join(PAGES_DIR, 'main.html'));
+        }
+    });
 });
 
-// Catch-all route for frontend pages
-app.get('*', (req, res) => {
-    const fs = require('fs');
-    const requestedPage = req.path.substring(1) || 'main';
-
-    // Try to serve the requested page
-    const htmlPath = path.join(__dirname, `frontend/pages/${requestedPage}.html`);
-    const htmlPathWithExt = path.join(__dirname, `frontend/pages/${requestedPage}`);
-
-    if (fs.existsSync(htmlPath)) {
-        res.sendFile(htmlPath);
-    } else if (fs.existsSync(htmlPathWithExt) && requestedPage.includes('.html')) {
-        res.sendFile(htmlPathWithExt);
-    } else {
-        // If page doesn't exist, serve main.html
-        res.sendFile(path.join(__dirname, 'frontend/pages/main.html'));
-    }
+// Catch-all for .html requests
+app.get('/*.html', (req, res) => {
+    const filePath = path.join(PAGES_DIR, path.basename(req.path));
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.sendFile(path.join(PAGES_DIR, 'main.html'));
+        }
+    });
 });
 
 // 404 handler for API routes

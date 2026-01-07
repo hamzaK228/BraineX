@@ -1,7 +1,8 @@
-﻿// Scholarships Page Functionality
+// Scholarships Page Functionality (API Integrated)
 
-const SCHOLARSHIPS_KEY = 'scholarships';
+const SCHOLARSHIPS_KEY = 'scholarships'; // Keeps cache if needed, but we rely on API now
 const SAVED_SCHOLARSHIPS_KEY = 'saved_scholarships';
+const API_BASE_URL = window.location.origin + '/api';
 
 let allScholarships = [];
 let currentScholarships = [];
@@ -16,11 +17,28 @@ document.addEventListener('DOMContentLoaded', function () {
     loadScholarships();
 });
 
-function loadScholarships() {
-    allScholarships = JSON.parse(localStorage.getItem(SCHOLARSHIPS_KEY)) || [];
-    if (!allScholarships.length) {
-        allScholarships = getSampleScholarships();
-        localStorage.setItem(SCHOLARSHIPS_KEY, JSON.stringify(allScholarships));
+async function loadScholarships() {
+    const grid = document.getElementById('scholarshipGrid');
+    if (grid) {
+        grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading scholarships...</p></div>';
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/scholarships`);
+        if (!response.ok) throw new Error('Failed to fetch scholarships');
+
+        const result = await response.json();
+
+        if (result.success && Array.isArray(result.data)) {
+            allScholarships = result.data;
+        } else {
+            console.error('Invalid data format:', result);
+            allScholarships = [];
+        }
+    } catch (error) {
+        console.error('Error loading scholarships:', error);
+        allScholarships = [];
+        if (grid) grid.innerHTML = '<div class="error-state"><p>Failed to load scholarships. Please try again later.</p></div>';
     }
 
     currentScholarships = [...allScholarships];
@@ -32,15 +50,23 @@ function renderScholarships(list) {
     const container = document.getElementById('scholarshipGrid');
     if (!container) return;
 
+    if (list.length === 0) {
+        container.innerHTML = '<div class="no-results"><p>No scholarships found matching your criteria.</p></div>';
+        return;
+    }
+
     container.innerHTML = list.map(s => renderScholarshipCard(s)).join('');
 }
 
 function renderScholarshipCard(scholarship) {
     const daysLeft = getDaysUntilDeadline(scholarship.deadline);
-    const showDeadlineWarning = Number.isFinite(daysLeft) && daysLeft <= 30;
+    const showDeadlineWarning = Number.isFinite(daysLeft) && daysLeft <= 30 && daysLeft >= 0;
+
+    // Handle both id (demo) and _id (mongo)
+    const id = scholarship.id || scholarship._id;
 
     return `
-        <div class="scholarship-card" data-id="${scholarship.id}">
+        <div class="scholarship-card" data-id="${id}">
             <div class="scholarship-header">
                 <h3>${scholarship.name}</h3>
                 <span class="scholarship-amount">${scholarship.amount}</span>
@@ -50,13 +76,14 @@ function renderScholarshipCard(scholarship) {
                 <span>${scholarship.organization}</span>
             </div>
             <div class="scholarship-details">
-                <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>${scholarship.country}</span></div>
+                <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span>${scholarship.country || 'Global'}</span></div>
                 <div class="detail-item"><i class="fas fa-calendar-alt"></i><span>Deadline: ${new Date(scholarship.deadline).toLocaleDateString()}</span></div>
-                <div class="detail-item"><i class="fas fa-graduation-cap"></i><span>${scholarship.level}</span></div>
-                <div class="detail-item"><i class="fas fa-book"></i><span>${scholarship.field}</span></div>
+                <div class="detail-item"><i class="fas fa-graduation-cap"></i><span>${scholarship.educationLevel || scholarship.level || 'All Levels'}</span></div>
+                <div class="detail-item"><i class="fas fa-book"></i><span>${scholarship.field || 'General'}</span></div>
             </div>
             <p class="scholarship-description">${scholarship.description}</p>
             <div class="scholarship-tags">
+                <span class="scholarship-tag">${scholarship.category}</span>
                 ${(scholarship.tags || []).map(tag => `<span class="scholarship-tag">${tag}</span>`).join('')}
             </div>
             ${showDeadlineWarning ? `
@@ -66,15 +93,15 @@ function renderScholarshipCard(scholarship) {
                 </div>
             ` : ''}
             <div class="scholarship-actions">
-                <button class="btn-apply" onclick="applyScholarship(${scholarship.id})" data-url="${scholarship.website}">
+                <button class="btn-apply" onclick="applyScholarship('${id}')" data-url="${scholarship.website || '#'}">
                     <i class="fas fa-external-link-alt"></i>
-                    Apply Now
+                    Apply
                 </button>
-                <button class="btn-save" onclick="saveScholarship(${scholarship.id})">
+                <button class="btn-save" onclick="saveScholarship('${id}')">
                     <i class="fas fa-bookmark"></i>
                     Save
                 </button>
-                <button class="btn-share" onclick="shareScholarship(${scholarship.id})">
+                <button class="btn-share" onclick="shareScholarship('${id}')">
                     <i class="fas fa-share"></i>
                     Share
                 </button>
@@ -117,62 +144,62 @@ function initializeFilterTabs() {
     });
 }
 
-function performScholarshipSearch() {
+window.performScholarshipSearch = function () {
     const input = document.querySelector('.fields-hero .search-input');
     const query = (input?.value || '').trim().toLowerCase();
+
     if (!query) {
         currentScholarships = [...allScholarships];
-        renderScholarships(currentScholarships);
-        updateSaveButtons();
-        return;
+    } else {
+        currentScholarships = allScholarships.filter(s => {
+            const haystack = [
+                s.name,
+                s.organization,
+                s.amount,
+                s.country,
+                s.level || s.educationLevel,
+                s.field,
+                s.description,
+                ...(s.tags || [])
+            ].join(' ').toLowerCase();
+            return haystack.includes(query);
+        });
     }
-
-    currentScholarships = allScholarships.filter(s => {
-        const haystack = [
-            s.name,
-            s.organization,
-            s.amount,
-            s.country,
-            s.level,
-            s.field,
-            s.description,
-            ...(s.tags || [])
-        ].join(' ').toLowerCase();
-        return haystack.includes(query);
-    });
 
     renderScholarships(currentScholarships);
     updateSaveButtons();
     showSearchResults();
-}
+};
 
-function filterScholarshipsByCategory(category) {
+window.filterScholarshipsByCategory = function (category) {
     if (!category || category === 'all') {
         currentScholarships = [...allScholarships];
-        renderScholarships(currentScholarships);
-        updateSaveButtons();
-        return;
+    } else {
+        const key = category.toLowerCase();
+        currentScholarships = allScholarships.filter(s => {
+            // Check direct category match first
+            if (s.category && s.category.toLowerCase() === key) return true;
+
+            // Fallback to text search in fields/tags for broader matching if category is loose
+            const field = (s.field || '').toLowerCase();
+            const tags = (s.tags || []).join(' ').toLowerCase();
+            const cat = (s.category || '').toLowerCase();
+
+            if (key === 'stem') return cat === 'stem' || /tech|engineer|science|computer|ai|data|math/.test(field + ' ' + tags);
+            if (key === 'business') return cat === 'business' || /business|econom|finance|mba|startup|entrepreneur/.test(field + ' ' + tags);
+            if (key === 'social') return cat === 'social' || /social|law|education|policy|public|psych/.test(field + ' ' + tags);
+            if (key === 'creative') return cat === 'creative' || /art|design|media|music|film|architecture/.test(field + ' ' + tags);
+
+            return false;
+        });
     }
-
-    const key = category.toLowerCase();
-    currentScholarships = allScholarships.filter(s => {
-        const field = (s.field || '').toLowerCase();
-        const tags = (s.tags || []).join(' ').toLowerCase();
-
-        if (key === 'stem') return /tech|engineer|science|computer|ai|data|math/.test(field + ' ' + tags);
-        if (key === 'business') return /business|econom|finance|mba|startup|entrepreneur/.test(field + ' ' + tags);
-        if (key === 'social') return /social|law|education|policy|public|psych/.test(field + ' ' + tags);
-        if (key === 'creative') return /art|design|media|music|film|architecture/.test(field + ' ' + tags);
-
-        return false;
-    });
 
     renderScholarships(currentScholarships);
     updateSaveButtons();
-    showSearchResults();
-}
+    // Only scroll if initiated by user click on tab, usually handled by caller or simple re-render
+};
 
-function sortScholarships() {
+window.sortScholarships = function () {
     const sort = document.getElementById('sortDropdown')?.value || 'deadline';
     const list = [...currentScholarships];
 
@@ -182,18 +209,20 @@ function sortScholarships() {
         list.sort((a, b) => extractAmountValue(b.amount) - extractAmountValue(a.amount));
     } else if (sort === 'name') {
         list.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    } else if (sort === 'category') {
+        list.sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')));
     }
 
     currentScholarships = list;
     renderScholarships(currentScholarships);
     updateSaveButtons();
-}
+};
 
-function resetSort() {
+window.resetSort = function () {
     const dropdown = document.getElementById('sortDropdown');
     if (dropdown) dropdown.value = 'deadline';
-    sortScholarships();
-}
+    window.sortScholarships();
+};
 
 function extractAmountValue(amountStr) {
     if (!amountStr) return 0;
@@ -215,15 +244,15 @@ function showSearchResults() {
     if (resultsSection) resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-function applyScholarship(id) {
-    const scholarship = allScholarships.find(s => s.id === id);
+window.applyScholarship = function (id) {
+    const scholarship = allScholarships.find(s => (s.id == id || s._id == id));
     if (!scholarship) return;
     const url = scholarship.website;
     if (url && url !== '#') window.open(url, '_blank');
-}
+};
 
-function shareScholarship(id) {
-    const scholarship = allScholarships.find(s => s.id === id);
+window.shareScholarship = function (id) {
+    const scholarship = allScholarships.find(s => (s.id == id || s._id == id));
     if (!scholarship) return;
 
     const text = `${scholarship.name} - ${scholarship.organization}\n${scholarship.amount}\nDeadline: ${new Date(scholarship.deadline).toLocaleDateString()}`;
@@ -233,86 +262,96 @@ function shareScholarship(id) {
     }
     if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(text);
+        alert('Scholarship info copied to clipboard!');
     }
-}
+};
 
-function saveScholarship(id) {
-    const saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARSHIPS_KEY)) || [];
-    if (saved.includes(id)) {
+window.saveScholarship = function (id) {
+    // Stringify ID because localstorage array usually holds strings or numbers
+    const idStr = String(id);
+    let saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARSHIPS_KEY)) || [];
+    // Ensure we handle both string and number comparison types safely
+    if (saved.some(sid => String(sid) === idStr)) {
         removeSavedScholarship(id);
         return;
     }
     saved.push(id);
     localStorage.setItem(SAVED_SCHOLARSHIPS_KEY, JSON.stringify(saved));
     updateSaveButtons();
-}
+};
 
 function removeSavedScholarship(id) {
-    const saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARSHIPS_KEY)) || [];
-    localStorage.setItem(SAVED_SCHOLARSHIPS_KEY, JSON.stringify(saved.filter(x => x !== id)));
+    const idStr = String(id);
+    let saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARSHIPS_KEY)) || [];
+    saved = saved.filter(x => String(x) !== idStr);
+    localStorage.setItem(SAVED_SCHOLARSHIPS_KEY, JSON.stringify(saved));
     updateSaveButtons();
 }
 
 function updateSaveButtons() {
     const saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARSHIPS_KEY)) || [];
+    const savedStrs = saved.map(String);
+
     document.querySelectorAll('.btn-save').forEach(btn => {
-        const match = (btn.getAttribute('onclick') || '').match(/saveScholarship\((\d+)\)/);
-        const id = match ? parseInt(match[1], 10) : null;
+        const match = (btn.getAttribute('onclick') || '').match(/saveScholarship\(['"]?([a-zA-Z0-9_-]+)['"]?\)/);
+        const id = match ? match[1] : null;
         if (!id) return;
 
-        const isSaved = saved.includes(id);
+        const isSaved = savedStrs.includes(String(id));
         btn.classList.toggle('saved', isSaved);
         btn.innerHTML = isSaved
             ? '<i class="fas fa-bookmark"></i> Saved'
             : '<i class="fas fa-bookmark"></i> Save';
-        btn.onclick = () => (isSaved ? removeSavedScholarship(id) : saveScholarship(id));
+
+        // Rebind click to avoid issues with onclick attribute vs event listener
+        // But for now, reliance on onclick inline is okay if parameters are strings
     });
 }
 
-function showSavedScholarships() {
+window.showSavedScholarships = function () {
     const savedIds = JSON.parse(localStorage.getItem(SAVED_SCHOLARSHIPS_KEY)) || [];
     const savedSection = document.getElementById('savedScholarshipsSection');
     const savedGrid = document.getElementById('savedScholarshipsGrid');
     const mainGrid = document.getElementById('scholarshipGrid');
 
     if (!savedSection || !savedGrid || !mainGrid) return;
-    if (!savedIds.length) return;
+    // Hide main results container wrapper if present or just the grid
+    // The previous implementation hid mainGrid. 
 
-    const savedScholarships = allScholarships.filter(s => savedIds.includes(s.id));
+    if (savedIds.length === 0) {
+        alert("No saved scholarships yet.");
+        return;
+    }
+
+    const savedScholarships = allScholarships.filter(s => savedIds.some(sid => String(sid) === String(s.id || s._id)));
+
     mainGrid.style.display = 'none';
     savedSection.style.display = 'block';
+
     savedGrid.innerHTML = savedScholarships.map(s => renderScholarshipCard(s)).join('');
     updateSaveButtons();
     savedSection.scrollIntoView({ behavior: 'smooth' });
-}
+};
 
-function showAllScholarships() {
+window.showAllScholarships = function () {
     const savedSection = document.getElementById('savedScholarshipsSection');
     const mainGrid = document.getElementById('scholarshipGrid');
     if (!savedSection || !mainGrid) return;
 
     savedSection.style.display = 'none';
-    mainGrid.style.display = 'grid';
+    mainGrid.style.display = 'grid'; // Restore grid layout
     renderScholarships(currentScholarships);
     updateSaveButtons();
-}
+};
 
-function openResourceLink(key) {
-    const map = {
-        essays: 'https://www.collegeboard.org/',
-        deadlines: 'https://www.scholarships.com/',
-        tips: 'https://www.fastweb.com/',
-        search: 'https://scholarship360.org/',
-        interviews: 'https://www.youtube.com/'
-    };
-    const url = map[key] || 'https://www.google.com/';
-    window.open(url, '_blank');
-}
-
-function showScholarshipDetails(name) {
+window.showScholarshipDetails = function (name) {
     const scholarship = allScholarships.find(s => s.name === name) || allScholarships.find(s => s.name.includes(name));
     if (!scholarship) return;
 
+    // Create modal logic (simplified)
+    const id = scholarship.id || scholarship._id;
+    // Just alert or open simple modal. Existing code had modal.
+    // Reusing existing modal logic from viewing file
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.innerHTML = `
@@ -321,55 +360,10 @@ function showScholarshipDetails(name) {
             <h2>${scholarship.name}</h2>
             <p>${scholarship.description}</p>
             <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
-                <button class="btn-apply" onclick="applyScholarship(${scholarship.id}); this.closest('.modal').remove()">Apply Now</button>
+                <button class="btn-apply" onclick="applyScholarship('${id}'); this.closest('.modal').remove()">Apply Now</button>
                 <button class="btn-outline" onclick="this.closest('.modal').remove()">Close</button>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
-}
-
-// Sample scholarships data
-function getSampleScholarships() {
-    return [
-        {
-            id: 1,
-            name: 'Gates Cambridge Scholarship',
-            organization: 'University of Cambridge',
-            amount: 'Full Funding',
-            deadline: '2026-12-15',
-            country: 'UK',
-            description: 'Prestigious scholarship for outstanding applicants from outside the UK to pursue graduate study at Cambridge.',
-            website: 'https://www.gatescambridge.org/',
-            level: 'Graduate',
-            field: 'All fields',
-            tags: ['Full Funding', 'International', 'Graduate', 'Prestigious']
-        },
-        {
-            id: 2,
-            name: 'Rhodes Scholarship',
-            organization: 'University of Oxford',
-            amount: 'Full Funding',
-            deadline: '2026-10-06',
-            country: 'UK',
-            description: "The world's oldest graduate scholarship program, enabling exceptional young people from around the world to study at Oxford.",
-            website: 'https://www.rhodeshouse.ox.ac.uk/',
-            level: 'Graduate',
-            field: 'All fields',
-            tags: ['Full Funding', 'International', 'Leadership', 'Oxford']
-        },
-        {
-            id: 3,
-            name: 'Fulbright Program',
-            organization: 'U.S. Department of State',
-            amount: '$25,000-$45,000',
-            deadline: '2026-10-12',
-            country: 'USA',
-            description: 'Educational exchange program sponsored by the U.S. government. Provides funding for students, scholars, teachers, and professionals.',
-            website: 'https://us.fulbrightonline.org/',
-            level: 'Graduate',
-            field: 'All fields',
-            tags: ['Graduate', 'USA', 'Exchange', 'Research']
-        }
-    ];
-}
+};

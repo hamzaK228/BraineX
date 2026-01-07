@@ -1,87 +1,17 @@
-// Admin Routes - Production-ready with JWT authentication
+// Admin Routes - Production-ready with Dual Mode (Mongo/Memory)
 const express = require('express');
 const router = express.Router();
 const { authenticate, adminOnly } = require('../middleware/auth');
 const User = require('../models/User');
+const Scholarship = require('../models/Scholarship');
+const Mentor = require('../models/Mentor');
+const Field = require('../models/Field');
+const { memoryStore, isDemoMode } = require('../utils/memoryStore');
 
-// In-memory storage for demo (replace with MongoDB models in full implementation)
-let scholarships = [];
-let mentors = [];
-let fields = [];
-let events = [];
-
-// Load sample data
-const loadSampleData = () => {
-    if (scholarships.length === 0) {
-        scholarships = [
-            {
-                id: 1,
-                name: "Gates Cambridge Scholarship",
-                organization: "University of Cambridge",
-                amount: "Full Funding",
-                category: "graduate",
-                deadline: "2024-12-15",
-                country: "UK",
-                description: "Prestigious scholarship for outstanding applicants from outside the UK to pursue graduate study at Cambridge.",
-                website: "https://www.gatescambridge.org/",
-                status: "active",
-                tags: ["Full Funding", "International", "Graduate"],
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: 2,
-                name: "Rhodes Scholarship",
-                organization: "University of Oxford",
-                amount: "Full Funding",
-                category: "graduate",
-                deadline: "2024-10-06",
-                country: "UK",
-                description: "The world's oldest graduate scholarship program.",
-                website: "https://www.rhodeshouse.ox.ac.uk/",
-                status: "active",
-                tags: ["Full Funding", "International", "Leadership"],
-                createdAt: new Date().toISOString()
-            }
-        ];
-    }
-
-    if (mentors.length === 0) {
-        mentors = [
-            {
-                id: 1,
-                name: "Dr. Sarah Johnson",
-                title: "AI Research Director",
-                company: "Google DeepMind",
-                field: "technology",
-                experience: "senior",
-                bio: "Leading AI researcher with 15+ years experience in machine learning.",
-                expertise: ["Machine Learning", "PhD Applications", "Research"],
-                rate: 150,
-                rating: 4.9,
-                mentees: 234,
-                status: "verified",
-                createdAt: new Date().toISOString()
-            }
-        ];
-    }
-
-    if (fields.length === 0) {
-        fields = [
-            {
-                id: 1,
-                name: "Computer Science",
-                category: "stem",
-                description: "Study of computational systems and the design of computer systems",
-                icon: "💻",
-                salary: "$70K - $200K",
-                careers: ["Software Engineer", "Data Scientist", "Product Manager"],
-                createdAt: new Date().toISOString()
-            }
-        ];
-    }
-};
-
-loadSampleData();
+// Controllers
+const scholarshipController = require('../controllers/scholarshipController');
+const mentorController = require('../controllers/mentorController');
+const fieldController = require('../controllers/fieldController');
 
 // Apply authentication and admin authorization to all routes
 router.use(authenticate);
@@ -92,36 +22,56 @@ router.use(adminOnly);
 // @access  Private/Admin
 router.get('/stats', async (req, res) => {
     try {
-        // Get user counts from database
-        let userStats = { total: 0, students: 0, mentors: 0, admins: 0 };
+        let stats = {
+            totalUsers: 0,
+            activeStudents: 0,
+            activeMentors: 0,
+            totalScholarships: 0,
+            totalMentors: 0,
+            totalFields: 0,
+            totalEvents: 0
+        };
 
-        try {
-            const totalUsers = await User.countDocuments();
-            const studentCount = await User.countDocuments({ role: 'student' });
-            const mentorCount = await User.countDocuments({ role: 'mentor' });
-            const adminCount = await User.countDocuments({ role: 'admin' });
+        if (isDemoMode()) {
+            stats.totalUsers = memoryStore.users.length;
+            stats.activeStudents = memoryStore.users.filter(u => u.role === 'student').length;
+            stats.activeMentors = memoryStore.users.filter(u => u.role === 'mentor').length; // Users with mentor role
+            stats.totalScholarships = memoryStore.scholarships.length;
+            stats.totalMentors = memoryStore.mentors.length; // Mentor profiles
+            stats.totalFields = memoryStore.fields.length;
+            stats.totalEvents = memoryStore.events.length || 0;
+            stats.verifiedMentors = memoryStore.mentors.filter(m => m.status === 'verified').length;
+            stats.activeScholarships = memoryStore.scholarships.filter(s => s.status === 'active').length;
+        } else {
+            stats.totalUsers = await User.countDocuments();
+            stats.activeStudents = await User.countDocuments({ role: 'student' });
+            stats.activeMentors = await User.countDocuments({ role: 'mentor' });
+            stats.totalScholarships = await Scholarship.countDocuments();
+            stats.totalMentors = await Mentor.countDocuments();
+            stats.totalFields = await Field.countDocuments();
+            stats.totalEvents = 0; // Replace with Event model if created
 
-            userStats = {
-                total: totalUsers,
-                students: studentCount,
-                mentors: mentorCount,
-                admins: adminCount
-            };
-        } catch (dbError) {
-            console.log('Database not connected, using demo data');
+            // Additional specific counts if needed
+            stats.verifiedMentors = await Mentor.countDocuments({ status: 'verified' });
+            stats.activeScholarships = await Scholarship.countDocuments({ status: 'active' });
         }
 
         res.json({
             success: true,
             data: {
-                users: userStats,
-                totalScholarships: scholarships.length,
-                activeScholarships: scholarships.filter(s => s.status === 'active').length,
-                totalMentors: mentors.length,
-                verifiedMentors: mentors.filter(m => m.status === 'verified').length,
-                totalFields: fields.length,
-                totalEvents: events.length,
-                monthlyRevenue: 45250
+                users: {
+                    total: stats.totalUsers,
+                    students: stats.activeStudents,
+                    mentors: stats.activeMentors,
+                    admins: stats.totalUsers - stats.activeStudents - stats.activeMentors
+                },
+                totalScholarships: stats.totalScholarships,
+                activeScholarships: stats.activeScholarships,
+                totalMentors: stats.totalMentors,
+                verifiedMentors: stats.verifiedMentors,
+                totalFields: stats.totalFields,
+                totalEvents: stats.totalEvents,
+                monthlyRevenue: 45250 // Mock revenue for now
             }
         });
     } catch (error) {
@@ -132,6 +82,8 @@ router.get('/stats', async (req, res) => {
         });
     }
 });
+
+// ==================== USER MANAGEMENT ====================
 
 // @desc    Get all users
 // @route   GET /api/admin/users
@@ -144,6 +96,48 @@ router.get('/users', async (req, res) => {
         const search = req.query.search || '';
         const role = req.query.role || '';
 
+        if (isDemoMode()) {
+            let users = [...memoryStore.users]; // Copy array
+
+            // Filter
+            if (role) {
+                users = users.filter(u => u.role === role);
+            }
+            if (search) {
+                const searchLower = search.toLowerCase();
+                users = users.filter(u =>
+                    u.firstName.toLowerCase().includes(searchLower) ||
+                    u.lastName.toLowerCase().includes(searchLower) ||
+                    u.email.toLowerCase().includes(searchLower)
+                );
+            }
+
+            const total = users.length;
+
+            // Sort (newest first)
+            users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            // Paginate
+            const paginatedUsers = users.slice(skip, skip + limit).map(u => {
+                const { password, refreshTokens, ...userWithoutSensitive } = u;
+                return userWithoutSensitive;
+            });
+
+            return res.json({
+                success: true,
+                data: {
+                    users: paginatedUsers,
+                    pagination: {
+                        page,
+                        limit,
+                        total,
+                        pages: Math.ceil(total / limit)
+                    }
+                }
+            });
+        }
+
+        // MongoDB
         let query = {};
         if (search) {
             query.$or = [
@@ -192,9 +186,26 @@ router.put('/users/:id', async (req, res) => {
     try {
         const { isActive, role } = req.body;
         const updates = {};
-
         if (typeof isActive === 'boolean') updates.isActive = isActive;
         if (role && ['student', 'mentor', 'admin'].includes(role)) updates.role = role;
+
+        if (isDemoMode()) {
+            const index = memoryStore.users.findIndex(u => u._id.toString() === req.params.id); // In demo, _id is ObjectId string
+
+            if (index === -1) {
+                return res.status(404).json({ success: false, error: 'User not found' });
+            }
+
+            memoryStore.users[index] = { ...memoryStore.users[index], ...updates };
+
+            const { password, refreshTokens, ...userWithoutSensitive } = memoryStore.users[index];
+
+            return res.json({
+                success: true,
+                message: 'User updated successfully',
+                data: userWithoutSensitive
+            });
+        }
 
         const user = await User.findByIdAndUpdate(
             req.params.id,
@@ -203,10 +214,7 @@ router.put('/users/:id', async (req, res) => {
         ).select('-password -refreshTokens');
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
 
         res.json({
@@ -228,13 +236,24 @@ router.put('/users/:id', async (req, res) => {
 // @access  Private/Admin
 router.delete('/users/:id', async (req, res) => {
     try {
+        if (isDemoMode()) {
+            const index = memoryStore.users.findIndex(u => u._id.toString() === req.params.id);
+
+            if (index === -1) {
+                return res.status(404).json({ success: false, error: 'User not found' });
+            }
+
+            memoryStore.users.splice(index, 1);
+            return res.json({
+                success: true,
+                message: 'User deleted successfully'
+            });
+        }
+
         const user = await User.findByIdAndDelete(req.params.id);
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: 'User not found'
-            });
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
 
         res.json({
@@ -251,281 +270,26 @@ router.delete('/users/:id', async (req, res) => {
 });
 
 // ==================== SCHOLARSHIPS ====================
-
-// @desc    Get all scholarships
-// @route   GET /api/admin/scholarships
-// @access  Private/Admin
-router.get('/scholarships', (req, res) => {
-    res.json({
-        success: true,
-        data: scholarships
-    });
-});
-
-// @desc    Create scholarship
-// @route   POST /api/admin/scholarships
-// @access  Private/Admin
-router.post('/scholarships', (req, res) => {
-    try {
-        const scholarship = {
-            id: Date.now(),
-            ...req.body,
-            status: req.body.status || 'active',
-            createdAt: new Date().toISOString()
-        };
-
-        scholarships.push(scholarship);
-
-        res.status(201).json({
-            success: true,
-            message: 'Scholarship created successfully',
-            data: scholarship
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to create scholarship'
-        });
-    }
-});
-
-// @desc    Update scholarship
-// @route   PUT /api/admin/scholarships/:id
-// @access  Private/Admin
-router.put('/scholarships/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const index = scholarships.findIndex(s => s.id === id);
-
-        if (index === -1) {
-            return res.status(404).json({
-                success: false,
-                error: 'Scholarship not found'
-            });
-        }
-
-        scholarships[index] = {
-            ...scholarships[index],
-            ...req.body,
-            updatedAt: new Date().toISOString()
-        };
-
-        res.json({
-            success: true,
-            message: 'Scholarship updated successfully',
-            data: scholarships[index]
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to update scholarship'
-        });
-    }
-});
-
-// @desc    Delete scholarship
-// @route   DELETE /api/admin/scholarships/:id
-// @access  Private/Admin
-router.delete('/scholarships/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const index = scholarships.findIndex(s => s.id === id);
-
-        if (index === -1) {
-            return res.status(404).json({
-                success: false,
-                error: 'Scholarship not found'
-            });
-        }
-
-        scholarships.splice(index, 1);
-
-        res.json({
-            success: true,
-            message: 'Scholarship deleted successfully'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to delete scholarship'
-        });
-    }
-});
+router.get('/scholarships', scholarshipController.getAdminScholarships);
+router.post('/scholarships', scholarshipController.createScholarship);
+router.put('/scholarships/:id', scholarshipController.updateScholarship);
+router.delete('/scholarships/:id', scholarshipController.deleteScholarship);
 
 // ==================== MENTORS ====================
-
-// @desc    Get all mentors
-// @route   GET /api/admin/mentors
-// @access  Private/Admin
-router.get('/mentors', (req, res) => {
-    res.json({
-        success: true,
-        data: mentors
-    });
-});
-
-// @desc    Create mentor
-// @route   POST /api/admin/mentors
-// @access  Private/Admin
-router.post('/mentors', (req, res) => {
-    try {
-        const mentor = {
-            id: Date.now(),
-            ...req.body,
-            status: req.body.status || 'pending',
-            rating: 4.5,
-            mentees: 0,
-            createdAt: new Date().toISOString()
-        };
-
-        mentors.push(mentor);
-
-        res.status(201).json({
-            success: true,
-            message: 'Mentor created successfully',
-            data: mentor
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to create mentor'
-        });
-    }
-});
-
-// @desc    Update mentor
-// @route   PUT /api/admin/mentors/:id
-// @access  Private/Admin
-router.put('/mentors/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const index = mentors.findIndex(m => m.id === id);
-
-        if (index === -1) {
-            return res.status(404).json({
-                success: false,
-                error: 'Mentor not found'
-            });
-        }
-
-        mentors[index] = {
-            ...mentors[index],
-            ...req.body,
-            updatedAt: new Date().toISOString()
-        };
-
-        res.json({
-            success: true,
-            message: 'Mentor updated successfully',
-            data: mentors[index]
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to update mentor'
-        });
-    }
-});
-
-// @desc    Delete mentor
-// @route   DELETE /api/admin/mentors/:id
-// @access  Private/Admin
-router.delete('/mentors/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const index = mentors.findIndex(m => m.id === id);
-
-        if (index === -1) {
-            return res.status(404).json({
-                success: false,
-                error: 'Mentor not found'
-            });
-        }
-
-        mentors.splice(index, 1);
-
-        res.json({
-            success: true,
-            message: 'Mentor deleted successfully'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to delete mentor'
-        });
-    }
-});
+router.get('/mentors', mentorController.getAdminMentors);
+router.post('/mentors', mentorController.createMentor);
+router.put('/mentors/:id', mentorController.updateMentor);
+router.delete('/mentors/:id', mentorController.deleteMentor);
 
 // ==================== FIELDS ====================
-
-// @desc    Get all fields
-// @route   GET /api/admin/fields
-// @access  Private/Admin
-router.get('/fields', (req, res) => {
-    res.json({
-        success: true,
-        data: fields
-    });
-});
-
-// @desc    Create field
-// @route   POST /api/admin/fields
-// @access  Private/Admin
-router.post('/fields', (req, res) => {
-    try {
-        const field = {
-            id: Date.now(),
-            ...req.body,
-            createdAt: new Date().toISOString()
-        };
-
-        fields.push(field);
-
-        res.status(201).json({
-            success: true,
-            message: 'Field created successfully',
-            data: field
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to create field'
-        });
-    }
-});
-
-// @desc    Delete field
-// @route   DELETE /api/admin/fields/:id
-// @access  Private/Admin
-router.delete('/fields/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id);
-        const index = fields.findIndex(f => f.id === id);
-
-        if (index === -1) {
-            return res.status(404).json({
-                success: false,
-                error: 'Field not found'
-            });
-        }
-
-        fields.splice(index, 1);
-
-        res.json({
-            success: true,
-            message: 'Field deleted successfully'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Failed to delete field'
-        });
-    }
-});
-
-// Public getter for scholarships (for use by other routes)
-router.getScholarships = () => scholarships;
-router.getMentors = () => mentors;
-router.getFields = () => fields;
+// Fields don't have a status, so standard getFields (which filters by nothing if no params) is fine
+// But create/update/delete are admin restricted in the controller routes?
+// Actually the controller methods I wrote for create/update/delete are generic handlers.
+// Checking routes/fields.js: it only exposes get.
+// So I need to expose create/update/delete here.
+router.get('/fields', fieldController.getFields);
+router.post('/fields', fieldController.createField);
+router.put('/fields/:id', fieldController.updateField);
+router.delete('/fields/:id', fieldController.deleteField);
 
 module.exports = router;

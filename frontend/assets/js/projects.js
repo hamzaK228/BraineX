@@ -1,4 +1,4 @@
-﻿// Projects Page Full Functionality
+// Projects Page Full Functionality
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeProjectsPage();
@@ -41,7 +41,7 @@ function getSampleProjects() {
             views: 1247,
             created: "2024-01-15",
             deadline: "2024-12-31",
-            image: "ðŸ§¬",
+            image: "🧬",
             universities: ["MIT", "Stanford", "Harvard Medical"],
             mentor: "Dr. Lisa Zhang, Harvard Medical School",
             requirements: ["Python proficiency", "Machine learning experience", "Biology background preferred"],
@@ -65,7 +65,7 @@ function getSampleProjects() {
             views: 892,
             created: "2024-02-01",
             deadline: "2024-10-15",
-            image: "ðŸŒ±",
+            image: "🌱",
             universities: ["Stanford", "UC Davis", "Cornell"],
             mentor: "Prof. Maria Santos, Stanford Engineering",
             requirements: ["IoT experience", "Programming skills", "Interest in sustainability"],
@@ -89,7 +89,7 @@ function getSampleProjects() {
             views: 1856,
             created: "2024-01-10",
             deadline: "2024-11-30",
-            image: "ðŸŽ“",
+            image: "🎓",
             universities: ["Harvard", "MIT", "Carnegie Mellon"],
             mentor: "Dr. Robert Kim, Harvard Education School",
             requirements: ["Full-stack development", "AI/ML knowledge", "Education background helpful"],
@@ -113,7 +113,7 @@ function getSampleProjects() {
             views: 723,
             created: "2024-03-01",
             deadline: "2024-12-15",
-            image: "ðŸŒ",
+            image: "🌍",
             universities: ["Oxford", "Imperial College", "LSE"],
             mentor: "Prof. Emma Thompson, Oxford Environmental Science",
             requirements: ["Data visualization skills", "Web development", "Climate science interest"],
@@ -137,7 +137,7 @@ function getSampleProjects() {
             views: 1034,
             created: "2024-02-15",
             deadline: "2025-01-31",
-            image: "ðŸ”—",
+            image: "🔗",
             universities: ["NUS", "NTU", "SMU"],
             mentor: "Dr. Michael Tan, NUS Computer Science",
             requirements: ["Blockchain development", "Smart contracts", "Business understanding"],
@@ -161,7 +161,7 @@ function getSampleProjects() {
             views: 876,
             created: "2024-01-20",
             deadline: "2024-11-30",
-            image: "ðŸ’¬",
+            image: "💬",
             universities: ["Cambridge", "Oxford", "King's College London"],
             mentor: "Prof. David Miller, Cambridge Psychology Department",
             requirements: ["AI/ML experience", "Psychology background", "Empathy and care"],
@@ -185,7 +185,7 @@ function getSampleProjects() {
             views: 1567,
             created: "2024-03-01",
             deadline: "2025-03-01",
-            image: "âš›ï¸",
+            image: "⚛️",
             universities: ["MIT", "Harvard", "IBM Research"],
             mentor: "Dr. Lisa Chen, MIT Quantum Computing Lab",
             requirements: ["Quantum physics background", "Programming skills", "Research mindset"],
@@ -209,7 +209,7 @@ function getSampleProjects() {
             views: 1243,
             created: "2024-02-10",
             deadline: "2025-01-15",
-            image: "ðŸŒŠ",
+            image: "🌊",
             universities: ["UC San Diego", "Stanford", "MIT"],
             mentor: "Prof. Sarah Johnson, UCSD Environmental Engineering",
             requirements: ["Robotics experience", "Environmental passion", "Team collaboration"],
@@ -233,7 +233,7 @@ function getSampleProjects() {
             views: 945,
             created: "2024-01-25",
             deadline: "2024-12-25",
-            image: "ðŸ¥½",
+            image: "🥽",
             universities: ["Stanford", "USC", "UCLA"],
             mentor: "Dr. Jennifer Park, Stanford Child Psychology",
             requirements: ["VR development", "Psychology interest", "Patient approach"],
@@ -257,7 +257,7 @@ function getSampleProjects() {
             views: 1456,
             created: "2024-02-20",
             deadline: "2025-02-20",
-            image: "âš¡",
+            image: "⚡",
             universities: ["MIT", "Stanford", "Georgia Tech"],
             mentor: "Prof. Robert Wilson, MIT Energy Initiative",
             requirements: ["Electrical engineering", "AI/ML skills", "Energy systems knowledge"],
@@ -281,7 +281,7 @@ function getSampleProjects() {
             views: 1034,
             created: "2024-01-30",
             deadline: "2024-12-30",
-            image: "ðŸŒ¾",
+            image: "🌾",
             universities: ["Cornell", "UC Davis", "World Bank Group"],
             mentor: "Dr. Michael Brown, Cornell Agriculture & Life Sciences",
             requirements: ["Data science skills", "Agriculture interest", "Global perspective"],
@@ -305,7 +305,7 @@ function getSampleProjects() {
             views: 1178,
             created: "2024-02-05",
             deadline: "2025-02-05",
-            image: "ðŸ¤–",
+            image: "🤖",
             universities: ["Tokyo University", "MIT", "Carnegie Mellon"],
             mentor: "Prof. Hiroshi Yamamoto, Tokyo University Robotics",
             requirements: ["Robotics programming", "Human-computer interaction", "Care empathy"],
@@ -329,7 +329,7 @@ function getSampleProjects() {
             views: 897,
             created: "2024-02-28",
             deadline: "2025-02-28",
-            image: "ðŸ—³ï¸",
+            image: "🗳️",
             universities: ["UC Berkeley", "Stanford", "Georgetown"],
             mentor: "Dr. Susan Williams, UC Berkeley Political Science",
             requirements: ["Blockchain development", "Security expertise", "Democratic values"],
@@ -353,7 +353,7 @@ function getSampleProjects() {
             views: 1089,
             created: "2024-01-15",
             deadline: "2024-11-15",
-            image: "ðŸ¦¾",
+            image: "🦾",
             universities: ["Johns Hopkins", "MIT", "Georgia Tech"],
             mentor: "Dr. Mark Thompson, Johns Hopkins Biomedical Engineering",
             requirements: ["Engineering background", "3D design skills", "Global health passion"],
@@ -376,9 +376,9 @@ function createProjectCard(project) {
     return `
         <div class=\"project-card enhanced\" data-project-id=\"${project.id}\" data-category=\"${project.category}\" data-status=\"${project.status}\">
             <div class="project-badge ${project.status}">
-                ${project.status === 'recruiting' ? 'ðŸ” Recruiting' : 
-                  project.status === 'active' ? 'âš¡ Active' : 
-                  project.status === 'completed' ? 'âœ… Completed' : 'ðŸ“‹ Planning'}
+                ${project.status === 'recruiting' ? '🔍 Recruiting' : 
+                  project.status === 'active' ? '⚡ Active' : 
+                  project.status === 'completed' ? '✅ Completed' : '📋 Planning'}
             </div>
             
             <div class="project-header">
@@ -387,28 +387,28 @@ function createProjectCard(project) {
                 </div>
                 <div class="project-meta">
                     <div class="project-stats">
-                        <span class="stat">ðŸ‘¥ ${project.applications} applied</span>
-                        <span class="stat">ðŸ‘€ ${project.views} views</span>
+                        <span class="stat">👥 ${project.applications} applied</span>
+                        <span class="stat">👀 ${project.views} views</span>
                     </div>
                 </div>
             </div>
             
             <div class="project-content">
                 <h3 class="project-title">${project.title}</h3>
-                <p class="project-team">by ${project.team} â€¢ ${project.teamSize} members</p>
+                <p class="project-team">by ${project.team} • ${project.teamSize} members</p>
                 <p class="project-description">${project.description}</p>
                 
                 <div class="project-details">
                     <div class="detail-row">
-                        <span class="detail-label">ðŸ’° Funding:</span>
+                        <span class="detail-label">💰 Funding:</span>
                         <span class="detail-value">$${project.funding.toLocaleString()}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">â±ï¸ Duration:</span>
+                        <span class="detail-label">⏱️ Duration:</span>
                         <span class="detail-value">${project.duration}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">ðŸ“… Deadline:</span>
+                        <span class="detail-label">📅 Deadline:</span>
                         <span class="detail-value">${new Date(project.deadline).toLocaleDateString()}</span>
                     </div>
                 </div>
@@ -444,7 +444,7 @@ function createProjectCard(project) {
                     ${project.status === 'recruiting' ? 'Apply Now' : 'Join Project'}
                 </button>
                 <button class="btn-project-bookmark" onclick="bookmarkProject(${project.id})" title="Bookmark">
-                    ðŸ”–
+                    🔖
                 </button>
             </div>
         </div>
@@ -490,7 +490,7 @@ function filterProjects(category) {
     // Scroll to projects section
     document.getElementById('projectDirectory')?.scrollIntoView({ behavior: 'smooth' });
     
-    MentoraX.showNotification(`Found ${filtered.length} projects in ${category} category`, 'success');
+    BraineX.showNotification(`Found ${filtered.length} projects in ${category} category`, 'success');
 }
 
 function applyAllFilters() {
@@ -555,10 +555,10 @@ function setupProjectModals() {
 
 function openCreateProjectModal() {
     // Check if user is logged in
-    const user = JSON.parse(localStorage.getItem('MentoraX_user') || '{}');
+    const user = JSON.parse(localStorage.getItem('BraineX_user') || '{}');
     if (!user.email) {
-        MentoraX.showNotification('Please log in to create a project', 'error');
-        MentoraX.openModal('loginModal');
+        BraineX.showNotification('Please log in to create a project', 'error');
+        BraineX.openModal('loginModal');
         return;
     }
     
@@ -569,7 +569,7 @@ function openCreateProjectModal() {
             <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
             
             <div class="create-header">
-                <h2>ðŸš€ Start Your Project</h2>
+                <h2>🚀 Start Your Project</h2>
                 <p>Turn your innovative idea into reality with global collaboration</p>
             </div>
             
@@ -587,12 +587,12 @@ function openCreateProjectModal() {
                             <label>Category *</label>
                             <select name="category" required>
                                 <option value="">Select Category</option>
-                                <option value="research">ðŸ”¬ Research & Science</option>
-                                <option value="tech">ðŸ’» Technology</option>
-                                <option value="social">ðŸŒ Social Impact</option>
-                                <option value="business">ðŸ’¼ Business & Entrepreneurship</option>
-                                <option value="education">ðŸŽ“ Education</option>
-                                <option value="health">ðŸ¥ Healthcare</option>
+                                <option value="research">🔬 Research & Science</option>
+                                <option value="tech">💻 Technology</option>
+                                <option value="social">🌍 Social Impact</option>
+                                <option value="business">💼 Business & Entrepreneurship</option>
+                                <option value="education">🎓 Education</option>
+                                <option value="health">🏥 Healthcare</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -712,7 +712,7 @@ function setupProjectFormHandlers() {
         e.preventDefault();
         
         const formData = new FormData(this);
-        const user = JSON.parse(localStorage.getItem('MentoraX_user'));
+        const user = JSON.parse(localStorage.getItem('BraineX_user'));
         
         const newProject = {
             id: Date.now(),
@@ -749,7 +749,7 @@ function setupProjectFormHandlers() {
        setLoadingState(document.querySelector('.btn-create'), false);
        displayProjects(projects);
        
-       MentoraX.showNotification(`Project "${newProject.title}" created successfully!`, 'success');
+       BraineX.showNotification(`Project "${newProject.title}" created successfully!`, 'success');
         
         // Scroll to the new project
         setTimeout(() => {
@@ -759,7 +759,7 @@ function setupProjectFormHandlers() {
 }
 
 function getRandomProjectIcon() {
-    const icons = ['ðŸš€', 'ðŸ’¡', 'ðŸ”¬', 'ðŸŒŸ', 'âš¡', 'ðŸŽ¯', 'ðŸ”¥', 'ðŸ’Ž', 'ðŸŒ', 'ðŸŽ¨'];
+    const icons = ['🚀', '💡', '🔬', '🌟', '⚡', '🎯', '🔥', '💎', '🌍', '🎨'];
     return icons[Math.floor(Math.random() * icons.length)];
 }
 
@@ -768,7 +768,7 @@ function viewProjectDetails(projectId) {
     const project = projects.find(p => p.id === projectId);
     
     if (!project) {
-        MentoraX.showNotification('Project not found', 'error');
+        BraineX.showNotification('Project not found', 'error');
         return;
     }
     
@@ -789,62 +789,62 @@ function viewProjectDetails(projectId) {
             
             <div class="project-details-content">
                 <div class="details-overview">
-                    <h3>ðŸ“‹ Project Overview</h3>
+                    <h3>📋 Project Overview</h3>
                     <p>${project.description}</p>
                 </div>
                 
                 <div class="details-grid">
                     <div class="detail-section">
-                        <h4>ðŸ’° Funding</h4>
+                        <h4>💰 Funding</h4>
                         <p>$${project.funding.toLocaleString()}</p>
                     </div>
                     <div class="detail-section">
-                        <h4>â±ï¸ Duration</h4>
+                        <h4>⏱️ Duration</h4>
                         <p>${project.duration}</p>
                     </div>
                     <div class="detail-section">
-                        <h4>ðŸ‘¥ Team Size</h4>
+                        <h4>👥 Team Size</h4>
                         <p>${project.teamSize} members</p>
                     </div>
                     <div class="detail-section">
-                        <h4>ðŸ“ˆ Progress</h4>
+                        <h4>📈 Progress</h4>
                         <p>${project.progress}% complete</p>
                     </div>
                 </div>
                 
                 <div class="skills-section">
-                    <h3>ðŸ› ï¸ Required Skills</h3>
+                    <h3>🛠️ Required Skills</h3>
                     <div class="skills-list">
                         ${project.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
                     </div>
                 </div>
                 
                 <div class="requirements-section">
-                    <h3>âœ… Requirements</h3>
+                    <h3>✅ Requirements</h3>
                     <ul class="requirements-list">
                         ${project.requirements.map(req => `<li>${req}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div class="outcomes-section">
-                    <h3>ðŸŽ¯ Expected Outcomes</h3>
+                    <h3>🎯 Expected Outcomes</h3>
                     <ul class="outcomes-list">
                         ${project.outcomes.map(outcome => `<li>${outcome}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div class="collaboration-section">
-                    <h3>ðŸ¤ Collaboration Details</h3>
+                    <h3>🤝 Collaboration Details</h3>
                     <p>${project.collaboration}</p>
                 </div>
                 
                 <div class="mentor-section">
-                    <h3>ðŸ‘¨â€ðŸ« Project Mentor</h3>
+                    <h3>👨‍🏫 Project Mentor</h3>
                     <p>${project.mentor}</p>
                 </div>
                 
                 <div class="universities-section">
-                    <h3>ðŸ›ï¸ Partner Universities</h3>
+                    <h3>🏛️ Partner Universities</h3>
                     <div class="universities-list">
                         ${project.universities.map(uni => `<span class="university-tag">${uni}</span>`).join('')}
                     </div>
@@ -867,10 +867,10 @@ function viewProjectDetails(projectId) {
 }
 
 function applyToProject(projectId) {
-    const user = JSON.parse(localStorage.getItem('MentoraX_user') || '{}');
+    const user = JSON.parse(localStorage.getItem('BraineX_user') || '{}');
     if (!user.email) {
-        MentoraX.showNotification('Please log in to apply to projects', 'error');
-        MentoraX.openModal('loginModal');
+        BraineX.showNotification('Please log in to apply to projects', 'error');
+        BraineX.openModal('loginModal');
         return;
     }
     
@@ -878,7 +878,7 @@ function applyToProject(projectId) {
     const project = projects.find(p => p.id === projectId);
     
     if (!project) {
-        MentoraX.showNotification('Project not found', 'error');
+        BraineX.showNotification('Project not found', 'error');
         return;
     }
     
@@ -889,7 +889,7 @@ function applyToProject(projectId) {
             <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
             
             <div class="application-header">
-                <h2>ðŸš€ Apply to ${project.title}</h2>
+                <h2>🚀 Apply to ${project.title}</h2>
                 <p>Tell the team why you're the perfect fit for this project</p>
             </div>
             
@@ -975,7 +975,7 @@ function applyToProject(projectId) {
         
         this.closest('.modal').remove();
        setLoadingState(document.querySelector('.application-form .btn-primary[type="submit"]'), false);
-       MentoraX.showNotification('Application submitted successfully! The team will review and get back to you.', 'success');
+       BraineX.showNotification('Application submitted successfully! The team will review and get back to you.', 'success');
        
        // Refresh projects display
         displayProjects(updatedProjects);
@@ -989,18 +989,18 @@ function contactProjectTeam(projectId) {
     if (project) {
         const message = `Hi! I'm interested in your project "${project.title}". Could we discuss potential collaboration?`;
         const subject = `Interest in ${project.title}`;
-        const mailtoLink = `mailto:contact@MentoraX.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+        const mailtoLink = `mailto:contact@BraineX.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
         
         window.open(mailtoLink, '_blank');
-        MentoraX.showNotification('Opening email client to contact the team', 'success');
+        BraineX.showNotification('Opening email client to contact the team', 'success');
     }
 }
 
 function bookmarkProject(projectId) {
-    const user = JSON.parse(localStorage.getItem('MentoraX_user') || '{}');
+    const user = JSON.parse(localStorage.getItem('BraineX_user') || '{}');
     if (!user.email) {
-        MentoraX.showNotification('Please log in to bookmark projects', 'error');
-        MentoraX.openModal('loginModal');
+        BraineX.showNotification('Please log in to bookmark projects', 'error');
+        BraineX.openModal('loginModal');
         return;
     }
     
@@ -1008,10 +1008,10 @@ function bookmarkProject(projectId) {
     
     if (bookmarks.includes(projectId)) {
         bookmarks = bookmarks.filter(id => id !== projectId);
-        MentoraX.showNotification('Project removed from bookmarks', 'info');
+        BraineX.showNotification('Project removed from bookmarks', 'info');
     } else {
         bookmarks.push(projectId);
-        MentoraX.showNotification('Project bookmarked successfully!', 'success');
+        BraineX.showNotification('Project bookmarked successfully!', 'success');
     }
     
     localStorage.setItem('bookmarked_projects', JSON.stringify(bookmarks));
@@ -1057,7 +1057,7 @@ function showFeaturedProjectDetails(title) {
     
     const data = featuredData[title];
     if (!data) {
-        MentoraX.showNotification('Project details not available', 'error');
+        BraineX.showNotification('Project details not available', 'error');
         return;
     }
     
@@ -1068,56 +1068,56 @@ function showFeaturedProjectDetails(title) {
             <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
             
             <div class="featured-header">
-                <h2>ðŸ† ${title}</h2>
+                <h2>🏆 ${title}</h2>
                 <div class="featured-badge">Featured Project</div>
             </div>
             
             <div class="featured-content">
                 <div class="overview-section">
-                    <h3>ðŸ“‹ Project Overview</h3>
+                    <h3>📋 Project Overview</h3>
                     <p>${data.description}</p>
                 </div>
                 
                 <div class="featured-details-grid">
                     <div class="detail-box">
-                        <h4>ðŸ‘¥ Team</h4>
+                        <h4>👥 Team</h4>
                         <p>${data.team}</p>
                     </div>
                     <div class="detail-box">
-                        <h4>ðŸ’° Funding</h4>
+                        <h4>💰 Funding</h4>
                         <p>${data.funding}</p>
                     </div>
                     <div class="detail-box">
-                        <h4>â±ï¸ Timeline</h4>
+                        <h4>⏱️ Timeline</h4>
                         <p>${data.timeline}</p>
                     </div>
                     <div class="detail-box">
-                        <h4>ðŸ“ˆ Current Progress</h4>
+                        <h4>📈 Current Progress</h4>
                         <p>${data.progress}</p>
                     </div>
                 </div>
                 
                 <div class="achievements-section">
-                    <h3>ðŸ† Key Achievements</h3>
+                    <h3>🏆 Key Achievements</h3>
                     <ul class="achievements-list">
                         ${data.achievements.map(achievement => `<li>${achievement}</li>`).join('')}
                     </ul>
                 </div>
                 
                 <div class="technologies-section">
-                    <h3>ðŸ› ï¸ Technologies Used</h3>
+                    <h3>🛠️ Technologies Used</h3>
                     <div class="tech-tags">
                         ${data.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
                     </div>
                 </div>
                 
                 <div class="impact-section">
-                    <h3>ðŸŒŸ Impact & Results</h3>
+                    <h3>🌟 Impact & Results</h3>
                     <p>${data.impact}</p>
                 </div>
                 
                 <div class="next-steps-section">
-                    <h3>ðŸš€ Next Steps</h3>
+                    <h3>🚀 Next Steps</h3>
                     <ul class="next-steps-list">
                         ${data.nextSteps.map(step => `<li>${step}</li>`).join('')}
                     </ul>
@@ -1126,7 +1126,7 @@ function showFeaturedProjectDetails(title) {
             
             <div class="featured-actions">
                 <button class="btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
-                <button class="btn-primary" onclick="window.open('mailto:projects@MentoraX.com?subject=Interest in ${title}', '_blank')">
+                <button class="btn-primary" onclick="window.open('mailto:projects@BraineX.com?subject=Interest in ${title}', '_blank')">
                     Contact Project Team
                 </button>
                 <button class="btn-primary" onclick="window.open('https://scholar.google.com/scholar?q=${encodeURIComponent(title)}', '_blank')">
@@ -1203,7 +1203,7 @@ function showStartProjectModal() {
             ">&times;</button>
             
             <div style="text-align: center; margin-bottom: 30px;">
-                <div style="font-size: 48px; margin-bottom: 15px;">ðŸš€</div>
+                <div style="font-size: 48px; margin-bottom: 15px;">🚀</div>
                 <h2 style="margin: 0; color: #2d3748;">Start Your New Project</h2>
                 <p style="color: #4a5568; margin: 10px 0 0 0;">Ready to bring your ideas to life!</p>
             </div>
@@ -1237,7 +1237,7 @@ function showStartProjectModal() {
                         background: linear-gradient(135deg, #667eea, #764ba2); color: white;
                         border: none; padding: 12px 24px; border-radius: 25px;
                         font-weight: 600; cursor: pointer;
-                    ">ðŸš€ Launch Project</button>
+                    ">🚀 Launch Project</button>
                 </div>
             </form>
         </div>
@@ -1257,7 +1257,7 @@ function showStartProjectModal() {
             title: formData.get('title'),
             category: formData.get('category'),
             description: formData.get('description'),
-            creator: MentoraX.getCurrentUser()?.name || 'User',
+            creator: BraineX.getCurrentUser()?.name || 'User',
             status: 'Active',
             progress: 15,
             created: new Date().toISOString().split('T')[0],
@@ -1270,7 +1270,7 @@ function showStartProjectModal() {
         projects.unshift(projectData);
         localStorage.setItem('projects', JSON.stringify(projects));
         
-        MentoraX.showNotification('ðŸŽ‰ Project created successfully!', 'success');
+        BraineX.showNotification('🎉 Project created successfully!', 'success');
         modal.remove();
         
         setTimeout(() => {
@@ -1295,7 +1295,7 @@ function setupCategoryExplore() {
                 displayProjects(filtered);
                 
                 document.querySelector('#projectsGrid, .projects-grid')?.scrollIntoView({ behavior: 'smooth' });
-                MentoraX.showNotification(`Found ${filtered.length} ${category} projects`, 'success');
+                BraineX.showNotification(`Found ${filtered.length} ${category} projects`, 'success');
             });
         }
     });

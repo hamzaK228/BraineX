@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Fields & Disciplines - MentoraX</title>
+    <title>Academic Fields & Disciplines - BraineX</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
     <style id="critical-css">
         * {
             box-sizing: border-box;
@@ -51,14 +52,7 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: #fff;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem
+            display: none !important;
         }
 
         .nav-menu {
@@ -110,15 +104,15 @@
     <meta name="description"
         content="Explore academic fields, disciplines, and career pathways with resources and guides.">
     <meta name="keywords" content="fields, disciplines, careers, STEM, business, social sciences, creative">
-    <meta property="og:title" content="Academic Fields & Disciplines - MentoraX">
+    <meta property="og:title" content="Academic Fields & Disciplines - BraineX">
     <meta property="og:description" content="Discover fields, specializations, and resources.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mentorax.example/fields.html">
-    <meta property="og:image" content="https://mentorax.example/og-image.png">
+    <meta property="og:url" content="https://BraineX.example/fields.html">
+    <meta property="og:image" content="https://BraineX.example/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Academic Fields & Disciplines - MentoraX">
+    <meta name="twitter:title" content="Academic Fields & Disciplines - BraineX">
     <meta name="twitter:description" content="Explore fields and popular career pathways.">
-    <meta name="twitter:image" content="https://mentorax.example/og-image.png">
+    <meta name="twitter:image" content="https://BraineX.example/og-image.png">
     <link rel="preload" as="style" href="../assets/css/main.css">
 
 </head>
@@ -127,9 +121,9 @@
     <header>
         <div class="container">
             <nav role="navigation" aria-label="Primary navigation">
-                <div class="logo">
-                    <div class="logo-icon">🎓</div>
-                    <span>MentoraX</span>
+                <div class="logo" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <img src="../assets/images/logo.png" alt="BraineX Logo" class="logo-img">
+                    <span>BraineX</span>
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu"
                     aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
@@ -511,7 +505,7 @@
                     <a href="#">Blog</a>
                 </div>
             </div>
-            <p>&copy; 2025 MentoraX. All rights reserved.</p>
+            <p>&copy; 2025 BraineX. All rights reserved.</p>
         </div>
     </footer>
 
@@ -560,7 +554,7 @@
     <div id="signupModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">&times;</button>
-            <h2>Join MentoraX</h2>
+            <h2>Join BraineX</h2>
             <p>Create your account and unlock endless opportunities</p>
             <div id="signupSuccess" class="success-message">
                 <strong>Success!</strong> Your account has been created successfully.
@@ -639,3 +633,4 @@
 </body>
 
 </html>
+

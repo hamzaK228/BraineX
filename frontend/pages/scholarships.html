@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scholarships - MentoraX</title>
+    <title>Scholarships - BraineX</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
     <style id="critical-css">
         * {
             box-sizing: border-box;
@@ -114,15 +115,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta name="description" content="Search scholarships worldwide by field, level, funding, and deadlines.">
     <meta name="keywords" content="scholarships, grants, funding, international scholarships, students">
-    <meta property="og:title" content="Scholarships - MentoraX">
+    <meta property="og:title" content="Scholarships - BraineX">
     <meta property="og:description" content="Find scholarships that match your profile.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mentorax.example/scholarships.html">
-    <meta property="og:image" content="https://mentorax.example/og-image.png">
+    <meta property="og:url" content="https://BraineX.example/scholarships.html">
+    <meta property="og:image" content="https://BraineX.example/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Scholarships - MentoraX">
+    <meta name="twitter:title" content="Scholarships - BraineX">
     <meta name="twitter:description" content="Discover scholarships by field and eligibility.">
-    <meta name="twitter:image" content="https://mentorax.example/og-image.png">
+    <meta name="twitter:image" content="https://BraineX.example/og-image.png">
     <link rel="preload" as="style" href="../assets/css/main.css">
 
 </head>
@@ -130,10 +131,10 @@
 <body>
     <header>
         <div class="container">
-            <nav role=\"navigation\" aria-label=\"Primary navigation\">
+            <nav role="navigation" aria-label="Primary navigation">
                 <div class="logo">
-                    <div class="logo-icon">🎓</div>
-                    <span>MentoraX</span>
+                    <img src="../assets/images/logo.png" alt="BraineX Logo" class="logo-img">
+                    <span>BraineX</span>
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu"
                     aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
@@ -717,14 +718,14 @@
                     <a href="#">Blog</a>
                 </div>
             </div>
-            <p>&copy; 2025 MentoraX. All rights reserved.</p>
+            <p>&copy; 2025 BraineX. All rights reserved.</p>
         </div>
     </footer>
 
     <!-- Login/Signup Modals -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" onclick="MentoraX.closeModal()">&times;</button>
+            <button class="close-modal" onclick="BraineX.closeModal()">&times;</button>
             <h2>Welcome Back</h2>
             <p>Sign in to access your personalized dashboard</p>
             <div id="loginSuccess" class="success-message">
@@ -740,7 +741,7 @@
                     <label for="loginPassword">Password</label>
                     <div class="password-toggle">
                         <input type="password" id="loginPassword" name="password" required>
-                        <button type="button" onclick="MentoraX.togglePassword('loginPassword')">👁️</button>
+                        <button type="button" onclick="BraineX.togglePassword('loginPassword')">👁️</button>
                     </div>
                     <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
                 </div>
@@ -752,21 +753,21 @@
             </form>
             <div class="divider"><span>or</span></div>
             <div class="social-login">
-                <button class="btn-social" onclick="MentoraX.socialLogin('google')">ðŸ”</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('facebook')">ðŸ“˜</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('linkedin')">ðŸ’¼</button>
+                <button class="btn-social" onclick="BraineX.socialLogin('google')">ðŸ”</button>
+                <button class="btn-social" onclick="BraineX.socialLogin('facebook')">ðŸ“˜</button>
+                <button class="btn-social" onclick="BraineX.socialLogin('linkedin')">ðŸ’¼</button>
             </div>
             <div class="form-footer">
-                <p>Don't have an account? <a href="#" onclick="MentoraX.switchToSignup()">Sign up here</a></p>
-                <p><a href="#" onclick="MentoraX.forgotPassword()">Forgot your password?</a></p>
+                <p>Don't have an account? <a href="#" onclick="BraineX.switchToSignup()">Sign up here</a></p>
+                <p><a href="#" onclick="BraineX.forgotPassword()">Forgot your password?</a></p>
             </div>
         </div>
     </div>
 
     <div id="signupModal" class="modal">
         <div class="modal-content">
-            <button class="close-modal" onclick="MentoraX.closeModal()">&times;</button>
-            <h2>Join MentoraX</h2>
+            <button class="close-modal" onclick="BraineX.closeModal()">&times;</button>
+            <h2>Join BraineX</h2>
             <p>Create your account and unlock endless opportunities</p>
             <div id="signupSuccess" class="success-message">
                 <strong>Success!</strong> Your account has been created successfully.
@@ -793,7 +794,7 @@
                     <label for="signupPassword">Password</label>
                     <div class="password-toggle">
                         <input type="password" id="signupPassword" name="password" required>
-                        <button type="button" onclick="MentoraX.togglePassword('signupPassword')">👁️</button>
+                        <button type="button" onclick="BraineX.togglePassword('signupPassword')">👁️</button>
                     </div>
                     <div class="error-message" id="signupPasswordError">Password must be at least 6 characters</div>
                 </div>
@@ -801,7 +802,7 @@
                     <label for="confirmPassword">Confirm Password</label>
                     <div class="password-toggle">
                         <input type="password" id="confirmPassword" name="confirmPassword" required>
-                        <button type="button" onclick="MentoraX.togglePassword('confirmPassword')">👁️</button>
+                        <button type="button" onclick="BraineX.togglePassword('confirmPassword')">👁️</button>
                     </div>
                     <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
                 </div>
@@ -829,12 +830,12 @@
             </form>
             <div class="divider"><span>or</span></div>
             <div class="social-login">
-                <button class="btn-social" onclick="MentoraX.socialLogin('google')">ðŸ”</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('facebook')">ðŸ“˜</button>
-                <button class="btn-social" onclick="MentoraX.socialLogin('linkedin')">ðŸ’¼</button>
+                <button class="btn-social" onclick="BraineX.socialLogin('google')">ðŸ”</button>
+                <button class="btn-social" onclick="BraineX.socialLogin('facebook')">ðŸ“˜</button>
+                <button class="btn-social" onclick="BraineX.socialLogin('linkedin')">ðŸ’¼</button>
             </div>
             <div class="form-footer">
-                <p>Already have an account? <a href="#" onclick="MentoraX.switchToLogin()">Sign in here</a></p>
+                <p>Already have an account? <a href="#" onclick="BraineX.switchToLogin()">Sign in here</a></p>
             </div>
         </div>
     </div>
@@ -845,3 +846,4 @@
 </body>
 
 </html>
+

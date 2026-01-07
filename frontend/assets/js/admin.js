@@ -1,61 +1,63 @@
 // Admin Dashboard JavaScript
+// Integrated with Backend API and AuthAPI
 
-// Global admin data
+// Global admin state
 let adminData = {
-    scholarships: JSON.parse(localStorage.getItem('admin_scholarships')) || [],
-    mentors: JSON.parse(localStorage.getItem('admin_mentors')) || [],
-    fields: JSON.parse(localStorage.getItem('admin_fields')) || [],
-    events: JSON.parse(localStorage.getItem('admin_events')) || [],
-    users: JSON.parse(localStorage.getItem('admin_users')) || []
+    scholarships: [],
+    mentors: [],
+    fields: [],
+    events: [],
+    users: []
 };
 
 // Initialize admin dashboard
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function () {
     // Check admin authentication
-    checkAdminAuth();
-    
+    if (!checkAdminAuth()) {
+        return;
+    }
+
     // Initialize sidebar navigation
     initializeSidebarNavigation();
-    
-    // Load initial dashboard data
-    loadDashboard();
-    
+
     // Initialize form handlers
     initializeFormHandlers();
-    
-    // Load sample data if empty
-    if (adminData.scholarships.length === 0) {
-        loadSampleData();
-    }
+
+    // Load initial dashboard data
+    await loadDashboard();
 });
 
-// Check admin authentication
+// Check admin authentication using AuthAPI
 function checkAdminAuth() {
-    const adminAuth = localStorage.getItem('admin_authenticated');
-    if (!adminAuth) {
-        // Redirect to admin login or show admin login modal
-        showAdminLogin();
+    // Ensure authAPI is initialized
+    if (typeof window.authAPI === 'undefined') {
+        console.error('AuthAPI not loaded');
+        window.location.href = 'main.html';
+        return false;
     }
-}
 
-// Admin login function
-function showAdminLogin() {
-    const password = prompt('Enter Admin Password:');
-    if (password === 'admin123') { // Simple demo password
-        localStorage.setItem('admin_authenticated', 'true');
-        showNotification('Admin login successful!', 'success');
-    } else if (password !== null) {
-        alert('Invalid admin password!');
-        window.location.href = 'main.html';
-    } else {
-        window.location.href = 'main.html';
+    if (!window.authAPI.isAuthenticated()) {
+        // Not logged in at all
+        window.location.href = 'main.html#login';
+        return false;
     }
+
+    if (!window.authAPI.isAdmin()) {
+        // Logged in but not admin
+        showNotification('Access denied. Admin privileges required.', 'error');
+        setTimeout(() => {
+            window.location.href = 'main.html';
+        }, 2000);
+        return false;
+    }
+
+    return true;
 }
 
 // Sidebar navigation
 function initializeSidebarNavigation() {
     document.querySelectorAll('.menu-link').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const section = this.getAttribute('data-section');
             switchAdminSection(section);
@@ -68,67 +70,95 @@ function switchAdminSection(sectionId) {
     document.querySelectorAll('.admin-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Show target section
     document.getElementById(sectionId).classList.add('active');
-    
+
     // Update sidebar active link
     document.querySelectorAll('.menu-link').forEach(link => {
         link.classList.remove('active');
     });
-    
+
     document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
-    
+
     // Load section data
     loadSectionData(sectionId);
 }
 
-function loadSectionData(sectionId) {
-    switch(sectionId) {
-        case 'overview':
-            loadDashboard();
-            break;
-        case 'scholarships':
-            loadScholarshipsTable();
-            break;
-        case 'mentors':
-            loadMentorsTable();
-            break;
-        case 'fields':
-            loadFieldsGrid();
-            break;
-        case 'users':
-            loadUsersTable();
-            break;
-        case 'events':
-            loadEventsTable();
-            break;
+async function loadSectionData(sectionId) {
+    showLoading(true);
+    try {
+        switch (sectionId) {
+            case 'overview':
+                await loadDashboard();
+                break;
+            case 'scholarships':
+                await loadScholarshipsTable();
+                break;
+            case 'mentors':
+                await loadMentorsTable();
+                break;
+            case 'fields':
+                await loadFieldsGrid();
+                break;
+            case 'users':
+                await loadUsersTable();
+                break;
+            case 'events':
+                // await loadEventsTable(); // API for events not fully implemented yet
+                break;
+        }
+    } catch (error) {
+        console.error(`Error loading ${sectionId}:`, error);
+        showNotification(`Failed to load ${sectionId} data`, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Show/Hide global loading indicator
+function showLoading(show) {
+    // You might want to add a loader element to your HTML if it doesn't exist
+    const loader = document.querySelector('.loader') || document.body;
+    if (show) {
+        loader.classList.add('loading');
+    } else {
+        loader.classList.remove('loading');
     }
 }
 
 // Load dashboard overview
-function loadDashboard() {
-    updateDashboardStats();
-    loadRecentActivity();
+async function loadDashboard() {
+    try {
+        const response = await window.authAPI.request('/admin/stats');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                updateDashboardStats(result.data);
+            }
+        }
+        loadRecentActivity();
+    } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+    }
 }
 
-function updateDashboardStats() {
-    document.getElementById('totalUsers').textContent = adminData.users.length;
-    document.getElementById('totalScholarships').textContent = adminData.scholarships.length;
-    document.getElementById('totalMentors').textContent = adminData.mentors.length;
-    document.getElementById('monthlyRevenue').textContent = '$45,250';
+function updateDashboardStats(stats) {
+    if (document.getElementById('totalUsers')) document.getElementById('totalUsers').textContent = stats.users || 0;
+    if (document.getElementById('totalScholarships')) document.getElementById('totalScholarships').textContent = stats.scholarships || 0;
+    if (document.getElementById('totalMentors')) document.getElementById('totalMentors').textContent = stats.mentors || 0;
+    if (document.getElementById('monthlyRevenue')) document.getElementById('monthlyRevenue').textContent = '$45,250'; // Mock
 }
 
 function loadRecentActivity() {
     const activityContainer = document.getElementById('recentActivity');
+    if (!activityContainer) return;
+
     const activities = [
-        { icon: '👤', text: 'New user registration: Sarah Johnson', time: '2 minutes ago' },
-        { icon: '💰', text: 'New scholarship added: Gates Foundation', time: '1 hour ago' },
-        { icon: '👨‍🏫', text: 'Mentor verified: Dr. Michael Chen', time: '3 hours ago' },
-        { icon: '🚀', text: 'New project created: AI Healthcare', time: '5 hours ago' },
-        { icon: '🎪', text: 'Event registration spike: Hackathon 2025', time: '1 day ago' }
+        { icon: '👤', text: 'New user registration', time: 'Recently' },
+        { icon: '💰', text: 'System stats updated', time: 'Just now' }
     ];
-    
+
     activityContainer.innerHTML = activities.map(activity => `
         <div class="activity-item">
             <span class="activity-icon">${activity.icon}</span>
@@ -138,11 +168,27 @@ function loadRecentActivity() {
     `).join('');
 }
 
-// Load scholarships table
-function loadScholarshipsTable() {
+// --- Scholarships ---
+
+async function loadScholarshipsTable() {
+    try {
+        const response = await window.authAPI.request('/admin/scholarships');
+        const data = await response.json();
+
+        if (data.success) {
+            adminData.scholarships = data.data;
+            renderScholarshipsTable(data.data);
+        }
+    } catch (error) {
+        showNotification('Failed to load scholarships', 'error');
+    }
+}
+
+function renderScholarshipsTable(scholarships) {
     const tableBody = document.getElementById('scholarshipsTable');
-    
-    tableBody.innerHTML = adminData.scholarships.map(scholarship => `
+    if (!tableBody) return;
+
+    tableBody.innerHTML = scholarships.map(scholarship => `
         <tr>
             <td>${scholarship.name}</td>
             <td>${scholarship.organization}</td>
@@ -151,43 +197,75 @@ function loadScholarshipsTable() {
             <td><span class="status-badge status-${scholarship.status}">${scholarship.status}</span></td>
             <td>
                 <div class="table-actions">
-                    <button class="btn-table btn-edit" onclick="editScholarship(${scholarship.id})">Edit</button>
-                    <button class="btn-table btn-view" onclick="viewScholarship(${scholarship.id})">View</button>
-                    <button class="btn-table btn-delete" onclick="deleteScholarship(${scholarship.id})">Delete</button>
+                    <button class="btn-table btn-edit" onclick="editScholarship('${scholarship.id || scholarship._id}')">Edit</button>
+                    <button class="btn-table btn-view" onclick="viewScholarship('${scholarship.id || scholarship._id}')">View</button>
+                    <button class="btn-table btn-delete" onclick="deleteScholarship('${scholarship.id || scholarship._id}')">Delete</button>
                 </div>
             </td>
         </tr>
     `).join('');
 }
 
-// Load mentors table
-function loadMentorsTable() {
+// --- Mentors ---
+
+async function loadMentorsTable() {
+    try {
+        const response = await window.authAPI.request('/admin/mentors');
+        const data = await response.json();
+
+        if (data.success) {
+            adminData.mentors = data.data;
+            renderMentorsTable(data.data);
+        }
+    } catch (error) {
+        showNotification('Failed to load mentors', 'error');
+    }
+}
+
+function renderMentorsTable(mentors) {
     const tableBody = document.getElementById('mentorsTable');
-    
-    tableBody.innerHTML = adminData.mentors.map(mentor => `
+    if (!tableBody) return;
+
+    tableBody.innerHTML = mentors.map(mentor => `
         <tr>
             <td>${mentor.name}</td>
             <td>${mentor.field}</td>
             <td>${mentor.company}</td>
-            <td>${mentor.rating || '4.8'}⭐</td>
-            <td>${mentor.mentees || Math.floor(Math.random() * 100) + 20}</td>
+            <td>${mentor.rating || 'N/A'}⭐</td>
+            <td>${mentor.mentees || 0}</td>
             <td><span class="status-badge status-${mentor.status}">${mentor.status}</span></td>
             <td>
                 <div class="table-actions">
-                    <button class="btn-table btn-edit" onclick="editMentor(${mentor.id})">Edit</button>
-                    <button class="btn-table btn-view" onclick="viewMentor(${mentor.id})">View</button>
-                    <button class="btn-table btn-delete" onclick="deleteMentor(${mentor.id})">Delete</button>
+                    <button class="btn-table btn-edit" onclick="editMentor('${mentor.id || mentor._id}')">Edit</button>
+                    <button class="btn-table btn-view" onclick="viewMentor('${mentor.id || mentor._id}')">View</button>
+                    <button class="btn-table btn-delete" onclick="deleteMentor('${mentor.id || mentor._id}')">Delete</button>
                 </div>
             </td>
         </tr>
     `).join('');
 }
 
-// Load fields grid
-function loadFieldsGrid() {
+// --- Fields ---
+
+async function loadFieldsGrid() {
+    try {
+        const response = await window.authAPI.request('/admin/fields');
+        const data = await response.json();
+
+        if (data.success) {
+            adminData.fields = data.data;
+            renderFieldsGrid(data.data);
+        }
+    } catch (error) {
+        showNotification('Failed to load fields', 'error');
+    }
+}
+
+function renderFieldsGrid(fields) {
     const fieldsGrid = document.getElementById('fieldsGrid');
-    
-    fieldsGrid.innerHTML = adminData.fields.map(field => `
+    if (!fieldsGrid) return;
+
+    fieldsGrid.innerHTML = fields.map(field => `
         <div class="field-admin-card">
             <div class="field-header">
                 <div>
@@ -199,114 +277,222 @@ function loadFieldsGrid() {
             <p>${field.description}</p>
             <div class="field-stats">
                 <span>Salary: ${field.salary || 'N/A'}</span>
-                <span>Students: ${Math.floor(Math.random() * 1000) + 100}</span>
             </div>
             <div class="table-actions">
-                <button class="btn-table btn-edit" onclick="editField(${field.id})">Edit</button>
-                <button class="btn-table btn-delete" onclick="deleteField(${field.id})">Delete</button>
+                <button class="btn-table btn-edit" onclick="editField('${field.id || field._id}')">Edit</button>
+                <button class="btn-table btn-delete" onclick="deleteField('${field.id || field._id}')">Delete</button>
             </div>
         </div>
     `).join('');
 }
 
-// Initialize form handlers
+// --- Users ---
+
+async function loadUsersTable() {
+    try {
+        const response = await window.authAPI.request('/admin/users');
+        const data = await response.json();
+
+        if (data.success) {
+            adminData.users = data.data;
+            // Render logic would go here if UI supports it
+        }
+    } catch (error) {
+        console.log('Users load skipped');
+    }
+}
+
+
+// --- Forms & CRUD ---
+
 function initializeFormHandlers() {
     // Scholarship form
-    document.getElementById('addScholarshipForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const scholarship = {
-            id: Date.now(),
-            name: formData.get('name'),
-            organization: formData.get('organization'),
-            amount: formData.get('amount'),
-            category: formData.get('category'),
-            deadline: formData.get('deadline'),
-            country: formData.get('country'),
-            description: formData.get('description'),
-            website: formData.get('website'),
-            status: formData.get('status') || 'active',
-            createdAt: new Date().toISOString()
-        };
-        
-        adminData.scholarships.push(scholarship);
-        localStorage.setItem('admin_scholarships', JSON.stringify(adminData.scholarships));
-        localStorage.setItem('scholarships', JSON.stringify(adminData.scholarships)); // For public access
-        
-        closeAdminModal();
-        loadScholarshipsTable();
-        showNotification('Scholarship added successfully!', 'success');
-    });
+    const scholarshipForm = document.getElementById('addScholarshipForm');
+    if (scholarshipForm) {
+        scholarshipForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const editId = this.getAttribute('data-edit-id');
+
+            const payload = {
+                name: formData.get('name'),
+                organization: formData.get('organization'),
+                amount: formData.get('amount'),
+                category: formData.get('category'),
+                deadline: formData.get('deadline'),
+                country: formData.get('country'),
+                description: formData.get('description'),
+                website: formData.get('website'),
+                status: formData.get('status') || 'active'
+            };
+
+            try {
+                let response;
+                if (editId) {
+                    response = await window.authAPI.request(`/admin/scholarships/${editId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    response = await window.authAPI.request('/admin/scholarships', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    closeAdminModal();
+                    loadScholarshipsTable();
+                    showNotification(`Scholarship ${editId ? 'updated' : 'added'} successfully!`, 'success');
+                    this.removeAttribute('data-edit-id');
+                    this.reset();
+                } else {
+                    throw new Error(data.message || 'Operation failed');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+    }
 
     // Mentor form
-    document.getElementById('addMentorForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const mentor = {
-            id: Date.now(),
-            name: formData.get('name'),
-            email: formData.get('email'),
-            title: formData.get('title'),
-            company: formData.get('company'),
-            field: formData.get('field'),
-            experience: formData.get('experience'),
-            bio: formData.get('bio'),
-            expertise: formData.get('expertise'),
-            rate: formData.get('rate'),
-            status: formData.get('status') || 'pending',
-            rating: 4.8,
-            mentees: 0,
-            createdAt: new Date().toISOString()
-        };
-        
-        adminData.mentors.push(mentor);
-        localStorage.setItem('admin_mentors', JSON.stringify(adminData.mentors));
-        localStorage.setItem('mentors', JSON.stringify(adminData.mentors)); // For public access
-        
-        closeAdminModal();
-        loadMentorsTable();
-        showNotification('Mentor added successfully!', 'success');
-    });
+    const mentorForm = document.getElementById('addMentorForm');
+    if (mentorForm) {
+        mentorForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const editId = this.getAttribute('data-edit-id');
+
+            const payload = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                title: formData.get('title'),
+                company: formData.get('company'),
+                field: formData.get('field'),
+                experience: formData.get('experience'),
+                bio: formData.get('bio'),
+                expertise: formData.get('expertise'),
+                rate: formData.get('rate'),
+                status: formData.get('status') || 'pending'
+            };
+
+            try {
+                let response;
+                if (editId) {
+                    response = await window.authAPI.request(`/admin/mentors/${editId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    response = await window.authAPI.request('/admin/mentors', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    closeAdminModal();
+                    loadMentorsTable();
+                    showNotification(`Mentor ${editId ? 'updated' : 'added'} successfully!`, 'success');
+                    this.removeAttribute('data-edit-id');
+                    this.reset();
+                } else {
+                    throw new Error(data.message || 'Operation failed');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+    }
 
     // Field form
-    document.getElementById('addFieldForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const field = {
-            id: Date.now(),
-            name: formData.get('name'),
-            category: formData.get('category'),
-            description: formData.get('description'),
-            icon: formData.get('icon'),
-            salary: formData.get('salary'),
-            careers: formData.get('careers'),
-            createdAt: new Date().toISOString()
-        };
-        
-        adminData.fields.push(field);
-        localStorage.setItem('admin_fields', JSON.stringify(adminData.fields));
-        localStorage.setItem('fields', JSON.stringify(adminData.fields)); // For public access
-        
-        closeAdminModal();
-        loadFieldsGrid();
-        showNotification('Field added successfully!', 'success');
-    });
+    const fieldForm = document.getElementById('addFieldForm');
+    if (fieldForm) {
+        fieldForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const editId = this.getAttribute('data-edit-id');
+
+            const payload = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                description: formData.get('description'),
+                icon: formData.get('icon'),
+                salary: formData.get('salary'),
+                careers: formData.get('careers')
+            };
+
+            try {
+                let response;
+                if (editId) {
+                    response = await window.authAPI.request(`/admin/fields/${editId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    response = await window.authAPI.request('/admin/fields', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    closeAdminModal();
+                    loadFieldsGrid();
+                    showNotification(`Field ${editId ? 'updated' : 'added'} successfully!`, 'success');
+                    this.removeAttribute('data-edit-id');
+                    this.reset();
+                } else {
+                    throw new Error(data.message || 'Operation failed');
+                }
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        });
+    }
 }
 
 // Modal functions
 function showAddScholarshipModal() {
-    document.getElementById('addScholarshipModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    const el = document.getElementById('addScholarshipForm');
+    if (el) {
+        el.reset();
+        el.removeAttribute('data-edit-id');
+    }
+    const modal = document.getElementById('addScholarshipModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function showAddMentorModal() {
-    document.getElementById('addMentorModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    const el = document.getElementById('addMentorForm');
+    if (el) {
+        el.reset();
+        el.removeAttribute('data-edit-id');
+    }
+    const modal = document.getElementById('addMentorModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function showAddFieldModal() {
-    document.getElementById('addFieldModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+    const el = document.getElementById('addFieldForm');
+    if (el) {
+        el.reset();
+        el.removeAttribute('data-edit-id');
+    }
+    const modal = document.getElementById('addFieldModal');
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeAdminModal() {
@@ -316,151 +502,146 @@ function closeAdminModal() {
     document.body.style.overflow = 'auto';
 }
 
-// CRUD operations
-function editScholarship(id) {
-    const scholarship = adminData.scholarships.find(s => s.id === id);
-    if (scholarship) {
-        // Populate form with existing data
-        showAddScholarshipModal();
-        const form = document.getElementById('addScholarshipForm');
-        form.name.value = scholarship.name;
-        form.organization.value = scholarship.organization;
-        form.amount.value = scholarship.amount;
-        form.category.value = scholarship.category;
-        form.deadline.value = scholarship.deadline;
-        form.country.value = scholarship.country || '';
-        form.description.value = scholarship.description;
-        form.website.value = scholarship.website || '';
-        form.status.value = scholarship.status;
-        
-        // Update form to edit mode
-        form.setAttribute('data-edit-id', id);
-    }
-}
+// Place on global window object for HTML event handlers
+window.closeAdminModal = closeAdminModal;
 
-function deleteScholarship(id) {
+// Edit functions
+window.editScholarship = function (id) {
+    const scholarship = adminData.scholarships.find(s => s.id == id || s._id == id);
+    if (!scholarship) return;
+
+    showAddScholarshipModal(); // Opens and resets
+    const form = document.getElementById('addScholarshipForm');
+    if (!form) return;
+
+    // Fill data
+    form.name.value = scholarship.name;
+    form.organization.value = scholarship.organization;
+    form.amount.value = scholarship.amount;
+    form.category.value = scholarship.category;
+    form.deadline.value = scholarship.deadline ? new Date(scholarship.deadline).toISOString().split('T')[0] : '';
+    form.country.value = scholarship.country || '';
+    form.description.value = scholarship.description;
+    form.website.value = scholarship.website || '';
+    form.status.value = scholarship.status;
+
+    // Set edit ID
+    form.setAttribute('data-edit-id', scholarship.id || scholarship._id);
+};
+
+window.editMentor = function (id) {
+    const mentor = adminData.mentors.find(m => m.id == id || m._id == id);
+    if (!mentor) return;
+
+    showAddMentorModal();
+    const form = document.getElementById('addMentorForm');
+    if (!form) return;
+
+    form.name.value = mentor.name;
+    form.email.value = mentor.email || '';
+    form.title.value = mentor.title;
+    form.company.value = mentor.company;
+    form.field.value = mentor.field;
+    form.experience.value = mentor.experience;
+    form.bio.value = mentor.bio;
+    form.expertise.value = mentor.expertise;
+    form.rate.value = mentor.rate;
+    form.status.value = mentor.status;
+
+    form.setAttribute('data-edit-id', mentor.id || mentor._id);
+};
+
+window.editField = function (id) {
+    const field = adminData.fields.find(f => f.id == id || f._id == id);
+    if (!field) return;
+
+    showAddFieldModal();
+    const form = document.getElementById('addFieldForm');
+    if (!form) return;
+
+    form.name.value = field.name;
+    form.category.value = field.category;
+    form.description.value = field.description;
+    form.icon.value = field.icon;
+    form.salary.value = field.salary;
+    form.careers.value = field.careers;
+
+    form.setAttribute('data-edit-id', field.id || field._id);
+};
+
+// View functions (placeholder if check for detail)
+window.viewScholarship = function (id) {
+    console.log('View scholarship', id);
+    // Could implement a view modal slightly different from edit
+};
+window.viewMentor = function (id) {
+    console.log('View mentor', id);
+};
+
+
+// Delete functions
+window.deleteScholarship = async function (id) {
     if (confirm('Are you sure you want to delete this scholarship?')) {
-        adminData.scholarships = adminData.scholarships.filter(s => s.id !== id);
-        localStorage.setItem('admin_scholarships', JSON.stringify(adminData.scholarships));
-        localStorage.setItem('scholarships', JSON.stringify(adminData.scholarships));
-        loadScholarshipsTable();
-        showNotification('Scholarship deleted successfully!', 'success');
+        try {
+            const response = await window.authAPI.request(`/admin/scholarships/${id}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            if (data.success) {
+                showNotification('Scholarship deleted', 'success');
+                loadScholarshipsTable();
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            showNotification('Delete failed: ' + error.message, 'error');
+        }
     }
-}
+};
 
-function deleteMentor(id) {
+window.deleteMentor = async function (id) {
     if (confirm('Are you sure you want to delete this mentor?')) {
-        adminData.mentors = adminData.mentors.filter(m => m.id !== id);
-        localStorage.setItem('admin_mentors', JSON.stringify(adminData.mentors));
-        localStorage.setItem('mentors', JSON.stringify(adminData.mentors));
-        loadMentorsTable();
-        showNotification('Mentor deleted successfully!', 'success');
+        try {
+            const response = await window.authAPI.request(`/admin/mentors/${id}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            if (data.success) {
+                showNotification('Mentor deleted', 'success');
+                loadMentorsTable();
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            showNotification('Delete failed: ' + error.message, 'error');
+        }
     }
-}
+};
 
-function deleteField(id) {
+window.deleteField = async function (id) {
     if (confirm('Are you sure you want to delete this field?')) {
-        adminData.fields = adminData.fields.filter(f => f.id !== id);
-        localStorage.setItem('admin_fields', JSON.stringify(adminData.fields));
-        localStorage.setItem('fields', JSON.stringify(adminData.fields));
-        loadFieldsGrid();
-        showNotification('Field deleted successfully!', 'success');
+        try {
+            const response = await window.authAPI.request(`/admin/fields/${id}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            if (data.success) {
+                showNotification('Field deleted', 'success');
+                loadFieldsGrid();
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            showNotification('Delete failed: ' + error.message, 'error');
+        }
     }
-}
+};
 
-// Load sample data
-function loadSampleData() {
-    const sampleScholarships = [
-        {
-            id: 1,
-            name: "Gates Cambridge Scholarship",
-            organization: "University of Cambridge",
-            amount: "Full Funding",
-            category: "graduate",
-            deadline: "2024-12-15",
-            country: "UK",
-            description: "Prestigious scholarship for outstanding applicants from outside the UK",
-            website: "https://example.com",
-            status: "active",
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: 2,
-            name: "Rhodes Scholarship",
-            organization: "University of Oxford",
-            amount: "Full Funding",
-            category: "graduate",
-            deadline: "2024-10-06",
-            country: "UK",
-            description: "The world's oldest graduate scholarship program",
-            website: "https://example.com",
-            status: "active",
-            createdAt: new Date().toISOString()
-        }
-    ];
-
-    const sampleMentors = [
-        {
-            id: 1,
-            name: "Dr. Sarah Johnson",
-            email: "sarah@example.com",
-            title: "AI Research Director",
-            company: "Google DeepMind",
-            field: "technology",
-            experience: "senior",
-            bio: "Leading AI researcher with 15+ years experience",
-            expertise: "Machine Learning, PhD Applications, Research",
-            rate: 150,
-            status: "verified",
-            rating: 4.9,
-            mentees: 200,
-            createdAt: new Date().toISOString()
-        }
-    ];
-
-    const sampleFields = [
-        {
-            id: 1,
-            name: "Computer Science",
-            category: "stem",
-            description: "Study of computational systems and the design of computer systems",
-            icon: "💻",
-            salary: "$70K - $200K",
-            careers: "Software Engineer, Data Scientist, Product Manager",
-            createdAt: new Date().toISOString()
-        },
-        {
-            id: 2,
-            name: "Business Administration",
-            category: "business",
-            description: "Study of business operations, management, and strategy",
-            icon: "📊",
-            salary: "$60K - $180K",
-            careers: "Manager, Consultant, Entrepreneur",
-            createdAt: new Date().toISOString()
-        }
-    ];
-
-    adminData.scholarships = sampleScholarships;
-    adminData.mentors = sampleMentors;
-    adminData.fields = sampleFields;
-
-    // Save to localStorage
-    localStorage.setItem('admin_scholarships', JSON.stringify(sampleScholarships));
-    localStorage.setItem('admin_mentors', JSON.stringify(sampleMentors));
-    localStorage.setItem('admin_fields', JSON.stringify(sampleFields));
-    
-    // Also save for public access
-    localStorage.setItem('scholarships', JSON.stringify(sampleScholarships));
-    localStorage.setItem('mentors', JSON.stringify(sampleMentors));
-    localStorage.setItem('fields', JSON.stringify(sampleFields));
-}
-
-// Logout function
-function logout() {
-    localStorage.removeItem('admin_authenticated');
+// Logout
+window.logout = function () {
+    window.authAPI.logout();
     window.location.href = 'main.html';
-}
+};
 
 // Notification function
 function showNotification(message, type = 'info') {
@@ -470,7 +651,7 @@ function showNotification(message, type = 'info') {
         <span>${message}</span>
         <button onclick="this.parentElement.remove()">&times;</button>
     `;
-    
+
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -487,7 +668,7 @@ function showNotification(message, type = 'info') {
         max-width: 300px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     `;
-    
+
     notification.querySelector('button').style.cssText = `
         background: none;
         border: none;
@@ -497,9 +678,9 @@ function showNotification(message, type = 'info') {
         padding: 0;
         line-height: 1;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 5000);

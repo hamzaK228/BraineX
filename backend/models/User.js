@@ -123,7 +123,7 @@ UserSchema.methods.generateAccessToken = function () {
             role: this.role,
             name: this.name
         },
-        process.env.JWT_SECRET || 'brainex-jwt-secret-change-in-production',
+        process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
 };
@@ -132,7 +132,7 @@ UserSchema.methods.generateAccessToken = function () {
 UserSchema.methods.generateRefreshToken = function () {
     const token = jwt.sign(
         { userId: this._id },
-        process.env.JWT_REFRESH_SECRET || 'brainex-refresh-secret-change-in-production',
+        process.env.JWT_REFRESH_SECRET,
         { expiresIn: '7d' }
     );
 

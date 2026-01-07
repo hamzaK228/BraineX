@@ -1,88 +1,281 @@
-// Enhanced Events Page Functionality
+// Events Page Functionality (API Integrated)
 
-document.addEventListener('DOMContentLoaded', function() {
+const API_BASE_URL = window.location.origin + '/api';
+let allEvents = [];
+let currentEvents = [];
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Events Page Initializing...');
+
+    // Initialize global state
     initializeEventsPage();
+
+    // Event Listeners
     setupEventFilters();
-    setupEventSearch();
-    setupEventBooking();
+    setupCalendarNav();
 });
 
-function initializeEventsPage() {
-    let events = JSON.parse(localStorage.getItem('events')) || [];
-    
-    if (events.length === 0) {
-        events = getSampleEvents();
-        localStorage.setItem('events', JSON.stringify(events));
+async function initializeEventsPage() {
+    const grid = document.querySelector('.featured-grid');
+    if (grid) grid.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading events...</p></div>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/events`);
+        if (!response.ok) throw new Error('Failed to fetch events');
+
+        const result = await response.json();
+
+        if (result.success && Array.isArray(result.data)) {
+            allEvents = result.data.map(e => ({ ...e, id: e.id || e._id }));
+        } else {
+            console.error('Invalid events data:', result);
+            allEvents = [];
+        }
+    } catch (error) {
+        console.error('Error loading events:', error);
+        allEvents = [];
+        if (grid) grid.innerHTML = '<div class="error-state"><p>Failed to load events. Please refresh.</p></div>';
     }
-    
-    displayEvents(events);
-    updateEventStats(events);
+
+    currentEvents = [...allEvents];
+    renderEvents(currentEvents);
+    renderCalendar(new Date());
+    renderUpcomingEvents(currentEvents);
 }
 
-function getSampleEvents() {
-    return [
-        {
-            id: 1,
-            title: "AI & Machine Learning Career Fair",
-            type: "career_fair",
-            date: "2024-11-15",
-            time: "10:00 AM - 4:00 PM",
-            location: "MIT Campus, Boston",
-            mode: "in-person",
-            category: "technology",
-            organizer: "MIT Career Services",
-            capacity: 500,
-            registered: 234,
-            price: "Free",
-            description: "Connect with leading tech companies hiring AI/ML talent. Meet recruiters from Google, Amazon, Microsoft, and 50+ startups.",
-            speakers: ["Dr. Andrew Ng", "Fei-Fei Li", "Yann LeCun"],
-            companies: ["Google", "Amazon", "Microsoft", "OpenAI", "Tesla"],
-            tags: ["AI", "Machine Learning", "Career Fair", "Networking"],
-            image: "🤖",
-            benefits: ["Direct recruiter access", "Resume reviews", "Mock interviews", "Networking lunch"],
-            requirements: ["Current student or recent graduate", "CS/Engineering background preferred"]
-        },
-        {
-            id: 2,
-            title: "Women in Tech Leadership Summit",
-            type: "conference",
-            date: "2024-12-03",
-            time: "9:00 AM - 6:00 PM",
-            location: "Stanford University",
-            mode: "hybrid",
-            category: "professional_development",
-            organizer: "Women in Tech Society",
-            capacity: 300,
-            registered: 187,
-            price: "$75 (Students: $25)",
-            description: "Empowering the next generation of women tech leaders through inspiring talks, workshops, and mentorship opportunities.",
-            speakers: ["Reshma Saujani", "Kimberly Bryant", "Dr. Fei-Fei Li"],
-            workshops: ["Leadership Skills", "Negotiation Tactics", "Building Your Personal Brand"],
-            tags: ["Women in Tech", "Leadership", "Networking", "Career Development"],
-            image: "👩‍💻",
-            benefits: ["Mentorship matching", "Leadership workshops", "Networking dinner", "Job board access"],
-            requirements: ["Open to all genders", "Interest in tech leadership"]
-        },
-        {
-            id: 3,
-            title: "Startup Pitch Competition",
-            type: "competition",
-            date: "2024-11-28",
-            time: "2:00 PM - 8:00 PM",
-            location: "Y Combinator, San Francisco",
-            mode: "in-person",
-            category: "entrepreneurship",
-            organizer: "Y Combinator",
-            capacity: 200,
-            registered: 145,
-            price: "$50 registration",
-            description: "Pitch your startup idea to top VCs and win $100,000 in seed funding. Open to students and early-stage entrepreneurs.",
-            judges: ["Paul Graham", "Jessica Livingston", "Sam Altman"],
-            prizes: ["$100,000 Grand Prize", "$25,000 Second Place", "$10,000 Third Place"],
-            tags: ["Startup", "Entrepreneurship", "Pitch", "Funding"],
-            image: "🚀",
-            benefits: ["VC networking", "Pitch feedback", "Media exposure", "Investor meetings"],
-            requirements: ["Early-stage startup", "Functional prototype", "Team of 2-4 members"]
+function renderEvents(events) {
+    const grid = document.querySelector('.featured-grid');
+    if (!grid) return;
+
+    if (events.length === 0) {
+        grid.innerHTML = '<div class="no-results"><p>No events found matching your criteria.</p></div>';
+        return;
+    }
+
+    grid.innerHTML = events.map(event => createEventCard(event)).join('');
+}
+
+function createEventCard(event) {
+    const dateStr = new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const isUpcoming = new Date(event.date) > new Date();
+    const badgeText = isUpcoming ? (event.status === 'upcoming' ? '🚀 Upcoming' : event.status) : '🏁 Past';
+
+    // Placeholder image logic
+    const icon = getEventIcon(event.type);
+
+    return `
+        <div class="event-featured-card" data-id="${event.id}">
+            <div class="event-badge">${badgeText}</div>
+            <div class="event-image">
+                <div class="event-placeholder">${icon}</div>
+            </div>
+            <div class="event-content">
+                <h3>${event.title}</h3>
+                <p class="event-organizer">by ${event.organizer || 'BraineX'}</p>
+                <p class="event-description">${event.description}</p>
+                
+                <div class="event-details">
+                    <div class="detail">
+                        <span class="detail-icon">📅</span>
+                        <span>${dateStr}</span>
+                    </div>
+                    <div class="detail">
+                         <span class="detail-icon">📍</span>
+                         <span>${event.location || 'Online'}</span>
+                    </div>
+                    ${event.type ? `
+                    <div class="detail">
+                        <span class="detail-icon">🏷️</span>
+                        <span>${event.type}</span>
+                    </div>` : ''}
+                </div>
+                
+                <div class="event-tags">
+                    <span class="tag">${event.type || 'Event'}</span>
+                    ${(event.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}
+                </div>
+                
+                <button class="btn-event-primary" onclick="registerForEvent('${event.id}')">
+                    ${isUpcoming ? 'Register Now' : 'View Details'}
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function getEventIcon(type) {
+    const t = (type || '').toLowerCase();
+    if (t.includes('hackathon')) return '💻';
+    if (t.includes('conference')) return '🎤';
+    if (t.includes('workshop')) return '🛠️';
+    if (t.includes('webinar')) return '📹';
+    return '📅';
+}
+
+function setupEventFilters() {
+    const typeSelect = document.getElementById('eventType');
+    const searchBtn = document.querySelector('.btn-search-events');
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const type = typeSelect ? typeSelect.value.toLowerCase() : '';
+            filterEvents(type);
+        });
+    }
+
+    if (typeSelect) {
+        typeSelect.addEventListener('change', () => {
+            filterEvents(typeSelect.value.toLowerCase());
+        });
+    }
+}
+
+function filterEvents(type) {
+    if (!type || type === 'all') {
+        currentEvents = [...allEvents];
+    } else {
+        currentEvents = allEvents.filter(e => e.type.toLowerCase().includes(type));
+    }
+    renderEvents(currentEvents);
+}
+
+// Calendar Logic (Simplified)
+let currentMonthDate = new Date();
+
+function renderCalendar(date) {
+    const grid = document.getElementById('calendarGrid');
+    const monthTitle = document.getElementById('currentMonth');
+    if (!grid || !monthTitle) return;
+
+    monthTitle.textContent = date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+    // Clear grid
+    grid.innerHTML = '';
+
+    // Get days in month
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Empty cells for previous month
+    for (let i = 0; i < firstDay; i++) {
+        const div = document.createElement('div');
+        div.className = 'calendar-day empty';
+        grid.appendChild(div);
+    }
+
+    // Days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const div = document.createElement('div');
+        div.className = 'calendar-day';
+        div.textContent = day;
+
+        // precise check
+        const checkDate = new Date(year, month, day).toDateString();
+        const hasEvent = allEvents.some(e => new Date(e.date).toDateString() === checkDate);
+
+        if (hasEvent) {
+            div.classList.add('has-event');
+            div.innerHTML += '<span class="event-dot"></span>';
         }
-    ];
+
+        grid.appendChild(div);
+    }
+}
+
+window.nextMonth = function () {
+    currentMonthDate.setMonth(currentMonthDate.getMonth() + 1);
+    renderCalendar(currentMonthDate);
+}
+
+window.previousMonth = function () {
+    currentMonthDate.setMonth(currentMonthDate.getMonth() - 1);
+    renderCalendar(currentMonthDate);
+}
+
+function setupCalendarNav() {
+    // Buttons are onclick in HTML
+}
+
+function renderUpcomingEvents(events) {
+    const container = document.getElementById('upcomingEvents');
+    if (!container) return;
+
+    const upcoming = events
+        .filter(e => new Date(e.date) >= new Date())
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 5); // Take next 5
+
+    container.innerHTML = upcoming.map(e => `
+        <div class="mini-event-card" onclick="registerForEvent('${e.id}')">
+            <div class="mini-date">
+                <span class="day">${new Date(e.date).getDate()}</span>
+                <span class="month">${new Date(e.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+            </div>
+            <div class="mini-info">
+                <h4>${e.title}</h4>
+                <span>${e.type}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.registerForEvent = function (eventId) {
+    const event = allEvents.find(e => e.id == eventId || e._id == eventId);
+    if (!event) return;
+
+    // Check auth
+    if (window.authAPI && !window.authAPI.isAuthenticated()) {
+        BraineX.showNotification('Please login to register', 'error');
+        BraineX.openModal('loginModal');
+        return;
+    }
+
+    // Show registration modal (using global modal logic re-creation or existing)
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+            <h2>${event.title}</h2>
+            <p>Date: ${new Date(event.date).toLocaleDateString()}</p>
+            <p>Confirm your registration for this event.</p>
+            <div class="form-actions" style="margin-top:20px;">
+                <button class="btn btn-primary" onclick="confirmRegistration('${event.id}', this)">Confirm Registration</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+window.confirmRegistration = async function (eventId, btn) {
+    if (!window.authAPI) return;
+    window.setLoadingState(btn, true, 'Registering...');
+
+    try {
+        const response = await window.authAPI.request('/applications', {
+            method: 'POST',
+            body: JSON.stringify({
+                type: 'event',
+                data: { eventId: eventId }
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            BraineX.showNotification('Successfully registered!', 'success');
+            setTimeout(() => {
+                btn.closest('.modal').remove();
+            }, 800);
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (e) {
+        console.error(e);
+        BraineX.showNotification(e.message || 'Registration failed', 'error');
+    } finally {
+        window.setLoadingState(btn, false);
+    }
 }
