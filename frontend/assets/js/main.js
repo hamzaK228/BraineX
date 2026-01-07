@@ -530,15 +530,27 @@ function setupFAQ() {
 
 function setupTheme() {
     window.toggleTheme = function () {
-        const body = document.body;
+        const html = document.documentElement;
         const btn = document.querySelector('.theme-toggle');
-        const isDark = body.classList.toggle('dark-theme');
 
-        localStorage.setItem('brainex_theme', isDark ? 'dark' : 'light');
+        // Add transition class
+        html.classList.add('theme-transitioning');
+
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('brainex_theme', newTheme);
+
         if (btn) {
-            btn.innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
-            btn.setAttribute('aria-pressed', isDark);
+            btn.innerHTML = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+            btn.setAttribute('aria-pressed', newTheme === 'dark');
         }
+
+        // Remove transition class after it finishes
+        setTimeout(() => {
+            html.classList.remove('theme-transitioning');
+        }, 500);
     };
 
     const themeBtn = document.querySelector('.theme-toggle');
@@ -549,12 +561,14 @@ function setupTheme() {
     // Load saved theme
     const savedTheme = localStorage.getItem('brainex_theme');
     if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
+        document.documentElement.setAttribute('data-theme', 'dark');
         const btn = document.querySelector('.theme-toggle');
         if (btn) {
             btn.innerHTML = '☀️ Light';
             btn.setAttribute('aria-pressed', true);
         }
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
     }
 }
 

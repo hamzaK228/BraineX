@@ -7,7 +7,7 @@
     /* Fonts */
     --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-numbers: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    
+
     /* Backgrounds */
     --bg-primary: #ffffff;
     --bg-secondary: #f8f9fa;
@@ -186,7 +186,19 @@ body {
 }
 
 /* Apply text font to all text elements */
-h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select, label {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+button,
+input,
+textarea,
+select,
+label {
     font-family: var(--font-text);
 }
 
@@ -306,25 +318,42 @@ nav {
 .nav-menu {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 2.5rem;
+    /* Increased gap for better spacing */
     flex-wrap: wrap;
 }
 
 .nav-menu a {
     color: var(--text-inverse);
     text-decoration: none;
-    transition: opacity 0.3s, color 0.3s;
+    transition: all 0.3s ease;
     font-size: 0.95rem;
     font-weight: 500;
+    padding: 0.5rem 0;
+    position: relative;
+}
+
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ffffff;
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after {
+    width: 100%;
 }
 
 .nav-menu a:hover {
-    opacity: 0.8;
+    opacity: 1;
 }
 
 html[data-theme='dark'] .nav-menu a:hover {
     color: var(--accent-secondary);
-    opacity: 1;
 }
 
 .mobile-menu-btn {
@@ -493,21 +522,21 @@ html[data-theme='dark'] .hero .btn-primary {
 }
 
 .category-card {
-    background: #ffffff;
-    padding: 2rem;
+    background: var(--card-bg);
+    padding: 2.5rem 2rem;
     border-radius: 16px;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
-    border: 1px solid #f0f0f0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 20px var(--card-shadow);
     position: relative;
     overflow: hidden;
 }
 
 .category-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* Fix hover state for dark mode */
@@ -528,6 +557,12 @@ html[data-theme='dark'] .category-card:hover * {
 .category-card h3 {
     color: var(--accent-primary);
     margin-bottom: 0.5rem;
+    transition: color var(--transition-base);
+}
+
+html[data-theme='dark'] .category-card h3 {
+    color: var(--text-primary);
+    /* Ensure high contrast in dark mode */
 }
 
 /* Benefits */
@@ -586,7 +621,8 @@ html[data-theme='dark'] .benefit-card {
 
 /* Search Section */
 .search-section {
-    padding: 4rem 0;
+    padding: 6rem 0;
+    /* Increased padding */
     background: var(--header-bg);
     /* Use same gradient */
     color: white;
@@ -670,11 +706,11 @@ html[data-theme='dark'] .benefit-card {
 
 .track-card {
     min-width: 300px;
-    background: #ffffff;
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 20px var(--card-shadow);
+    border: 1px solid var(--card-border);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -682,7 +718,7 @@ html[data-theme='dark'] .benefit-card {
 
 .track-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .track-card h3 {
@@ -1026,7 +1062,7 @@ html[data-theme='dark'] .benefit-card {
     background: #ffffff;
     border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid #f0f0f0;
     transition: all 0.3s ease;
     height: 100%;
@@ -1038,7 +1074,7 @@ html[data-theme='dark'] .benefit-card {
 
 .scholarship-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .scholarship-header {
@@ -1443,46 +1479,87 @@ footer {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 1.5rem;
+    }
+
+    nav {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
     .nav-menu {
         display: none;
         flex-direction: column;
         width: 100%;
-        position: absolute;
-        top: 100%;
+        position: fixed;
+        /* Fixed to cover screen correctly */
+        top: 70px;
+        /* Below header */
         left: 0;
         background: var(--header-bg);
         padding: 2rem;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
     }
 
     .nav-menu.active {
         display: flex;
     }
 
+    .auth-buttons {
+        gap: 0.8rem;
+        /* Increased gap for better mobile spacing */
+    }
+
+    .auth-buttons .btn {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
     .mobile-menu-btn {
         display: block;
+        order: -1;
+        /* Move to left to make space for theme toggle */
+    }
+
+    .hero {
+        padding: 8rem 0 4rem;
+        /* Ensure enough top space */
+        margin-top: 0;
+        /* Let padding handle it */
     }
 
     .hero h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        padding: 0 1rem;
     }
 
-    .timeline-item {
-        gap: 1rem;
+    .hero p {
+        font-size: 1.1rem;
+        padding: 0 1rem;
     }
 
-    .roadmap-timeline::before {
-        left: 15px;
+    .category-grid,
+    .benefits-grid,
+    .mentors-grid {
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-buttons {
+        display: none;
+        /* Hide login/signup labels, keep them in mobile menu if needed */
     }
 
-    .timeline-marker {
-        width: 30px;
-        height: 30px;
-        font-size: 0.9rem;
+    .hero h1 {
+        font-size: 1.8rem;
     }
 
-    .roadmap-stats {
-        grid-template-columns: 1fr;
+    .btn-search {
+        padding: 1rem;
     }
 }
 
