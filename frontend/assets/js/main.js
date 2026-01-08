@@ -41,7 +41,7 @@ async function loadPublicData() {
 
     } catch (error) {
         console.error('Error loading public data:', error);
-        // Fallback to static HTML if fetch fails (graceful degradation)
+        showNotification('Unable to load some content. Please refresh completely.', 'error');
     } finally {
         document.body.classList.remove('loading-data');
     }
@@ -177,21 +177,18 @@ function handleAction(btn, alertMessage, successText = null) {
     btn.disabled = true;
 
     setTimeout(() => {
-        alert(alertMessage);
+        showNotification(successText || 'Action completed!', 'success');
         btn.textContent = successText || originalText;
         btn.disabled = false;
     }, 1000);
 }
 
 function checkLoginForAction() {
-    if (localStorage.getItem('brainex_user') || sessionStorage.getItem('brainex_user')) { // Assuming generic check or authAPI
-        return true;
-    }
-    // If authAPI available
     if (window.authAPI && window.authAPI.isAuthenticated()) return true;
 
     // Not logged in
-    openModal('loginModal');
+    window.openModal('loginModal');
+    showNotification('Please log in to continue', 'info');
     return false;
 }
 
@@ -265,8 +262,8 @@ function setupTracksSlider() {
     const prevBtn = document.querySelector('.slider-btn.btn-prev');
     const nextBtn = document.querySelector('.slider-btn.btn-next');
 
-    if (prevBtn) prevBtn.addEventListener('click', () => scrollSlider('left'));
-    if (nextBtn) nextBtn.addEventListener('click', () => scrollSlider('right'));
+    if (prevBtn) prevBtn.addEventListener('click', () => window.scrollSlider('left'));
+    if (nextBtn) nextBtn.addEventListener('click', () => window.scrollSlider('right'));
 
     window.scrollSlider = function (direction) {
         const slider = document.getElementById('tracksSlider');
@@ -314,7 +311,7 @@ function setupIntersectionObservers() {
 let currentModal = null;
 
 window.openModal = function (modalId) {
-    if (currentModal) closeModal();
+    if (currentModal) window.closeModal();
     currentModal = document.getElementById(modalId);
     if (currentModal) {
         currentModal.classList.add('show');
@@ -330,38 +327,38 @@ window.closeModal = function () {
     }
 };
 
-window.switchToLogin = () => { closeModal(); openModal('loginModal'); };
-window.switchToSignup = () => { closeModal(); openModal('signupModal'); };
+window.switchToLogin = () => { window.closeModal(); window.openModal('loginModal'); };
+window.switchToSignup = () => { window.closeModal(); window.openModal('signupModal'); };
 
 function setupModals() {
     // Close buttons
     document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', closeModal);
+        btn.addEventListener('click', window.closeModal);
     });
 
     // Backdrop clicks
     document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) closeModal();
+        if (e.target.classList.contains('modal')) window.closeModal();
     });
 
     // ESC key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Escape') window.closeModal();
     });
 
     // Switch links
     const switchSignup = document.querySelector('.js-switch-signup');
-    if (switchSignup) switchSignup.addEventListener('click', (e) => { e.preventDefault(); switchToSignup(); });
+    if (switchSignup) switchSignup.addEventListener('click', (e) => { e.preventDefault(); window.switchToSignup(); });
 
     const switchLogin = document.querySelector('.js-switch-login');
-    if (switchLogin) switchLogin.addEventListener('click', (e) => { e.preventDefault(); switchToLogin(); });
+    if (switchLogin) switchLogin.addEventListener('click', (e) => { e.preventDefault(); window.switchToLogin(); });
 
     // Password toggles
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.btn-toggle-password')) {
             const btn = e.target.closest('.btn-toggle-password');
             const targetId = btn.getAttribute('data-target');
-            togglePassword(targetId);
+            window.togglePassword(targetId);
         }
     });
 
@@ -370,20 +367,20 @@ function setupModals() {
         if (e.target.closest('.btn-social')) {
             const btn = e.target.closest('.btn-social');
             const provider = btn.getAttribute('data-provider');
-            socialLogin(provider);
+            window.socialLogin(provider);
         }
     });
 
     // Forgot password
     const forgotLink = document.querySelector('.js-forgot-password');
-    if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); forgotPassword(); });
+    if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); window.forgotPassword(); });
 
     // Bind triggers
     const loginLink = document.querySelector('a[href="#login"]');
-    if (loginLink) loginLink.addEventListener('click', (e) => { e.preventDefault(); openModal('loginModal'); });
+    if (loginLink) loginLink.addEventListener('click', (e) => { e.preventDefault(); window.openModal('loginModal'); });
 
     const signupLink = document.querySelector('a[href="#signup"]');
-    if (signupLink) signupLink.addEventListener('click', (e) => { e.preventDefault(); openModal('signupModal'); });
+    if (signupLink) signupLink.addEventListener('click', (e) => { e.preventDefault(); window.openModal('signupModal'); });
 }
 
 // Authentication Forms
@@ -408,22 +405,19 @@ function setupAuthForms() {
                 if (window.authAPI) {
                     const result = await window.authAPI.login(email, password);
                     if (result.success) {
-                        closeModal();
+                        window.closeModal();
                         updateUIForUser(result.data);
                         showNotification('Welcome back!', 'success');
                     } else {
-                        showError(this, result.error || 'Login failed');
+                        showNotification(result.error || 'Login failed', 'error');
                     }
                 } else {
-                    // Fallback to mock if API missing
-                    console.warn('AuthAPI missing, using mock');
-                    localStorage.setItem('brainex_user', JSON.stringify({ email }));
-                    closeModal();
-                    location.reload();
+                    console.error('AuthAPI not found');
+                    showNotification('Authentication service unavailable', 'error');
                 }
             } catch (error) {
                 console.error(error);
-                showError(this, 'An error occurred');
+                showNotification('An error occurred during login', 'error');
             } finally {
                 btn.textContent = 'Sign In';
                 btn.disabled = false;
@@ -452,7 +446,7 @@ function setupAuthForms() {
                 if (window.authAPI) {
                     const result = await window.authAPI.register(payload);
                     if (result.success) {
-                        closeModal();
+                        window.closeModal();
                         updateUIForUser(result.data);
                         showNotification('Account created!', 'success');
                     } else {
@@ -489,7 +483,7 @@ function updateUIForUser(user) {
 
         // Add listener for dynamically created button
         const logoutBtn = authButtons.querySelector('.js-logout-btn');
-        if (logoutBtn) logoutBtn.addEventListener('click', logout);
+        if (logoutBtn) logoutBtn.addEventListener('click', window.logout);
     }
 }
 
@@ -499,7 +493,7 @@ window.logout = function () {
 };
 
 function showError(form, message) {
-    alert(message); // Simple fallback
+    showNotification(message, 'error');
 }
 
 window.togglePassword = function (id) {
@@ -517,7 +511,7 @@ function setupSearch() {
         btn.addEventListener('click', () => {
             btn.textContent = 'Searching...';
             setTimeout(() => {
-                alert('Search functionality linked to backend coming in next update!');
+                showNotification('Search is coming soon! Try filtering below.', 'info');
                 btn.textContent = 'Find Opportunities';
             }, 800);
         });
@@ -591,8 +585,8 @@ function showNotification(msg, type) {
 }
 
 // Export specific functions if needed
-window.socialLogin = (p) => alert(`Login with ${p} is a demo feature.`);
-window.forgotPassword = () => alert('Reset link sent to your email.');
+window.socialLogin = (p) => showNotification(`Login with ${p} coming soon!`, 'info');
+window.forgotPassword = () => showNotification('Password reset link sent to your email.', 'success');
 
 // Roadmap Tabs (Legacy preserved)
 document.querySelectorAll('.roadmap-tab').forEach(tab => {
