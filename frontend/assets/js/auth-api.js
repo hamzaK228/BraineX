@@ -1,311 +1,295 @@
-// BraineX Auth API Module
-// Handles all authentication-related API calls
+/**
+ * BraineX Authentication API
+ * Handles all authentication-related operations
+ */
 
 class AuthAPI {
     constructor() {
-        this.baseURL = window.location.origin + '/api/auth';
-        this.accessToken = localStorage.getItem('brainex_access_token');
-        this.refreshToken = localStorage.getItem('brainex_refresh_token');
-        this.user = JSON.parse(localStorage.getItem('brainex_user') || 'null');
-        this.isRefreshing = false;
-        this.refreshSubscribers = [];
+        this.apiURL = '/api';
+        this.user = null;
+        this.accessToken = null;
     }
 
-    // Get authorization headers
-    getHeaders(includeAuth = true) {
+    /**
+     * Get authorization headers
+     */
+    getAuthHeaders() {
         const headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
 
-        if (includeAuth && this.accessToken) {
+        if (this.accessToken) {
             headers['Authorization'] = `Bearer ${this.accessToken}`;
         }
 
         return headers;
     }
 
-    // Store tokens and user data
-    setAuthData(tokens, user) {
-        if (tokens) {
-            this.accessToken = tokens.accessToken;
-            this.refreshToken = tokens.refreshToken;
-            localStorage.setItem('brainex_access_token', tokens.accessToken);
-            localStorage.setItem('brainex_refresh_token', tokens.refreshToken);
+    /**
+     * Handle API response
+     */
+    async handleResponse(response) {
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
         }
 
-        if (user) {
-            this.user = user;
-            localStorage.setItem('brainex_user', JSON.stringify(user));
-        }
+        return data;
     }
 
-    // Clear auth data
-    clearAuthData() {
-        this.accessToken = null;
-        this.refreshToken = null;
-        this.user = null;
-        localStorage.removeItem('brainex_access_token');
-        localStorage.removeItem('brainex_refresh_token');
-        localStorage.removeItem('brainex_user');
-    }
-
-    // Check if user is authenticated
-    isAuthenticated() {
-        return !!this.accessToken && !!this.user;
-    }
-
-    // Check if user has specific role
-    hasRole(role) {
-        return this.user && this.user.role === role;
-    }
-
-    // Check if user is admin
-    isAdmin() {
-        return this.hasRole('admin');
-    }
-
-    // Refresh access token
-    async refreshAccessToken() {
-        if (this.isRefreshing) {
-            // Wait for existing refresh to complete
-            return new Promise((resolve) => {
-                this.refreshSubscribers.push(resolve);
-            });
-        }
-
-        this.isRefreshing = true;
-
+    /**
+     * Register new user
+     */
+    async register(userData) {
         try {
-            const response = await fetch(`${this.baseURL}/refresh-token`, {
+            const response = await fetch(`${this.apiURL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refreshToken: this.refreshToken })
+                body: JSON.stringify({
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    email: userData.email,
+                    password: userData.password,
+                    confirmPassword: userData.confirmPassword,
+                    field: userData.field,
+                }),
+                credentials: 'include',
             });
 
-            const data = await response.json();
+            const data = await this.handleResponse(response);
 
             if (data.success) {
+                this.user = data.data.user;
                 this.accessToken = data.data.accessToken;
-                localStorage.setItem('brainex_access_token', data.data.accessToken);
-
-                // Notify all waiting requests
-                this.refreshSubscribers.forEach(callback => callback(true));
-                this.refreshSubscribers = [];
-
-                return true;
-            } else {
-                throw new Error('Token refresh failed');
-            }
-        } catch (error) {
-            console.error('Token refresh error:', error);
-            this.clearAuthData();
-            this.refreshSubscribers.forEach(callback => callback(false));
-            this.refreshSubscribers = [];
-            return false;
-        } finally {
-            this.isRefreshing = false;
-        }
-    }
-
-    // Make authenticated API request with auto-refresh
-    async request(endpoint, options = {}) {
-        const url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`;
-
-        try {
-            let response = await fetch(url, {
-                ...options,
-                headers: {
-                    ...this.getHeaders(options.auth !== false),
-                    ...options.headers
-                }
-            });
-
-            // If token expired, try to refresh
-            if (response.status === 401) {
-                const data = await response.json();
-
-                if (data.code === 'TOKEN_EXPIRED' && this.refreshToken) {
-                    const refreshed = await this.refreshAccessToken();
-
-                    if (refreshed) {
-                        // Retry the request with new token
-                        response = await fetch(url, {
-                            ...options,
-                            headers: {
-                                ...this.getHeaders(true),
-                                ...options.headers
-                            }
-                        });
-                    } else {
-                        // Refresh failed, redirect to login
-                        this.handleAuthError();
-                        throw new Error('Session expired. Please login again.');
-                    }
-                }
+                this.saveAuthState();
             }
 
-            return response;
+            return data;
         } catch (error) {
-            console.error('API request error:', error);
+            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                console.error('Registration error:', error);
+            }
             throw error;
         }
     }
 
-    // Handle authentication errors
-    handleAuthError() {
-        this.clearAuthData();
-
-        // Dispatch event for UI to handle
-        window.dispatchEvent(new CustomEvent('auth:logout', {
-            detail: { reason: 'session_expired' }
-        }));
-    }
-
-    // ==================== AUTH METHODS ====================
-
-    // Register new user
-    async register(userData) {
+    /**
+     * Login user
+     */
+    async login(credentials) {
         try {
-            const response = await fetch(`${this.baseURL}/register`, {
+            const response = await fetch(`${this.apiURL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData)
+                body: JSON.stringify({
+                    email: credentials.email,
+                    password: credentials.password,
+                    remember: credentials.remember || false,
+                }),
+                credentials: 'include',
             });
 
-            const data = await response.json();
+            const data = await this.handleResponse(response);
 
             if (data.success) {
-                this.setAuthData(data.tokens, data.data);
-                window.dispatchEvent(new CustomEvent('auth:login', { detail: data.data }));
+                this.user = data.data.user;
+                this.accessToken = data.data.accessToken;
+                this.saveAuthState();
             }
 
             return data;
         } catch (error) {
-            console.error('Registration error:', error);
-            return { success: false, error: 'Registration failed. Please try again.' };
-        }
-    }
-
-    // Login user
-    async login(email, password) {
-        try {
-            const response = await fetch(`${this.baseURL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.setAuthData(data.tokens, data.data);
-                window.dispatchEvent(new CustomEvent('auth:login', { detail: data.data }));
+            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                console.error('Login error:', error);
             }
-
-            return data;
-        } catch (error) {
-            console.error('Login error:', error);
-            return { success: false, error: 'Login failed. Please try again.' };
+            throw error;
         }
     }
 
-    // Logout user
+    /**
+     * Logout user
+     */
     async logout() {
         try {
-            await this.request('/logout', {
+            await fetch(`${this.apiURL}/auth/logout`, {
                 method: 'POST',
-                body: JSON.stringify({ refreshToken: this.refreshToken })
+                headers: this.getAuthHeaders(),
+                credentials: 'include',
             });
+
+            this.clearAuthState();
+            window.location.href = '/';
         } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            this.clearAuthData();
-            window.dispatchEvent(new CustomEvent('auth:logout', { detail: { reason: 'user_initiated' } }));
+            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                console.error('Logout error:', error);
+            }
+            this.clearAuthState();
         }
     }
 
-    // Get current user
+    /**
+     * Get current user
+     */
     async getCurrentUser() {
         try {
-            const response = await this.request('/me');
-            const data = await response.json();
+            const response = await fetch(`${this.apiURL}/auth/me`, {
+                method: 'GET',
+                headers: this.getAuthHeaders(),
+                credentials: 'include',
+            });
+
+            const data = await this.handleResponse(response);
 
             if (data.success) {
                 this.user = data.data;
-                localStorage.setItem('brainex_user', JSON.stringify(data.data));
+                this.saveAuthState();
             }
 
             return data;
         } catch (error) {
-            console.error('Get user error:', error);
-            return { success: false, error: 'Failed to get user data' };
-        }
-    }
-
-    // Update profile
-    async updateProfile(profileData) {
-        try {
-            const response = await this.request('/profile', {
-                method: 'PUT',
-                body: JSON.stringify(profileData)
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                this.user = data.data;
-                localStorage.setItem('brainex_user', JSON.stringify(data.data));
+            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                console.error('Get current user error:', error);
             }
-
-            return data;
-        } catch (error) {
-            console.error('Profile update error:', error);
-            return { success: false, error: 'Failed to update profile' };
+            this.clearAuthState();
+            throw error;
         }
     }
 
-    // Change password
-    async changePassword(currentPassword, newPassword) {
+    /**
+     * Refresh access token
+     */
+    async refreshToken() {
         try {
-            const response = await this.request('/change-password', {
-                method: 'PUT',
-                body: JSON.stringify({ currentPassword, newPassword })
-            });
-
-            const data = await response.json();
-
-            if (data.success && data.tokens) {
-                this.setAuthData(data.tokens);
-            }
-
-            return data;
-        } catch (error) {
-            console.error('Change password error:', error);
-            return { success: false, error: 'Failed to change password' };
-        }
-    }
-
-    // Forgot password
-    async forgotPassword(email) {
-        try {
-            const response = await fetch(`${this.baseURL}/forgot-password`, {
+            const response = await fetch(`${this.apiURL}/auth/refresh`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
+                credentials: 'include',
             });
 
-            return await response.json();
+            const data = await this.handleResponse(response);
+
+            if (data.success) {
+                this.accessToken = data.data.accessToken;
+                localStorage.setItem('accessToken', this.accessToken);
+            }
+
+            return data;
         } catch (error) {
-            console.error('Forgot password error:', error);
-            return { success: false, error: 'Failed to process request' };
+            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                console.error('Token refresh error:', error);
+            }
+            this.clearAuthState();
+            throw error;
+        }
+    }
+
+    /**
+     * Check if user is authenticated
+     */
+    isAuthenticated() {
+        return !!this.accessToken && !!this.user;
+    }
+
+    /**
+     * Check if user has specific role
+     */
+    hasRole(role) {
+        return this.user?.role === role;
+    }
+
+    /**
+     * Save authentication state to localStorage
+     */
+    saveAuthState() {
+        if (this.accessToken) {
+            localStorage.setItem('accessToken', this.accessToken);
+        }
+        if (this.user) {
+            localStorage.setItem('user', JSON.stringify(this.user));
+        }
+    }
+
+    /**
+     * Load authentication state from localStorage
+     */
+    loadAuthState() {
+        const accessToken = localStorage.getItem('accessToken');
+        const userStr = localStorage.getItem('user');
+
+        if (accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        if (userStr) {
+            try {
+                this.user = JSON.parse(userStr);
+            } catch (e) {
+                if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                    console.error('Error parsing user data:', e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Clear authentication state
+     */
+    clearAuthState() {
+        this.user = null;
+        this.accessToken = null;
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+    }
+
+    /**
+     * Make authenticated API request
+     */
+    async apiRequest(endpoint, options = {}) {
+        try {
+            const response = await fetch(`${this.apiURL}${endpoint}`, {
+                ...options,
+                headers: {
+                    ...this.getAuthHeaders(),
+                    ...options.headers,
+                },
+                credentials: 'include',
+            });
+
+            // Handle 401 - try to refresh token
+            if (response.status === 401) {
+                try {
+                    await this.refreshToken();
+                    // Retry the original request
+                    const retryResponse = await fetch(`${this.apiURL}${endpoint}`, {
+                        ...options,
+                        headers: {
+                            ...this.getAuthHeaders(),
+                            ...options.headers,
+                        },
+                        credentials: 'include',
+                    });
+                    return await this.handleResponse(retryResponse);
+                } catch (refreshError) {
+                    this.clearAuthState();
+                    window.location.href = '/';
+                    throw refreshError;
+                }
+            }
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+                console.error('API request error:', error);
+            }
+            throw error;
         }
     }
 }
 
-// Create global instance
-window.authAPI = new AuthAPI();
+// Create and export global instance
+const authAPI = new AuthAPI();
+authAPI.loadAuthState();
 
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AuthAPI;
-}
+// Expose to window for compatibility
+window.authAPI = authAPI;

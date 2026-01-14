@@ -1,11 +1,10 @@
-const express = require('express');
+import express from 'express';
+import { getFields, getFieldById } from '../controllers/fieldController.js';
+import { validateId } from '../utils/validation.js';
+
 const router = express.Router();
-const fieldController = require('../controllers/fieldController');
 
-// Get all fields (public route)
-router.get('/', fieldController.getFields);
+router.get('/', getFields);
+router.get('/:id', validateId, getFieldById);
 
-// Get field by ID
-router.get('/:id', fieldController.getFieldById);
-
-module.exports = router;
+export default router;

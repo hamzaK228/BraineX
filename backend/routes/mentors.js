@@ -1,11 +1,10 @@
-const express = require('express');
+import express from 'express';
+import { getMentors, getMentorById } from '../controllers/mentorController.js';
+import { validateId } from '../utils/validation.js';
+
 const router = express.Router();
-const mentorController = require('../controllers/mentorController');
 
-// Get all mentors (public route)
-router.get('/', mentorController.getMentors);
+router.get('/', getMentors);
+router.get('/:id', validateId, getMentorById);
 
-// Get mentor by ID
-router.get('/:id', mentorController.getMentorById);
-
-module.exports = router;
+export default router;

@@ -57,10 +57,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }, { threshold: 0.1 });
 
+    // sections.forEach(section => {
+    //     section.style.opacity = '0';
+    //     section.style.transform = 'translateY(30px)';
+    //     section.style.transition = 'all 0.8s ease-out';
+    //     sectionObserver.observe(section);
+    // });
+    // Instead just observe them for the 'revealed' class if needed, or skip hiding.
     sections.forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(30px)';
-        section.style.transition = 'all 0.8s ease-out';
         sectionObserver.observe(section);
     });
 

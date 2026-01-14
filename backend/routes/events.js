@@ -1,11 +1,10 @@
-const express = require('express');
+import express from 'express';
+import { getEvents, getEventById } from '../controllers/eventController.js';
+import { validateId } from '../utils/validation.js';
+
 const router = express.Router();
-const { getEvents, getEventById, createEvent, deleteEvent } = require('../controllers/eventController');
-const { authenticate, authorize } = require('../middleware/auth'); // Changed protect to authenticate
 
 router.get('/', getEvents);
-router.get('/:id', getEventById);
-router.post('/', authenticate, authorize('admin'), createEvent); // Changed protect to authenticate
-router.delete('/:id', authenticate, authorize('admin'), deleteEvent); // Changed protect to authenticate
+router.get('/:id', validateId, getEventById);
 
-module.exports = router;
+export default router;

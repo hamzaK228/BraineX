@@ -1,60 +1,50 @@
-// Admin Routes - Production-ready with Dual Mode (Mongo/Memory)
-const express = require('express');
-const router = express.Router();
-const { authenticate, adminOnly } = require('../middleware/auth');
-const User = require('../models/User');
-const Scholarship = require('../models/Scholarship');
-const Mentor = require('../models/Mentor');
-const Field = require('../models/Field');
-const { memoryStore, isDemoMode } = require('../utils/memoryStore');
+// Admin Routes - JSON Fallback Mode
+import express from 'express';
+import { authenticate, authorize } from '../middleware/auth.js';
+import { readJson, writeJson } from '../utils/jsonHelper.js';
 
-// Controllers
-const scholarshipController = require('../controllers/scholarshipController');
-const mentorController = require('../controllers/mentorController');
-const fieldController = require('../controllers/fieldController');
+const router = express.Router();
 
 // Apply authentication and admin authorization to all routes
 router.use(authenticate);
-router.use(adminOnly);
+router.use(authorize('admin'));
+
+// JSON file paths
+const DATA_DIR = new URL('../data/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+
+// Helper to load JSON data
+async function loadData(type) {
+    try {
+        const data = await readJson(type);
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.warn(`Failed to load ${type} data:`, error.message);
+        return [];
+    }
+}
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats
-// @access  Private/Admin
 router.get('/stats', async (req, res) => {
     try {
-        let stats = {
-            totalUsers: 0,
-            activeStudents: 0,
-            activeMentors: 0,
-            totalScholarships: 0,
-            totalMentors: 0,
-            totalFields: 0,
-            totalEvents: 0
+        const [scholarships, mentors, fields, events] = await Promise.all([
+            loadData('scholarships'),
+            loadData('mentors'),
+            loadData('fields'),
+            loadData('events')
+        ]);
+
+        const stats = {
+            totalUsers: 5, // Mock for JSON mode
+            activeStudents: 3,
+            activeMentors: mentors.filter(m => m.status === 'verified').length,
+            totalScholarships: scholarships.length,
+            activeScholarships: scholarships.filter(s => s.status === 'active').length,
+            totalMentors: mentors.length,
+            verifiedMentors: mentors.filter(m => m.status === 'verified').length,
+            totalFields: fields.length,
+            totalEvents: events.length
         };
-
-        if (isDemoMode()) {
-            stats.totalUsers = memoryStore.users.length;
-            stats.activeStudents = memoryStore.users.filter(u => u.role === 'student').length;
-            stats.activeMentors = memoryStore.users.filter(u => u.role === 'mentor').length; // Users with mentor role
-            stats.totalScholarships = memoryStore.scholarships.length;
-            stats.totalMentors = memoryStore.mentors.length; // Mentor profiles
-            stats.totalFields = memoryStore.fields.length;
-            stats.totalEvents = memoryStore.events.length || 0;
-            stats.verifiedMentors = memoryStore.mentors.filter(m => m.status === 'verified').length;
-            stats.activeScholarships = memoryStore.scholarships.filter(s => s.status === 'active').length;
-        } else {
-            stats.totalUsers = await User.countDocuments();
-            stats.activeStudents = await User.countDocuments({ role: 'student' });
-            stats.activeMentors = await User.countDocuments({ role: 'mentor' });
-            stats.totalScholarships = await Scholarship.countDocuments();
-            stats.totalMentors = await Mentor.countDocuments();
-            stats.totalFields = await Field.countDocuments();
-            stats.totalEvents = 0; // Replace with Event model if created
-
-            // Additional specific counts if needed
-            stats.verifiedMentors = await Mentor.countDocuments({ status: 'verified' });
-            stats.activeScholarships = await Scholarship.countDocuments({ status: 'active' });
-        }
 
         res.json({
             success: true,
@@ -63,7 +53,7 @@ router.get('/stats', async (req, res) => {
                     total: stats.totalUsers,
                     students: stats.activeStudents,
                     mentors: stats.activeMentors,
-                    admins: stats.totalUsers - stats.activeStudents - stats.activeMentors
+                    admins: 1
                 },
                 totalScholarships: stats.totalScholarships,
                 activeScholarships: stats.activeScholarships,
@@ -71,225 +61,242 @@ router.get('/stats', async (req, res) => {
                 verifiedMentors: stats.verifiedMentors,
                 totalFields: stats.totalFields,
                 totalEvents: stats.totalEvents,
-                monthlyRevenue: 45250 // Mock revenue for now
+                monthlyRevenue: 45250
             }
         });
     } catch (error) {
         console.error('Stats error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch statistics'
-        });
+        res.status(500).json({ success: false, error: 'Failed to fetch statistics' });
     }
 });
 
-// ==================== USER MANAGEMENT ====================
-
-// @desc    Get all users
+// @desc    Get all users (mock for JSON mode)
 // @route   GET /api/admin/users
-// @access  Private/Admin
 router.get('/users', async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const search = req.query.search || '';
-        const role = req.query.role || '';
-
-        if (isDemoMode()) {
-            let users = [...memoryStore.users]; // Copy array
-
-            // Filter
-            if (role) {
-                users = users.filter(u => u.role === role);
-            }
-            if (search) {
-                const searchLower = search.toLowerCase();
-                users = users.filter(u =>
-                    u.firstName.toLowerCase().includes(searchLower) ||
-                    u.lastName.toLowerCase().includes(searchLower) ||
-                    u.email.toLowerCase().includes(searchLower)
-                );
-            }
-
-            const total = users.length;
-
-            // Sort (newest first)
-            users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-            // Paginate
-            const paginatedUsers = users.slice(skip, skip + limit).map(u => {
-                const { password, refreshTokens, ...userWithoutSensitive } = u;
-                return userWithoutSensitive;
-            });
-
-            return res.json({
-                success: true,
-                data: {
-                    users: paginatedUsers,
-                    pagination: {
-                        page,
-                        limit,
-                        total,
-                        pages: Math.ceil(total / limit)
-                    }
-                }
-            });
+    res.json({
+        success: true,
+        data: {
+            users: [
+                { id: 1, firstName: 'Admin', lastName: 'User', email: 'admin@brainex.com', role: 'admin', isActive: true },
+                { id: 2, firstName: 'Test', lastName: 'Student', email: 'student@test.com', role: 'student', isActive: true },
+                { id: 3, firstName: 'Demo', lastName: 'Mentor', email: 'mentor@test.com', role: 'mentor', isActive: true }
+            ],
+            pagination: { page: 1, limit: 10, total: 3, pages: 1 }
         }
-
-        // MongoDB
-        let query = {};
-        if (search) {
-            query.$or = [
-                { firstName: { $regex: search, $options: 'i' } },
-                { lastName: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } }
-            ];
-        }
-        if (role) {
-            query.role = role;
-        }
-
-        const users = await User.find(query)
-            .select('-password -refreshTokens')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await User.countDocuments(query);
-
-        res.json({
-            success: true,
-            data: {
-                users,
-                pagination: {
-                    page,
-                    limit,
-                    total,
-                    pages: Math.ceil(total / limit)
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Get users error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to fetch users'
-        });
-    }
-});
-
-// @desc    Update user (activate/deactivate, change role)
-// @route   PUT /api/admin/users/:id
-// @access  Private/Admin
-router.put('/users/:id', async (req, res) => {
-    try {
-        const { isActive, role } = req.body;
-        const updates = {};
-        if (typeof isActive === 'boolean') updates.isActive = isActive;
-        if (role && ['student', 'mentor', 'admin'].includes(role)) updates.role = role;
-
-        if (isDemoMode()) {
-            const index = memoryStore.users.findIndex(u => u._id.toString() === req.params.id); // In demo, _id is ObjectId string
-
-            if (index === -1) {
-                return res.status(404).json({ success: false, error: 'User not found' });
-            }
-
-            memoryStore.users[index] = { ...memoryStore.users[index], ...updates };
-
-            const { password, refreshTokens, ...userWithoutSensitive } = memoryStore.users[index];
-
-            return res.json({
-                success: true,
-                message: 'User updated successfully',
-                data: userWithoutSensitive
-            });
-        }
-
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            updates,
-            { new: true, runValidators: true }
-        ).select('-password -refreshTokens');
-
-        if (!user) {
-            return res.status(404).json({ success: false, error: 'User not found' });
-        }
-
-        res.json({
-            success: true,
-            message: 'User updated successfully',
-            data: user
-        });
-    } catch (error) {
-        console.error('Update user error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to update user'
-        });
-    }
-});
-
-// @desc    Delete user
-// @route   DELETE /api/admin/users/:id
-// @access  Private/Admin
-router.delete('/users/:id', async (req, res) => {
-    try {
-        if (isDemoMode()) {
-            const index = memoryStore.users.findIndex(u => u._id.toString() === req.params.id);
-
-            if (index === -1) {
-                return res.status(404).json({ success: false, error: 'User not found' });
-            }
-
-            memoryStore.users.splice(index, 1);
-            return res.json({
-                success: true,
-                message: 'User deleted successfully'
-            });
-        }
-
-        const user = await User.findByIdAndDelete(req.params.id);
-
-        if (!user) {
-            return res.status(404).json({ success: false, error: 'User not found' });
-        }
-
-        res.json({
-            success: true,
-            message: 'User deleted successfully'
-        });
-    } catch (error) {
-        console.error('Delete user error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to delete user'
-        });
-    }
+    });
 });
 
 // ==================== SCHOLARSHIPS ====================
-router.get('/scholarships', scholarshipController.getAdminScholarships);
-router.post('/scholarships', scholarshipController.createScholarship);
-router.put('/scholarships/:id', scholarshipController.updateScholarship);
-router.delete('/scholarships/:id', scholarshipController.deleteScholarship);
+
+// @desc    Get all scholarships for admin
+// @route   GET /api/admin/scholarships
+router.get('/scholarships', async (req, res) => {
+    try {
+        const scholarships = await loadData('scholarships');
+        res.json({ success: true, data: scholarships, count: scholarships.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to fetch scholarships' });
+    }
+});
+
+// @desc    Create scholarship
+// @route   POST /api/admin/scholarships
+router.post('/scholarships', async (req, res) => {
+    try {
+        const scholarships = await loadData('scholarships');
+        const newScholarship = {
+            id: Date.now(),
+            ...req.body,
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        scholarships.push(newScholarship);
+        await writeJson('scholarships', scholarships);
+        res.status(201).json({ success: true, data: newScholarship });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to create scholarship' });
+    }
+});
+
+// @desc    Update scholarship
+// @route   PUT /api/admin/scholarships/:id
+router.put('/scholarships/:id', async (req, res) => {
+    try {
+        const scholarships = await loadData('scholarships');
+        const index = scholarships.findIndex(s => s.id == req.params.id);
+        if (index === -1) {
+            return res.status(404).json({ success: false, error: 'Scholarship not found' });
+        }
+        scholarships[index] = { ...scholarships[index], ...req.body };
+        await writeJson('scholarships', scholarships);
+        res.json({ success: true, data: scholarships[index] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to update scholarship' });
+    }
+});
+
+// @desc    Delete scholarship
+// @route   DELETE /api/admin/scholarships/:id
+router.delete('/scholarships/:id', async (req, res) => {
+    try {
+        let scholarships = await loadData('scholarships');
+        const index = scholarships.findIndex(s => s.id == req.params.id);
+        if (index === -1) {
+            return res.status(404).json({ success: false, error: 'Scholarship not found' });
+        }
+        scholarships.splice(index, 1);
+        await writeJson('scholarships', scholarships);
+        res.json({ success: true, message: 'Scholarship deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to delete scholarship' });
+    }
+});
 
 // ==================== MENTORS ====================
-router.get('/mentors', mentorController.getAdminMentors);
-router.post('/mentors', mentorController.createMentor);
-router.put('/mentors/:id', mentorController.updateMentor);
-router.delete('/mentors/:id', mentorController.deleteMentor);
+
+router.get('/mentors', async (req, res) => {
+    try {
+        const mentors = await loadData('mentors');
+        res.json({ success: true, data: mentors, count: mentors.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to fetch mentors' });
+    }
+});
+
+router.post('/mentors', async (req, res) => {
+    try {
+        const mentors = await loadData('mentors');
+        const newMentor = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
+        mentors.push(newMentor);
+        await writeJson('mentors', mentors);
+        res.status(201).json({ success: true, data: newMentor });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to create mentor' });
+    }
+});
+
+router.put('/mentors/:id', async (req, res) => {
+    try {
+        const mentors = await loadData('mentors');
+        const index = mentors.findIndex(m => m.id == req.params.id);
+        if (index === -1) return res.status(404).json({ success: false, error: 'Mentor not found' });
+        mentors[index] = { ...mentors[index], ...req.body };
+        await writeJson('mentors', mentors);
+        res.json({ success: true, data: mentors[index] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to update mentor' });
+    }
+});
+
+router.delete('/mentors/:id', async (req, res) => {
+    try {
+        let mentors = await loadData('mentors');
+        const index = mentors.findIndex(m => m.id == req.params.id);
+        if (index === -1) return res.status(404).json({ success: false, error: 'Mentor not found' });
+        mentors.splice(index, 1);
+        await writeJson('mentors', mentors);
+        res.json({ success: true, message: 'Mentor deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to delete mentor' });
+    }
+});
 
 // ==================== FIELDS ====================
-// Fields don't have a status, so standard getFields (which filters by nothing if no params) is fine
-// But create/update/delete are admin restricted in the controller routes?
-// Actually the controller methods I wrote for create/update/delete are generic handlers.
-// Checking routes/fields.js: it only exposes get.
-// So I need to expose create/update/delete here.
-router.get('/fields', fieldController.getFields);
-router.post('/fields', fieldController.createField);
-router.put('/fields/:id', fieldController.updateField);
-router.delete('/fields/:id', fieldController.deleteField);
 
-module.exports = router;
+router.get('/fields', async (req, res) => {
+    try {
+        const fields = await loadData('fields');
+        res.json({ success: true, data: fields, count: fields.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to fetch fields' });
+    }
+});
+
+router.post('/fields', async (req, res) => {
+    try {
+        const fields = await loadData('fields');
+        const newField = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
+        fields.push(newField);
+        await writeJson('fields', fields);
+        res.status(201).json({ success: true, data: newField });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to create field' });
+    }
+});
+
+router.put('/fields/:id', async (req, res) => {
+    try {
+        const fields = await loadData('fields');
+        const index = fields.findIndex(f => f.id == req.params.id);
+        if (index === -1) return res.status(404).json({ success: false, error: 'Field not found' });
+        fields[index] = { ...fields[index], ...req.body };
+        await writeJson('fields', fields);
+        res.json({ success: true, data: fields[index] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to update field' });
+    }
+});
+
+router.delete('/fields/:id', async (req, res) => {
+    try {
+        let fields = await loadData('fields');
+        const index = fields.findIndex(f => f.id == req.params.id);
+        if (index === -1) return res.status(404).json({ success: false, error: 'Field not found' });
+        fields.splice(index, 1);
+        await writeJson('fields', fields);
+        res.json({ success: true, message: 'Field deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to delete field' });
+    }
+});
+
+// ==================== EVENTS ====================
+
+router.get('/events', async (req, res) => {
+    try {
+        const events = await loadData('events');
+        res.json({ success: true, data: events, count: events.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to fetch events' });
+    }
+});
+
+router.post('/events', async (req, res) => {
+    try {
+        const events = await loadData('events');
+        const newEvent = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
+        events.push(newEvent);
+        await writeJson('events', events);
+        res.status(201).json({ success: true, data: newEvent });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to create event' });
+    }
+});
+
+router.put('/events/:id', async (req, res) => {
+    try {
+        const events = await loadData('events');
+        const index = events.findIndex(e => e.id == req.params.id);
+        if (index === -1) return res.status(404).json({ success: false, error: 'Event not found' });
+        events[index] = { ...events[index], ...req.body };
+        await writeJson('events', events);
+        res.json({ success: true, data: events[index] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to update event' });
+    }
+});
+
+router.delete('/events/:id', async (req, res) => {
+    try {
+        let events = await loadData('events');
+        const index = events.findIndex(e => e.id == req.params.id);
+        if (index === -1) return res.status(404).json({ success: false, error: 'Event not found' });
+        events.splice(index, 1);
+        await writeJson('events', events);
+        res.json({ success: true, message: 'Event deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to delete event' });
+    }
+});
+
+export default router;

@@ -1,4 +1,4 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN || '';
 const NOTION_VERSION = '2022-06-28';
@@ -102,4 +102,4 @@ class NotionService {
     }
 }
 
-module.exports = new NotionService();
+export default new NotionService();

@@ -1,9 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/auth');
-const { getItems, createItem, updateItem, deleteItem } = require('../controllers/goalController');
+import express from 'express';
+import { authenticate } from '../middleware/auth.js';
+import { getItems, createItem, updateItem, deleteItem } from '../controllers/goalController.js';
 
-router.use(protect);
+const router = express.Router();
+
+router.use(authenticate);
 
 router.route('/')
     .get(getItems)
@@ -13,4 +14,4 @@ router.route('/:id')
     .put(updateItem)
     .delete(deleteItem);
 
-module.exports = router;
+export default router;

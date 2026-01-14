@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="detail"><span>📊</span> ${r.milestones}</div>
                     <div class="detail"><span>👥</span> ${r.followers} followers</div>
                 </div>
-                <button class="btn-roadmap">View Roadmap</button>
+                <a href="#" class="btn-roadmap" style="text-decoration: none; text-align: center; display: inline-block;">View Roadmap</a>
             </div>
         `).join('');
 
@@ -107,7 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
         findBtn.addEventListener('click', () => {
             const goal = goalSelect.value;
             if (!goal) {
-                alert('Please select a goal first!');
+                if (window.BraineX && window.BraineX.showNotification) {
+                    BraineX.showNotification('Please select a goal first!', 'info');
+                } else {
+                    alert('Please select a goal first!');
+                }
                 return;
             }
 

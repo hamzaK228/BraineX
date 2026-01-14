@@ -1,244 +1,130 @@
-const Mentor = require('../models/Mentor');
-const { memoryStore, isDemoMode } = require('../utils/memoryStore');
-const { validationResult } = require('express-validator');
+import { pool } from '../config/database.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { readJson } from '../utils/jsonHelper.js';
 
-// @desc    Get all mentors
-// @route   GET /api/mentors
-// @access  Public
-exports.getMentors = async (req, res) => {
+/**
+ * Get all mentors with filtering
+ * @route GET /api/mentors
+ */
+export const getMentors = asyncHandler(async (req, res) => {
+    const { field, status = 'verified', page = 1, limit = 20 } = req.query;
+
     try {
-        const { field, experience, search } = req.query;
+        let query = `
+    SELECT m.*, u.first_name, u.last_name, u.email, u.avatar_url 
+    FROM mentors m
+    JOIN users u ON m.user_id = u.id
+    WHERE m.status = ?
+  `;
+        const params = [status];
 
-        if (isDemoMode()) {
-            let results = memoryStore.mentors.filter(m => m.status === 'verified');
-
-            if (field && field !== 'all') {
-                results = results.filter(m => m.field === field);
-            }
-            if (experience && experience !== 'all') {
-                results = results.filter(m => m.experience === experience);
-            }
-            if (search) {
-                const searchLower = search.toLowerCase();
-                results = results.filter(m =>
-                    m.name.toLowerCase().includes(searchLower) ||
-                    m.title.toLowerCase().includes(searchLower) ||
-                    m.company.toLowerCase().includes(searchLower)
-                );
-            }
-
-            return res.json({
-                success: true,
-                count: results.length,
-                data: results
-            });
+        if (field) {
+            query += ' AND m.field = ?';
+            params.push(field);
         }
 
-        // MongoDB
-        let query = { status: 'verified' };
+        const offset = (page - 1) * limit;
+        query += ' ORDER BY m.rating DESC, m.mentees DESC LIMIT ? OFFSET ?';
+        params.push(parseInt(limit), parseInt(offset));
 
-        if (field && field !== 'all') {
-            query.field = field;
-        }
+        const [mentors] = await pool.query(query, params);
 
-        if (experience && experience !== 'all') {
-            query.experience = experience;
-        }
-
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { title: { $regex: search, $options: 'i' } },
-                { company: { $regex: search, $options: 'i' } }
-            ];
-        }
-
-        const mentors = await Mentor.find(query).sort({ createdAt: -1 });
+        // Format response
+        const formattedMentors = mentors.map(m => ({
+            id: m.id,
+            name: `${m.first_name} ${m.last_name}`,
+            title: m.title,
+            company: m.company,
+            field: m.field,
+            experience: m.experience,
+            bio: m.bio,
+            mentees: m.mentees,
+            rating: parseFloat(m.rating),
+            avatarUrl: m.avatar_url,
+        }));
 
         res.json({
             success: true,
-            count: mentors.length,
-            data: mentors
+            data: formattedMentors,
         });
     } catch (error) {
-        console.error('Get mentors error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
+        console.warn('Database error in getMentors, using fallback JSON:', error.message);
+        let mentors = await readJson('mentors.json');
 
-// @desc    Get all mentors (Admin - includes unverified)
-// @route   GET /api/admin/mentors
-// @access  Private/Admin
-exports.getAdminMentors = async (req, res) => {
-    try {
-        if (isDemoMode()) {
-            return res.json({
-                success: true,
-                count: memoryStore.mentors.length,
-                data: memoryStore.mentors
-            });
-        }
+        // Filter
+        if (field) mentors = mentors.filter(m => m.field === field);
+        if (status) mentors = mentors.filter(m => m.status === status);
 
-        const mentors = await Mentor.find().sort({ createdAt: -1 });
+        const start = (page - 1) * limit;
+        const paginated = mentors.slice(start, start + parseInt(limit));
 
         res.json({
             success: true,
-            count: mentors.length,
-            data: mentors
+            data: paginated, // mentors.json already has formatted structure
+        });
+    }
+});
+
+/**
+ * Get mentor profile
+ * @route GET /api/mentors/:id
+ */
+export const getMentorById = asyncHandler(async (req, res) => {
+    try {
+        const [mentors] = await pool.query(
+            `SELECT m.*, u.first_name, u.last_name, u.email 
+     FROM mentors m
+     JOIN users u ON m.user_id = u.id
+     WHERE m.id = ?`,
+            [req.params.id]
+        );
+
+        if (mentors.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Mentor not found',
+            });
+        }
+
+        const mentor = mentors[0];
+
+        res.json({
+            success: true,
+            data: {
+                id: mentor.id,
+                name: `${mentor.first_name} ${mentor.last_name}`,
+                email: mentor.email,
+                title: mentor.title,
+                company: mentor.company,
+                field: mentor.field,
+                experience: mentor.experience,
+                bio: mentor.bio,
+                mentees: mentor.mentees,
+                rating: parseFloat(mentor.rating),
+                hourlyRate: mentor.hourly_rate,
+                availability: mentor.availability,
+            },
         });
     } catch (error) {
-        console.error('Get admin mentors error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
-
-// @desc    Get mentor by ID
-// @route   GET /api/mentors/:id
-// @access  Public
-exports.getMentorById = async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        if (isDemoMode()) {
-            const numericId = parseInt(id);
-            const mentor = memoryStore.mentors.find(m => m.id === numericId || m.id == id);
-
-            if (!mentor) {
-                return res.status(404).json({ success: false, error: 'Mentor not found' });
-            }
-
-            return res.json({ success: true, data: mentor });
-        }
-
-        let mentor;
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            mentor = await Mentor.findById(id);
-        } else {
-            mentor = await Mentor.findOne({ id: id });
-        }
+        console.warn('Database error in getMentorById, using fallback JSON:', error.message);
+        const mentors = await readJson('mentors.json');
+        const mentor = mentors.find(m => m.id == req.params.id);
 
         if (!mentor) {
-            return res.status(404).json({ success: false, error: 'Mentor not found' });
+            return res.status(404).json({
+                success: false,
+                error: 'Mentor not found',
+            });
         }
 
-        res.json({ success: true, data: mentor });
-    } catch (error) {
-        console.error('Get mentor error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
+        res.json({
+            success: true,
+            data: mentor,
+        });
     }
-};
+});
 
-// @desc    Create mentor
-// @route   POST /api/mentors
-// @access  Private/Admin
-exports.createMentor = async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ success: false, errors: errors.array() });
-        }
-
-        if (isDemoMode()) {
-            const newMentor = {
-                id: Date.now(),
-                ...req.body,
-                status: req.body.status || 'pending',
-                rating: 0,
-                mentees: 0,
-                createdAt: new Date().toISOString()
-            };
-            memoryStore.mentors.push(newMentor);
-            return res.status(201).json({ success: true, data: newMentor });
-        }
-
-        // MongoDB
-        const mentorData = {
-            ...req.body,
-            id: Date.now()
-        };
-        const mentor = await Mentor.create(mentorData);
-        res.status(201).json({ success: true, data: mentor });
-    } catch (error) {
-        console.error('Create mentor error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
-
-// @desc    Update mentor
-// @route   PUT /api/mentors/:id
-// @access  Private/Admin
-exports.updateMentor = async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        if (isDemoMode()) {
-            const numericId = parseInt(id);
-            const index = memoryStore.mentors.findIndex(m => m.id === numericId || m.id == id);
-
-            if (index === -1) {
-                return res.status(404).json({ success: false, error: 'Mentor not found' });
-            }
-
-            memoryStore.mentors[index] = {
-                ...memoryStore.mentors[index],
-                ...req.body,
-                updatedAt: new Date().toISOString()
-            };
-
-            return res.json({ success: true, data: memoryStore.mentors[index] });
-        }
-
-        let mentor;
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            mentor = await Mentor.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-        } else {
-            mentor = await Mentor.findOneAndUpdate({ id: id }, req.body, { new: true, runValidators: true });
-        }
-
-        if (!mentor) {
-            return res.status(404).json({ success: false, error: 'Mentor not found' });
-        }
-
-        res.json({ success: true, data: mentor });
-    } catch (error) {
-        console.error('Update mentor error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
-
-// @desc    Delete mentor
-// @route   DELETE /api/mentors/:id
-// @access  Private/Admin
-exports.deleteMentor = async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        if (isDemoMode()) {
-            const numericId = parseInt(id);
-            const index = memoryStore.mentors.findIndex(m => m.id === numericId || m.id == id);
-
-            if (index === -1) {
-                return res.status(404).json({ success: false, error: 'Mentor not found' });
-            }
-
-            memoryStore.mentors.splice(index, 1);
-            return res.json({ success: true, data: {} });
-        }
-
-        let mentor;
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            mentor = await Mentor.findByIdAndDelete(id);
-        } else {
-            mentor = await Mentor.findOneAndDelete({ id: id });
-        }
-
-        if (!mentor) {
-            return res.status(404).json({ success: false, error: 'Mentor not found' });
-        }
-
-        res.json({ success: true, data: {} });
-    } catch (error) {
-        console.error('Delete mentor error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
+export default {
+    getMentors,
+    getMentorById,
 };

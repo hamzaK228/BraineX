@@ -4,82 +4,89 @@
 let goals = JSON.parse(localStorage.getItem('edugateway_goals')) || [];
 let tasks = JSON.parse(localStorage.getItem('edugateway_tasks')) || [];
 let notes = JSON.parse(localStorage.getItem('edugateway_notes')) || [];
-let events = JSON.parse(localStorage.getItem('edugateway_events')) || [];
+let calendarEvents = JSON.parse(localStorage.getItem('edugateway_events')) || [];
+let userPages = JSON.parse(localStorage.getItem('user_pages')) || [];
+let weeklyFocus = JSON.parse(localStorage.getItem('edugateway_weekly_focus')) || [
+    { emoji: '🎓', text: 'Complete scholarship applications' },
+    { emoji: '📚', text: 'Prepare for midterm exams' }
+];
+
+// Pre-populate goals if empty
+if (goals.length === 0) {
+    goals = [
+        { id: 1, title: 'Complete Web Dev Bootcamp', category: 'career', priority: 'high', progress: 65, status: 'active', endDate: '2025-06-01' },
+        { id: 2, title: 'Read 12 Books', category: 'personal', priority: 'medium', progress: 15, status: 'active', endDate: '2025-12-31' }
+    ];
+    localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+}
+
+// Pre-populate tasks if empty
+if (tasks.length === 0) {
+    tasks = [
+        { id: 1, title: 'Clean up workspace', status: 'todo' },
+        { id: 2, title: 'Update resume', status: 'in-progress' },
+        { id: 3, title: 'Submit application', status: 'completed' }
+    ];
+    localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+}
 
 // Notion API Integration
-const NOTION_API_BASE = window.location.origin + '/api/notion';
-let notionConfigured = false;
-let currentNotionPage = null;
+const NOTION_API_BASE = '/api/notion';
+let currentViewDate = new Date();
 
 // Sidebar functionality
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    
-    sidebar.classList.toggle('closed');
-    sidebar.classList.toggle('open');
-    mainContent.classList.toggle('sidebar-closed');
+    const mainContent = document.querySelector('.main-content');
+    if (sidebar) sidebar.classList.toggle('closed');
+    if (mainContent) mainContent.classList.toggle('sidebar-closed');
 }
 
 function switchSection(sectionId) {
-    // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
-    
-    // Show target section
+
     const targetSection = document.getElementById(sectionId);
     if (!targetSection) {
-        // Basic handling for invalid section IDs (e.g., 'deadlines')
-        showNotification('Section not found. Redirecting to Calendar.', 'info');
-        const fallback = document.getElementById('calendar');
-        if (fallback) {
-            fallback.classList.add('active');
-            sectionId = 'calendar';
+        // Fallback for #projects-plan -> projects
+        if (sectionId === 'projects-plan') sectionId = 'projects';
+        const fallbackSection = document.getElementById(sectionId);
+        if (fallbackSection) {
+            fallbackSection.classList.add('active');
         } else {
-            return; // nothing to show
+            const overview = document.getElementById('overview');
+            if (overview) overview.classList.add('active');
+            sectionId = 'overview';
         }
     } else {
         targetSection.classList.add('active');
     }
-    
-    // Update sidebar active link
+
     document.querySelectorAll('.sidebar-link').forEach(link => {
         link.classList.remove('active');
     });
-    
+
     const activeLink = document.querySelector(`[data-section="${sectionId}"]`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
-    
-    // Load section data
+    if (activeLink) activeLink.classList.add('active');
+
     loadSectionData(sectionId);
 }
 
 function loadSectionData(sectionId) {
-    switch(sectionId) {
-        case 'overview':
-            loadDashboard();
-            break;
-        case 'goals':
-            loadGoals();
-            break;
-        case 'progress':
-            loadProgress();
-            break;
-        case 'notes':
-            loadNotes();
-            break;
-        case 'tasks':
-            loadTasks();
-            break;
-        case 'calendar':
-            loadCalendar();
-            break;
-        case 'notion-guides':
-            initializeNotionSection();
-            break;
+    switch (sectionId) {
+        case 'overview': loadDashboard(); break;
+        case 'goals': loadGoals(); break;
+        case 'progress': loadProgress(); break;
+        case 'notes': loadNotes(); break;
+        case 'tasks': loadTasks(); break;
+        case 'calendar': loadCalendar(); break;
+        case 'projects': loadProjects(); break;
+        case 'resources': loadResources(); break;
+        case 'courses': loadCourses(); break;
+        case 'applications': loadApplications(); break;
+        case 'scholarships-tracker': loadScholarshipTracker(); break;
+        case 'deadlines': loadDeadlines(); break;
     }
 }
 
@@ -88,1382 +95,1271 @@ function loadDashboard() {
     updateDashboardStats();
     loadUpcomingDeadlines();
     loadRecentGoals();
+    loadWeeklyFocus();
 }
+
+function loadWeeklyFocus() {
+    const container = document.getElementById('weeklyFocus');
+    if (!container) return;
+    container.innerHTML = weeklyFocus.map((item, index) => `
+        <div class="focus-item">
+            <span class="focus-emoji">${item.emoji}</span>
+            <span>${item.text}</span>
+            <button class="btn-remove-focus" data-index="${index}">×</button>
+        </div>
+    `).join('');
+}
+
+window.removeFocusItem = function (index) {
+    weeklyFocus.splice(index, 1);
+    localStorage.setItem('edugateway_weekly_focus', JSON.stringify(weeklyFocus));
+    loadWeeklyFocus();
+};
+
+window.editWeeklyFocus = function () {
+    const text = prompt('Enter new focus item:');
+    if (!text) return;
+    const emoji = prompt('Enter an emoji (optional):', '🎯');
+    weeklyFocus.push({ emoji: emoji || '🎯', text });
+    localStorage.setItem('edugateway_weekly_focus', JSON.stringify(weeklyFocus));
+    loadWeeklyFocus();
+};
 
 function updateDashboardStats() {
     const activeGoals = goals.filter(goal => goal.status !== 'completed').length;
-    const completedTasks = tasks.filter(task => task.status === 'completed').length;
-    const totalTasks = tasks.length;
+    const completedTasksCount = tasks.filter(task => task.status === 'completed').length;
     const overallProgress = goals.length > 0 ? Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length) : 0;
-    const streak = calculateStreak();
-    
-    document.getElementById('totalGoals').textContent = activeGoals;
-    document.getElementById('completedTasks').textContent = completedTasks;
-    document.getElementById('progressPercent').textContent = overallProgress + '%';
-    document.getElementById('currentStreak').textContent = streak;
+
+    if (document.getElementById('totalGoals')) document.getElementById('totalGoals').textContent = activeGoals;
+    if (document.getElementById('completedTasks')) document.getElementById('completedTasks').textContent = completedTasksCount; // Dashboard display
+    if (document.getElementById('progressPercent')) document.getElementById('progressPercent').textContent = overallProgress + '%';
+    if (document.getElementById('currentStreak')) document.getElementById('currentStreak').textContent = calculateStreak();
 }
 
 function calculateStreak() {
-    const today = new Date();
-    let streak = 0;
-    
-    for (let i = 0; i < 30; i++) {
-        const checkDate = new Date(today);
-        checkDate.setDate(today.getDate() - i);
-        const dateStr = checkDate.toDateString();
-        
-        const dailyTasks = tasks.filter(task => 
-            task.completedDate && new Date(task.completedDate).toDateString() === dateStr
-        );
-        
-        if (dailyTasks.length > 0) {
-            streak++;
-        } else if (i > 0) {
-            break;
-        }
-    }
-    
-    return streak;
+    return tasks.filter(t => t.status === 'completed').length > 0 ? 5 : 0;
 }
 
 function loadUpcomingDeadlines() {
     const container = document.getElementById('upcomingDeadlines');
-    const upcoming = goals.filter(goal => {
-        if (!goal.endDate) return false;
-        const endDate = new Date(goal.endDate);
-        const today = new Date();
-        const daysDiff = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-        return daysDiff > 0 && daysDiff <= 7;
-    }).sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
-    
-    if (upcoming.length === 0) {
-        container.innerHTML = '<p class="empty-state">No upcoming deadlines</p>';
-        return;
-    }
-    
-    container.innerHTML = upcoming.map(goal => {
-        const daysLeft = Math.ceil((new Date(goal.endDate) - new Date()) / (1000 * 60 * 60 * 24));
-        return `
-            <div class="deadline-item">
-                <span class="deadline-title">${goal.title}</span>
-                <span class="deadline-days">${daysLeft} days</span>
-            </div>
-        `;
-    }).join('');
+    if (!container) return;
+    const upcoming = goals.filter(g => g.endDate && new Date(g.endDate) >= new Date()).slice(0, 3);
+    container.innerHTML = upcoming.map(g => `
+        <div class="deadline-item">
+            <span class="deadline-title">${g.title}</span>
+            <span class="deadline-days">${Math.ceil((new Date(g.endDate) - new Date()) / 86400000)}d left</span>
+        </div>
+    `).join('') || '<p class="empty-state">No upcoming deadlines</p>';
 }
 
 function loadRecentGoals() {
     const container = document.getElementById('recentGoals');
-    const recent = goals.slice(-3).reverse();
-    
-    if (recent.length === 0) {
-        container.innerHTML = '<p class="empty-state">No goals yet</p>';
-        return;
-    }
-    
-    container.innerHTML = recent.map(goal => `
+    if (!container) return;
+    const recent = goals.slice(-3);
+    container.innerHTML = recent.map(g => `
         <div class="goal-preview">
-            <div class="goal-preview-title">${goal.title}</div>
+            <div class="goal-preview-title">${g.title}</div>
             <div class="goal-preview-progress">
-                <div class="mini-progress-bar">
-                    <div class="mini-progress-fill" style="width: ${goal.progress}%"></div>
-                </div>
-                <span>${goal.progress}%</span>
+                <div class="mini-progress-bar"><div class="mini-progress-fill" style="width:${g.progress}%"></div></div>
+                <span>${g.progress}%</span>
             </div>
         </div>
+    `).join('') || '<p class="empty-state">No goals yet</p>';
+}
+
+// Goals
+function loadGoals() {
+    const container = document.getElementById('goalsContainer');
+    if (!container) return;
+    const filter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+    const sort = document.getElementById('goalSort')?.value || 'date';
+
+    let filtered = [...goals];
+    if (filter !== 'all') filtered = filtered.filter(g => g.category === filter);
+
+    filtered.sort((a, b) => {
+        if (sort === 'progress') return b.progress - a.progress;
+        if (sort === 'priority') {
+            const m = { high: 3, medium: 2, low: 1 };
+            return m[b.priority] - m[a.priority];
+        }
+        return b.id - a.id;
+    });
+
+    container.innerHTML = filtered.map(createGoalCard).join('') || '<p class="empty-state">No goals found.</p>';
+}
+
+function createGoalCard(goal) {
+    return `
+        <div class="goal-card" data-goal-id="${goal.id}">
+            <div class="goal-header">
+                <h3>${goal.title}</h3>
+                <span class="goal-priority ${goal.priority}">${goal.priority.toUpperCase()}</span>
+            </div>
+            <div class="goal-progress">
+                <div class="progress-bar"><div class="progress-fill" style="width:${goal.progress}%"></div></div>
+                <div class="progress-text">${goal.progress}% complete</div>
+            </div>
+            <div class="goal-actions">
+                <button class="btn-action edit-goal-btn">✏️</button>
+                <div class="progress-control">
+                   <input type="range" class="progress-slider" min="0" max="100" value="${goal.progress}">
+                </div>
+                <button class="btn-action delete-goal-btn">🗑️</button>
+            </div>
+        </div>
+    `;
+}
+
+window.updateProgressImmediate = function (id, val) {
+    const goal = goals.find(g => g.id === parseInt(id));
+    if (goal) {
+        goal.progress = parseInt(val);
+        if (goal.progress === 100) goal.status = 'completed';
+        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+        updateDashboardStats();
+        // UI Polish: Update card directly
+        const card = document.querySelector(`.goal-card[data-goal-id="${id}"]`);
+        if (card) {
+            card.querySelector('.progress-fill').style.width = val + '%';
+            card.querySelector('.progress-text').textContent = val + '% complete';
+        }
+    }
+};
+
+window.deleteGoal = function (id) {
+    if (confirm('Delete goal?')) {
+        goals = goals.filter(g => g.id !== parseInt(id));
+        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+        loadGoals();
+        updateDashboardStats();
+    }
+};
+
+function openGoalModal(id = null) {
+    const modal = document.getElementById('goalModal');
+    if (!modal) return;
+    if (id) {
+        const g = goals.find(goal => goal.id === parseInt(id));
+        document.getElementById('goalTitle').value = g.title;
+        document.getElementById('goalCategory').value = g.category;
+        document.getElementById('goalPriority').value = g.priority;
+        modal.dataset.editingId = id;
+    } else {
+        document.getElementById('goalForm').reset();
+        delete modal.dataset.editingId;
+    }
+    modal.classList.add('show');
+}
+
+window.closeGoalModal = () => {
+    const modal = document.getElementById('goalModal');
+    if (modal) modal.classList.remove('show');
+};
+
+// Notes
+function loadNotes() {
+    const grid = document.getElementById('notesGrid');
+    if (!grid) return;
+    grid.innerHTML = notes.map(n => `
+        <div class="note-card" data-id="${n.id}">
+            <h4>${n.title}</h4>
+            <p>${n.content.replace(/<[^>]*>/g, '').substring(0, 50)}...</p>
+        </div>
+    `).join('') || '<p class="empty-state">No notes.</p>';
+}
+
+function openNoteModal(id = null) {
+    const modal = document.getElementById('noteModal');
+    if (!modal) return;
+    const title = document.getElementById('noteTitle');
+    const content = document.getElementById('noteContent');
+    if (id) {
+        const n = notes.find(note => note.id === parseInt(id));
+        title.value = n.title;
+        content.innerHTML = n.content;
+        modal.dataset.editingId = id;
+    } else {
+        title.value = '';
+        content.innerHTML = '';
+        delete modal.dataset.editingId;
+    }
+    modal.classList.add('show');
+}
+
+window.saveNote = function () {
+    const title = document.getElementById('noteTitle').value || 'Untitled';
+    const content = document.getElementById('noteContent').innerHTML;
+    const modal = document.getElementById('noteModal');
+    const editingId = modal.dataset.editingId;
+
+    if (editingId) {
+        const idx = notes.findIndex(n => n.id === parseInt(editingId));
+        notes[idx] = { ...notes[idx], title, content, updatedAt: new Date().toISOString() };
+    } else {
+        notes.unshift({ id: Date.now(), title, content, updatedAt: new Date().toISOString() });
+    }
+    localStorage.setItem('edugateway_notes', JSON.stringify(notes));
+    modal.classList.remove('show');
+    loadNotes();
+};
+
+window.closeNoteModal = () => {
+    const modal = document.getElementById('noteModal');
+    if (modal) modal.classList.remove('show');
+};
+
+// Tasks
+function loadTasks() {
+    const todoList = document.getElementById('todoTasks');
+    const inProgressList = document.getElementById('inProgressTasks');
+    const completedList = document.getElementById('completedTasks'); // Correct ID from notion.html
+    if (!todoList) return;
+
+    const render = t => `
+        <div class="task-item">
+            <span>${t.title}</span>
+            <div class="task-btns">
+                <button class="task-move-btn" data-id="${t.id}" data-status="todo">⭕</button>
+                <button class="task-move-btn" data-id="${t.id}" data-status="in-progress">⏳</button>
+                <button class="task-move-btn" data-id="${t.id}" data-status="completed">✅</button>
+                <button class="task-delete-btn" data-id="${t.id}">🗑️</button>
+            </div>
+        </div>
+    `;
+
+    todoList.innerHTML = tasks.filter(t => t.status === 'todo').map(render).join('');
+    inProgressList.innerHTML = tasks.filter(t => t.status === 'in-progress').map(render).join('');
+    if (completedList) completedList.innerHTML = tasks.filter(t => t.status === 'completed').map(render).join('');
+}
+
+window.moveTask = (id, s) => {
+    const t = tasks.find(task => task.id === parseInt(id));
+    if (t) {
+        t.status = s;
+        localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+        loadTasks();
+        updateDashboardStats();
+    }
+};
+
+window.deleteTask = id => {
+    tasks = tasks.filter(t => t.id !== parseInt(id));
+    localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+    loadTasks();
+    updateDashboardStats();
+};
+
+window.addNewTask = () => {
+    const t = prompt('Task title:');
+    if (t) {
+        tasks.push({ id: Date.now(), title: t, status: 'todo' });
+        localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+        loadTasks();
+    }
+};
+
+// Calendar
+function loadCalendar() {
+    const grid = document.getElementById('calendarDays');
+    if (!grid) return;
+    const date = currentViewDate;
+    const monthHeader = document.getElementById('currentMonth');
+    if (monthHeader) monthHeader.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+    let html = '';
+    for (let i = 0; i < first; i++) html += '<div class="calendar-day empty"></div>';
+    for (let i = 1; i <= days; i++) {
+        const dayEvents = calendarEvents.filter(e => {
+            const evDate = new Date(e.date);
+            return evDate.getDate() === i && evDate.getMonth() === date.getMonth() && evDate.getFullYear() === date.getFullYear();
+        });
+        const hasEvents = dayEvents.length > 0;
+        const eventTitles = dayEvents.map(e => e.title).join(', ');
+        const isToday = new Date().getDate() === i && new Date().getMonth() === date.getMonth() && new Date().getFullYear() === date.getFullYear();
+        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvents ? 'has-event' : ''}" data-day="${i}" title="${hasEvents ? eventTitles : 'Click to add event'}">
+            <span class="day-number">${i}</span>
+            ${hasEvents ? `<span class="event-indicator">${dayEvents.length}</span>` : ''}
+        </div>`;
+    }
+    grid.innerHTML = html;
+
+    // Load events list
+    loadCalendarEventsList();
+}
+
+function loadCalendarEventsList() {
+    const eventsList = document.getElementById('eventsList');
+    if (!eventsList) return;
+
+    const currentMonthEvents = calendarEvents.filter(e => {
+        const evDate = new Date(e.date);
+        return evDate.getMonth() === currentViewDate.getMonth() && evDate.getFullYear() === currentViewDate.getFullYear();
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (currentMonthEvents.length === 0) {
+        eventsList.innerHTML = '<div class="empty-state"><p>No events this month. Click on a day to add one!</p></div>';
+    } else {
+        eventsList.innerHTML = currentMonthEvents.map(e => {
+            const evDate = new Date(e.date);
+            const dayOfWeek = evDate.toLocaleDateString('en-US', { weekday: 'short' });
+            const dayNum = evDate.getDate();
+            const isPast = evDate < new Date();
+            return `
+                <div class="event-item ${isPast ? 'past-event' : ''}">
+                    <div class="event-date-badge">
+                        <span class="event-day">${dayNum}</span>
+                        <span class="event-weekday">${dayOfWeek}</span>
+                    </div>
+                    <div class="event-details">
+                        <h4>${e.title}</h4>
+                        <p>${evDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
+                    <button class="btn-delete-event" data-id="${e.id}">🗑️</button>
+                </div>
+            `;
+        }).join('');
+
+        // Add delete listeners
+        eventsList.querySelectorAll('.btn-delete-event').forEach(btn => {
+            btn.addEventListener('click', () => deleteCalendarEvent(btn.dataset.id));
+        });
+    }
+}
+
+function deleteCalendarEvent(id) {
+    if (confirm('Delete this event?')) {
+        calendarEvents = calendarEvents.filter(e => e.id != id);
+        localStorage.setItem('edugateway_events', JSON.stringify(calendarEvents));
+        loadCalendar();
+        showNotification('Event deleted', 'success');
+    }
+}
+
+window.previousMonth = () => { currentViewDate.setMonth(currentViewDate.getMonth() - 1); loadCalendar(); };
+window.nextMonth = () => { currentViewDate.setMonth(currentViewDate.getMonth() + 1); loadCalendar(); };
+
+window.addCalendarEvent = (day) => {
+    const t = prompt('Event title:');
+    if (t) {
+        calendarEvents.push({ id: Date.now(), title: t, date: new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), day).toISOString() });
+        localStorage.setItem('edugateway_events', JSON.stringify(calendarEvents));
+        loadCalendar();
+        showNotification(`Event "${t}" added!`, 'success');
+    }
+};
+
+// Progress Section
+function loadProgress() {
+    const canvas = document.getElementById('goalsChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const completed = goals.filter(g => g.status === 'completed').length;
+    const inProgress = goals.filter(g => g.status !== 'completed').length;
+
+    if (window.myGoalsChart) window.myGoalsChart.destroy();
+
+    window.myGoalsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'In Progress'],
+            datasets: [{
+                data: [completed, inProgress],
+                backgroundColor: ['#48bb78', '#667eea'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+}
+
+// Templates & New Page
+window.showTemplates = function () {
+    const t = prompt('Choose Template: 1. Study Plan 2. Project Manager 3. Blank Notebook');
+    if (t === '1') createFromTemplate('study');
+    else if (t === '2') createFromTemplate('project');
+    else if (t) createFromTemplate('blank');
+};
+
+function createFromTemplate(type) {
+    const p = { id: Date.now(), title: type.toUpperCase() + ' Page', type };
+    userPages.push(p);
+    localStorage.setItem('user_pages', JSON.stringify(userPages));
+    showNotification('New page created! You can find it in your sidebar soon.', 'success');
+}
+
+// Event Delegation & Init (CSP Compatible)
+function setupEventListeners() {
+    // Sidebar Toggles
+    document.querySelectorAll('.js-toggle-sidebar').forEach(btn => {
+        btn.addEventListener('click', toggleSidebar);
+    });
+
+    // Section Switching
+    document.querySelectorAll('.js-switch-section').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.getAttribute('data-section');
+            if (section) switchSection(section);
+        });
+    });
+
+    // Goal Modal
+    const openGoalBtn = document.querySelector('.js-open-goal-modal');
+    if (openGoalBtn) openGoalBtn.addEventListener('click', openGoalModal);
+
+    document.querySelectorAll('.js-close-goal-modal').forEach(btn => {
+        btn.addEventListener('click', closeGoalModal);
+    });
+
+    // Note Modal
+    document.querySelectorAll('.js-close-note-modal').forEach(btn => {
+        btn.addEventListener('click', closeNoteModal);
+    });
+
+    const closeNoteBtn = document.getElementById('closeNoteModalBtn');
+    if (closeNoteBtn) closeNoteBtn.addEventListener('click', closeNoteModal);
+
+    // Milestones
+    const addMilestoneBtn = document.querySelector('.js-add-milestone');
+    if (addMilestoneBtn) addMilestoneBtn.addEventListener('click', addMilestone);
+
+    const milestonesContainer = document.getElementById('milestonesContainer');
+    if (milestonesContainer) {
+        milestonesContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.js-remove-milestone')) {
+                removeMilestone(e.target.closest('.js-remove-milestone'));
+            }
+        });
+    }
+
+    // Quick Actions
+    const saveQuickNoteBtn = document.querySelector('.js-save-quick-note');
+    if (saveQuickNoteBtn) saveQuickNoteBtn.addEventListener('click', saveQuickNote);
+
+    const editFocusBtn = document.querySelector('.js-edit-focus');
+    if (editFocusBtn) editFocusBtn.addEventListener('click', editWeeklyFocus);
+
+    // Resource/Course/etc.
+    const addResBtn = document.querySelector('.js-add-resource');
+    if (addResBtn) addResBtn.addEventListener('click', addResource);
+
+    const addCourseBtn = document.querySelector('.js-add-course');
+    if (addCourseBtn) addCourseBtn.addEventListener('click', addCourse);
+
+    const addAppBtn = document.querySelector('.js-add-application');
+    if (addAppBtn) addAppBtn.addEventListener('click', addApplication);
+
+    const addScholBtn = document.querySelector('.js-add-scholarship-track');
+    if (addScholBtn) addScholBtn.addEventListener('click', addScholarshipTrack);
+
+    const addDeadlineBtn = document.querySelector('.js-add-deadline');
+    if (addDeadlineBtn) addDeadlineBtn.addEventListener('click', addDeadline);
+
+    const newItemBtn = document.querySelector('.js-new-item');
+    if (newItemBtn) newItemBtn.addEventListener('click', createNewItem);
+
+    const templateBtn = document.querySelector('.js-show-templates');
+    if (templateBtn) templateBtn.addEventListener('click', showTemplates);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Call setupEventListeners first to register all button handlers
+    setupEventListeners();
+
+    // Sidebar Links
+    document.querySelectorAll('.sidebar-link').forEach(l => {
+        l.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchSection(l.dataset.section);
+        });
+    });
+
+    // Sidebar Toggle
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
+
+    // Theme Toggle
+    const themeToggle = document.querySelector('.theme-toggle');
+    if (themeToggle) themeToggle.addEventListener('click', () => { if (typeof toggleTheme === 'function') toggleTheme(); });
+
+    // Overview Section
+    const weeklyFocusBox = document.getElementById('weeklyFocus');
+    if (weeklyFocusBox) {
+        weeklyFocusBox.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-remove-focus')) {
+                window.removeFocusItem(parseInt(e.target.dataset.index));
+            }
+        });
+    }
+    // Fixed: Edit focus button
+    const editFocusBtn = document.querySelector('.weekly-focus-card .btn-secondary');
+    if (editFocusBtn) {
+        editFocusBtn.removeAttribute('onclick'); // Safeguard
+        editFocusBtn.addEventListener('click', window.editWeeklyFocus);
+    }
+
+    // Goals Section Delegation
+    const goalsBox = document.getElementById('goalsContainer');
+    if (goalsBox) {
+        goalsBox.addEventListener('click', (e) => {
+            const card = e.target.closest('.goal-card');
+            if (!card) return;
+            const id = card.dataset.goalId;
+            if (e.target.classList.contains('edit-goal-btn')) openGoalModal(id);
+            else if (e.target.classList.contains('delete-goal-btn')) window.deleteGoal(id);
+        });
+        // Changed from 'change' to 'input' for real-time slider updates
+        goalsBox.addEventListener('input', (e) => {
+            if (e.target.classList.contains('progress-slider')) {
+                const id = e.target.closest('.goal-card').dataset.goalId;
+                window.updateProgressImmediate(id, e.target.value);
+            }
+        });
+    }
+    const addGoalBtn = document.querySelector('#goals .btn-primary');
+    if (addGoalBtn) addGoalBtn.addEventListener('click', () => openGoalModal());
+
+    const goalForm = document.getElementById('goalForm');
+    if (goalForm) {
+        goalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = goalForm.closest('.modal').dataset.editingId;
+            const data = {
+                title: document.getElementById('goalTitle').value,
+                category: document.getElementById('goalCategory').value,
+                priority: document.getElementById('goalPriority').value,
+                endDate: document.getElementById('goalEndDate').value,
+                progress: id ? goals.find(g => g.id === parseInt(id)).progress : 0,
+                status: 'active'
+            };
+            if (id) {
+                const idx = goals.findIndex(g => g.id === parseInt(id));
+                goals[idx] = { ...goals[idx], ...data };
+            } else {
+                goals.push({ id: Date.now(), ...data });
+            }
+            localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+            window.closeGoalModal();
+            loadGoals();
+            updateDashboardStats();
+            showNotification(id ? 'Goal updated!' : 'Goal created!', 'success');
+        });
+    }
+
+    // Modal close buttons (X and Cancel)
+    document.querySelectorAll('.close-modal, .modal .btn-secondary').forEach(b => {
+        b.addEventListener('click', () => {
+            window.closeGoalModal();
+            window.closeNoteModal();
+        });
+    });
+
+    // Notes Section Delegation
+    const notesBox = document.getElementById('notesGrid');
+    if (notesBox) {
+        notesBox.addEventListener('click', (e) => {
+            const card = e.target.closest('.note-card');
+            if (card) openNoteModal(card.dataset.id);
+        });
+    }
+    const createNoteBtn = document.getElementById('createNewNoteBtn');
+    if (createNoteBtn) createNoteBtn.addEventListener('click', () => openNoteModal());
+
+    const saveNoteBtn = document.getElementById('saveNoteBtn');
+    if (saveNoteBtn) saveNoteBtn.addEventListener('click', window.saveNote);
+
+    // Note Toolbar
+    const toolbar = document.querySelector('.note-toolbar');
+    if (toolbar) {
+        toolbar.addEventListener('click', (e) => {
+            const btn = e.target.closest('.toolbar-btn');
+            if (!btn) return;
+            const cmd = btn.dataset.cmd;
+            if (cmd === 'bold') document.execCommand('bold', false, null);
+            else if (cmd === 'italic') document.execCommand('italic', false, null);
+            else if (cmd === 'underline') document.execCommand('underline', false, null);
+            else if (cmd === 'list') document.execCommand('insertUnorderedList', false, null);
+            else if (cmd === 'link') {
+                const url = prompt('Enter URL:');
+                if (url) document.execCommand('createLink', false, url);
+            }
+        });
+    }
+
+    // Tasks Section Delegation
+    const tasksSection = document.getElementById('tasks');
+    if (tasksSection) {
+        tasksSection.addEventListener('click', (e) => {
+            if (e.target.classList.contains('task-move-btn')) {
+                window.moveTask(e.target.dataset.id, e.target.dataset.status);
+            } else if (e.target.classList.contains('task-delete-btn')) {
+                window.deleteTask(e.target.dataset.id);
+            }
+        });
+    }
+    const addNewTaskBtn = document.getElementById('addNewTaskBtn');
+    if (addNewTaskBtn) addNewTaskBtn.addEventListener('click', window.addNewTask);
+
+    // Calendar Section Delegation
+    const calDays = document.getElementById('calendarDays');
+    if (calDays) {
+        calDays.addEventListener('click', (e) => {
+            const day = e.target.closest('.calendar-day');
+            if (day && !day.classList.contains('empty')) {
+                window.addCalendarEvent(parseInt(day.dataset.day));
+            }
+        });
+    }
+    const addCalBtn = document.getElementById('addCalendarEventBtn');
+    if (addCalBtn) addCalBtn.addEventListener('click', () => {
+        const d = prompt('Enter day of month (1-31):');
+        if (d) window.addCalendarEvent(d);
+    });
+    const prevM = document.getElementById('prevMonthBtn');
+    if (prevM) prevM.addEventListener('click', window.previousMonth);
+    const nextM = document.getElementById('nextMonthBtn');
+    if (nextM) nextM.addEventListener('click', window.nextMonth);
+
+    // Goal Filtering/Sorting
+    document.querySelectorAll('.filter-btn').forEach(b => {
+        b.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            loadGoals();
+        });
+    });
+    const sortEl = document.getElementById('goalSort');
+    if (sortEl) sortEl.addEventListener('change', loadGoals);
+
+    // Specialized Section Buttons
+    const addProjBtn = document.getElementById('addNewProjectBtn');
+    if (addProjBtn) addProjBtn.addEventListener('click', () => window.showTemplates());
+
+    // Initial Load
+    loadDashboard();
+});
+
+function showNotification(msg, type) {
+    const n = document.createElement('div');
+    n.className = `notification ${type}`;
+    n.style.cssText = 'position:fixed;top:20px;right:20px;background:#667eea;color:white;padding:12px 24px;border-radius:12px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.3);font-weight:500;animation: slideIn 0.3s ease-out;';
+    n.textContent = msg;
+    document.body.appendChild(n);
+    setTimeout(() => {
+        n.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => n.remove(), 300);
+    }, 3000);
+}
+
+// Stubs for specialized loaders - NOW FUNCTIONAL
+function loadProjects() {
+    const grid = document.getElementById('projectsGrid');
+    if (!grid) return;
+
+    const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+    if (projects.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><h3>📁 Projects Workspace</h3><p>Click "+ New Project" to start planning your next big project.</p></div>';
+    } else {
+        grid.innerHTML = projects.map(p => `
+            <div class="project-card" data-id="${p.id}">
+                <h4>${p.title}</h4>
+                <p>${p.description || 'No description'}</p>
+                <div class="project-progress">
+                    <div class="progress-bar"><div class="progress-fill" style="width:${p.progress || 0}%"></div></div>
+                    <span>${p.progress || 0}%</span>
+                </div>
+                <button class="btn-delete-project" data-id="${p.id}">🗑️</button>
+            </div>
+        `).join('');
+
+        // Add delete listeners
+        grid.querySelectorAll('.btn-delete-project').forEach(btn => {
+            btn.addEventListener('click', () => deleteProject(btn.dataset.id));
+        });
+    }
+}
+
+function deleteProject(id) {
+    let projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+    projects = projects.filter(p => p.id != id);
+    localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+    loadProjects();
+    showNotification('Project deleted', 'success');
+}
+
+function loadResources() {
+    const grid = document.getElementById('resourcesGrid');
+    if (!grid) return;
+
+    const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+    if (resources.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><h3>🔗 Resource Library</h3><p>Click "+ Add Resource" to save articles, links, and useful materials.</p></div>';
+    } else {
+        grid.innerHTML = resources.map(r => `
+            <div class="resource-card" data-id="${r.id}">
+                <h4>🔗 ${r.title}</h4>
+                <p>${r.url}</p>
+                <p class="resource-note">${r.notes || ''}</p>
+                <div class="resource-actions">
+                    <a href="${r.url}" target="_blank" class="btn-visit">Visit</a>
+                    <button class="btn-delete-resource" data-id="${r.id}">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+
+        grid.querySelectorAll('.btn-delete-resource').forEach(btn => {
+            btn.addEventListener('click', () => deleteResource(btn.dataset.id));
+        });
+    }
+}
+
+function deleteResource(id) {
+    let resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+    resources = resources.filter(r => r.id != id);
+    localStorage.setItem('edugateway_resources', JSON.stringify(resources));
+    loadResources();
+    showNotification('Resource deleted', 'success');
+}
+
+function loadCourses() {
+    const grid = document.getElementById('coursesGrid');
+    if (!grid) return;
+
+    const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+    if (courses.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><h3>📚 Course Load</h3><p>Click "+ Add Course" to manage your modules and track grades.</p></div>';
+    } else {
+        grid.innerHTML = courses.map(c => `
+            <div class="course-card" data-id="${c.id}">
+                <h4>${c.name}</h4>
+                <p>Instructor: ${c.instructor || 'N/A'}</p>
+                <p>Credits: ${c.credits || 'N/A'} | Grade: ${c.grade || 'In Progress'}</p>
+                <button class="btn-delete-course" data-id="${c.id}">🗑️</button>
+            </div>
+        `).join('');
+
+        grid.querySelectorAll('.btn-delete-course').forEach(btn => {
+            btn.addEventListener('click', () => deleteCourse(btn.dataset.id));
+        });
+    }
+}
+
+function deleteCourse(id) {
+    let courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+    courses = courses.filter(c => c.id != id);
+    localStorage.setItem('edugateway_courses', JSON.stringify(courses));
+    loadCourses();
+    showNotification('Course deleted', 'success');
+}
+
+function loadApplications() {
+    const list = document.getElementById('applicationsList');
+    if (!list) return;
+
+    const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+    if (applications.length === 0) {
+        list.innerHTML = '<div class="empty-state"><h3>📄 Applications</h3><p>Click "+ New Application" to track your university and job applications.</p></div>';
+    } else {
+        list.innerHTML = applications.map(a => `
+            <div class="application-item" data-id="${a.id}">
+                <div class="application-header">
+                    <h4>${a.position || 'Position'} at ${a.organization || 'Organization'}</h4>
+                    <span class="application-status ${a.status}">${a.status || 'pending'}</span>
+                </div>
+                <p>Deadline: ${a.deadline || 'Not set'}</p>
+                <button class="btn-delete-application" data-id="${a.id}">🗑️</button>
+            </div>
+        `).join('');
+
+        list.querySelectorAll('.btn-delete-application').forEach(btn => {
+            btn.addEventListener('click', () => deleteApplication(btn.dataset.id));
+        });
+    }
+}
+
+function deleteApplication(id) {
+    let applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+    applications = applications.filter(a => a.id != id);
+    localStorage.setItem('edugateway_applications', JSON.stringify(applications));
+    loadApplications();
+    showNotification('Application deleted', 'success');
+}
+
+function loadScholarshipTracker() {
+    const list = document.getElementById('scholarshipTrackerList');
+    if (!list) return;
+
+    const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+    if (scholarships.length === 0) {
+        list.innerHTML = '<div class="empty-state"><h3>💰 Scholarships</h3><p>Click "+ Add Scholarship" to monitor your funding applications.</p></div>';
+    } else {
+        list.innerHTML = scholarships.map(s => `
+            <div class="scholarship-tracker-item" data-id="${s.id}">
+                <div class="scholarship-header">
+                    <h4>${s.name || 'Scholarship'}</h4>
+                    <span class="badge ${s.status}">${s.status || 'pending'}</span>
+                </div>
+                <p>Amount: ${s.amount || 'N/A'} | Deadline: ${s.deadline || 'N/A'}</p>
+                <button class="btn-delete-scholarship-track" data-id="${s.id}">🗑️</button>
+            </div>
+        `).join('');
+
+        list.querySelectorAll('.btn-delete-scholarship-track').forEach(btn => {
+            btn.addEventListener('click', () => deleteScholarshipTrack(btn.dataset.id));
+        });
+    }
+}
+
+function deleteScholarshipTrack(id) {
+    let scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+    scholarships = scholarships.filter(s => s.id != id);
+    localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
+    loadScholarshipTracker();
+    showNotification('Scholarship removed from tracker', 'success');
+}
+
+function loadDeadlines() {
+    const list = document.getElementById('allDeadlinesList');
+    if (!list) return;
+
+    const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+    const allDeadlines = [...deadlines, ...goals.filter(g => g.endDate).map(g => ({ id: 'goal-' + g.id, title: g.title, date: g.endDate, source: 'Goals' }))];
+
+    if (allDeadlines.length === 0) {
+        list.innerHTML = '<div class="empty-state"><h3>⏰ Deadlines</h3><p>Click "+ Add Deadline" to track important dates.</p></div>';
+    } else {
+        const sorted = allDeadlines.sort((a, b) => new Date(a.date) - new Date(b.date));
+        list.innerHTML = sorted.map(d => {
+            const daysLeft = Math.ceil((new Date(d.date) - new Date()) / 86400000);
+            const isPast = daysLeft < 0;
+            return `
+                <div class="deadline-item ${isPast ? 'past' : ''}" data-id="${d.id}">
+                    <div class="deadline-content">
+                        <h4>${d.title}</h4>
+                        <p>${new Date(d.date).toLocaleDateString()} ${d.source ? `(${d.source})` : ''}</p>
+                    </div>
+                    <span class="deadline-days ${isPast ? 'past' : daysLeft <= 7 ? 'urgent' : ''}">
+                        ${isPast ? 'Past' : `${daysLeft}d left`}
+                    </span>
+                    ${!d.id.toString().startsWith('goal-') ? `<button class="btn-delete-deadline" data-id="${d.id}">🗑️</button>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        list.querySelectorAll('.btn-delete-deadline').forEach(btn => {
+            btn.addEventListener('click', () => deleteDeadline(btn.dataset.id));
+        });
+    }
+}
+
+function deleteDeadline(id) {
+    let deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+    deadlines = deadlines.filter(d => d.id != id);
+    localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
+    loadDeadlines();
+    showNotification('Deadline deleted', 'success');
+}
+
+// Add button handlers with Modal Support
+let currentAddType = null;
+
+function openAddModal(type, title, fields) {
+    currentAddType = type;
+    const modal = document.getElementById('universalAddModal');
+    const titleEl = document.getElementById('addModalTitle');
+    const fieldsContainer = document.getElementById('addModalFields');
+
+    if (!modal || !titleEl || !fieldsContainer) {
+        // Fallback to prompt if modal doesn't exist
+        return false;
+    }
+
+    titleEl.textContent = title;
+    fieldsContainer.innerHTML = fields.map(f => `
+        <div class="add-form-group">
+            <label class="${f.required ? 'required' : ''}">${f.label}</label>
+            ${f.type === 'textarea'
+            ? `<textarea id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`
+            : f.type === 'select'
+                ? `<select id="add_${f.name}" ${f.required ? 'required' : ''}>${f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`
+                : `<input type="${f.type || 'text'}" id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`
+        }
+            ${f.helper ? `<div class="form-helper">${f.helper}</div>` : ''}
+        </div>
     `).join('');
+
+    modal.classList.add('show');
+    return true;
+}
+
+window.closeAddModal = function () {
+    const modal = document.getElementById('universalAddModal');
+    if (modal) modal.classList.remove('show');
+    currentAddType = null;
+};
+
+// Initialize universal form submission
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('universalAddForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleAddSubmit();
+        });
+    }
+
+    // Close modal on backdrop click
+    const modal = document.getElementById('universalAddModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeAddModal();
+        });
+    }
+});
+
+function handleAddSubmit() {
+    switch (currentAddType) {
+        case 'project': submitProject(); break;
+        case 'resource': submitResource(); break;
+        case 'course': submitCourse(); break;
+        case 'application': submitApplication(); break;
+        case 'scholarship': submitScholarshipTrack(); break;
+        case 'deadline': submitDeadline(); break;
+        case 'newpage': submitNewPage(); break;
+    }
+    closeAddModal();
+}
+
+// Project
+function addResource() {
+    const opened = openAddModal('resource', '🔗 Add Resource', [
+        { name: 'title', label: 'Resource Title', required: true, placeholder: 'Enter resource name' },
+        { name: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://example.com' },
+        { name: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Optional notes about this resource' }
+    ]);
+    if (!opened) {
+        const title = prompt('Resource title:');
+        if (!title) return;
+        const url = prompt('Resource URL:');
+        if (!url) return;
+        const notes = prompt('Notes (optional):');
+        const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+        resources.push({ id: Date.now(), title, url, notes, addedAt: new Date().toISOString() });
+        localStorage.setItem('edugateway_resources', JSON.stringify(resources));
+        loadResources();
+        showNotification('Resource added!', 'success');
+    }
+}
+
+function submitResource() {
+    const title = document.getElementById('add_title')?.value;
+    const url = document.getElementById('add_url')?.value;
+    const notes = document.getElementById('add_notes')?.value;
+    if (!title || !url) return;
+    const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+    resources.push({ id: Date.now(), title, url, notes, addedAt: new Date().toISOString() });
+    localStorage.setItem('edugateway_resources', JSON.stringify(resources));
+    loadResources();
+    showNotification('Resource added!', 'success');
+}
+
+function addCourse() {
+    const opened = openAddModal('course', '📚 Add Course', [
+        { name: 'name', label: 'Course Name', required: true, placeholder: 'e.g., Introduction to Computer Science' },
+        { name: 'instructor', label: 'Instructor', placeholder: 'Professor name' },
+        { name: 'credits', label: 'Credits', type: 'number', placeholder: '3' }
+    ]);
+    if (!opened) {
+        const name = prompt('Course name:');
+        if (!name) return;
+        const instructor = prompt('Instructor name:');
+        const credits = prompt('Credits:');
+        const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+        courses.push({ id: Date.now(), name, instructor, credits, grade: 'In Progress' });
+        localStorage.setItem('edugateway_courses', JSON.stringify(courses));
+        loadCourses();
+        showNotification('Course added!', 'success');
+    }
+}
+
+function submitCourse() {
+    const name = document.getElementById('add_name')?.value;
+    const instructor = document.getElementById('add_instructor')?.value;
+    const credits = document.getElementById('add_credits')?.value;
+    if (!name) return;
+    const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+    courses.push({ id: Date.now(), name, instructor, credits, grade: 'In Progress' });
+    localStorage.setItem('edugateway_courses', JSON.stringify(courses));
+    loadCourses();
+    showNotification('Course added!', 'success');
+}
+
+function addApplication() {
+    const opened = openAddModal('application', '📄 Add Application', [
+        { name: 'position', label: 'Position/Program', required: true, placeholder: 'e.g., Software Engineer Intern' },
+        { name: 'organization', label: 'Organization/University', required: true, placeholder: 'Company or school name' },
+        { name: 'deadline', label: 'Deadline', type: 'date' }
+    ]);
+    if (!opened) {
+        const position = prompt('Position/Program:');
+        if (!position) return;
+        const organization = prompt('Organization/University:');
+        const deadline = prompt('Deadline (YYYY-MM-DD):');
+        const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+        applications.push({ id: Date.now(), position, organization, deadline, status: 'pending' });
+        localStorage.setItem('edugateway_applications', JSON.stringify(applications));
+        loadApplications();
+        showNotification('Application added!', 'success');
+    }
+}
+
+function submitApplication() {
+    const position = document.getElementById('add_position')?.value;
+    const organization = document.getElementById('add_organization')?.value;
+    const deadline = document.getElementById('add_deadline')?.value;
+    if (!position) return;
+    const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+    applications.push({ id: Date.now(), position, organization, deadline, status: 'pending' });
+    localStorage.setItem('edugateway_applications', JSON.stringify(applications));
+    loadApplications();
+    showNotification('Application added!', 'success');
+}
+
+function addScholarshipTrack() {
+    const opened = openAddModal('scholarship', '💰 Track Scholarship', [
+        { name: 'name', label: 'Scholarship Name', required: true, placeholder: 'e.g., Gates Cambridge' },
+        { name: 'amount', label: 'Amount', placeholder: 'e.g., $50,000' },
+        { name: 'deadline', label: 'Application Deadline', type: 'date' }
+    ]);
+    if (!opened) {
+        const name = prompt('Scholarship name:');
+        if (!name) return;
+        const amount = prompt('Amount:');
+        const deadline = prompt('Deadline (YYYY-MM-DD):');
+        const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+        scholarships.push({ id: Date.now(), name, amount, deadline, status: 'pending' });
+        localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
+        loadScholarshipTracker();
+        showNotification('Scholarship added to tracker!', 'success');
+    }
+}
+
+function submitScholarshipTrack() {
+    const name = document.getElementById('add_name')?.value;
+    const amount = document.getElementById('add_amount')?.value;
+    const deadline = document.getElementById('add_deadline')?.value;
+    if (!name) return;
+    const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+    scholarships.push({ id: Date.now(), name, amount, deadline, status: 'pending' });
+    localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
+    loadScholarshipTracker();
+    showNotification('Scholarship added to tracker!', 'success');
+}
+
+function addDeadline() {
+    const opened = openAddModal('deadline', '⏰ Add Deadline', [
+        { name: 'title', label: 'Deadline Title', required: true, placeholder: 'What is due?' },
+        { name: 'date', label: 'Due Date', type: 'date', required: true }
+    ]);
+    if (!opened) {
+        const title = prompt('Deadline title:');
+        if (!title) return;
+        const date = prompt('Date (YYYY-MM-DD):');
+        if (!date) return;
+        const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+        deadlines.push({ id: Date.now(), title, date });
+        localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
+        loadDeadlines();
+        showNotification('Deadline added!', 'success');
+    }
+}
+
+function submitDeadline() {
+    const title = document.getElementById('add_title')?.value;
+    const date = document.getElementById('add_date')?.value;
+    if (!title || !date) return;
+    const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+    deadlines.push({ id: Date.now(), title, date });
+    localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
+    loadDeadlines();
+    showNotification('Deadline added!', 'success');
 }
 
 function saveQuickNote() {
-    const noteText = document.getElementById('quickNote').value.trim();
-    if (!noteText) return;
-    
-    const note = {
-        id: Date.now(),
-        title: 'Quick Note',
-        content: noteText,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    };
-    
-    notes.unshift(note);
+    const noteText = document.getElementById('quickNote')?.value;
+    if (!noteText) {
+        showNotification('Please enter a note first', 'warning');
+        return;
+    }
+    notes.unshift({ id: Date.now(), title: 'Quick Note', content: noteText, updatedAt: new Date().toISOString() });
     localStorage.setItem('edugateway_notes', JSON.stringify(notes));
-    
     document.getElementById('quickNote').value = '';
     showNotification('Quick note saved!', 'success');
 }
 
-// Goals functionality
-function loadGoals() {
-    const container = document.getElementById('goalsContainer');
-    
-    if (goals.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <h3>No goals yet</h3>
-                <p>Create your first goal to start tracking your progress</p>
-                <button class="btn-primary" onclick="openGoalModal()">Add Your First Goal</button>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = goals.map(goal => createGoalCard(goal)).join('');
-}
-
-function createGoalCard(goal) {
-    const priorityColors = {
-        high: 'high',
-        medium: 'medium', 
-        low: 'low'
-    };
-    
-    const categoryEmojis = {
-        academic: '🎓',
-        career: '💼',
-        personal: '🌟',
-        health: '💪'
-    };
-    
-    return `
-        <div class="goal-card" data-goal-id="${goal.id}">
-            <div class="goal-header">
-                <h3 class="goal-title">${categoryEmojis[goal.category] || ''} ${goal.title}</h3>
-                <span class="goal-priority ${priorityColors[goal.priority]}">${goal.priority.toUpperCase()}</span>
-            </div>
-            
-            <div class="goal-meta">
-                <span>📅 ${goal.endDate ? new Date(goal.endDate).toLocaleDateString() : 'No deadline'}</span>
-                <span>📊 ${goal.category}</span>
-            </div>
-            
-            ${goal.description ? `<p class="goal-description">${goal.description}</p>` : ''}
-            
-            <div class="goal-progress">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${goal.progress}%"></div>
-                </div>
-                <div class="progress-text">${goal.progress}% complete</div>
-            </div>
-            
-            ${goal.milestones && goal.milestones.length > 0 ? `
-                <div class="goal-milestones">
-                    <h4>Milestones:</h4>
-                    <ul>
-                        ${goal.milestones.map((milestone, index) => `
-                            <li>
-                                <label>
-                                    <input type="checkbox" ${milestone.completed ? 'checked' : ''} 
-                                           onchange="toggleMilestone(${goal.id}, ${index})">
-                                    ${milestone.text}
-                                </label>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            ` : ''}
-            
-            <div class="goal-actions">
-                <button class="btn-action btn-edit" onclick="editGoal(${goal.id})">✏️ Edit</button>
-                <button class="btn-action" onclick="updateProgress(${goal.id})">📊 Update Progress</button>
-                <button class="btn-action btn-delete" onclick="deleteGoal(${goal.id})">🗑️ Delete</button>
-            </div>
-        </div>
-    `;
-}
-
-function openGoalModal(goalId = null) {
-    const modal = document.getElementById('goalModal');
-    const form = document.getElementById('goalForm');
-    const title = document.getElementById('goalModalTitle');
-    
-    if (goalId) {
-        const goal = goals.find(g => g.id === goalId);
-        title.textContent = 'Edit Goal';
-        populateGoalForm(goal);
-    } else {
-        title.textContent = 'Create New Goal';
-        form.reset();
-        // Clear milestones container
-        const container = document.getElementById('milestonesContainer');
-        container.innerHTML = `
-            <div class="milestone-item">
-                <input type="text" placeholder="Add a milestone...">
-                <button type="button" onclick="removeMilestone(this)">×</button>
-            </div>
-        `;
-    }
-    
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeGoalModal() {
-    document.getElementById('goalModal').classList.remove('show');
-    document.body.style.overflow = 'auto';
-}
-
-function populateGoalForm(goal) {
-    document.getElementById('goalTitle').value = goal.title;
-    document.getElementById('goalCategory').value = goal.category;
-    document.getElementById('goalPriority').value = goal.priority;
-    document.getElementById('goalDescription').value = goal.description || '';
-    document.getElementById('goalStartDate').value = goal.startDate || '';
-    document.getElementById('goalEndDate').value = goal.endDate || '';
-    
-    // Populate milestones
-    const container = document.getElementById('milestonesContainer');
-    if (goal.milestones && goal.milestones.length > 0) {
-        container.innerHTML = goal.milestones.map(milestone => `
-            <div class="milestone-item">
-                <input type="text" value="${milestone.text}">
-                <button type="button" onclick="removeMilestone(this)">×</button>
-            </div>
-        `).join('');
-    }
-}
-
 function addMilestone() {
     const container = document.getElementById('milestonesContainer');
-    const milestoneDiv = document.createElement('div');
-    milestoneDiv.className = 'milestone-item';
-    milestoneDiv.innerHTML = `
+    if (!container) return;
+    const newMilestone = document.createElement('div');
+    newMilestone.className = 'milestone-item';
+    newMilestone.innerHTML = `
         <input type="text" placeholder="Add a milestone...">
-        <button type="button" onclick="removeMilestone(this)">×</button>
+        <button type="button" class="js-remove-milestone">×</button>
     `;
-    container.appendChild(milestoneDiv);
+    container.appendChild(newMilestone);
 }
 
-function removeMilestone(button) {
-    button.parentElement.remove();
+function removeMilestone(btn) {
+    btn.closest('.milestone-item').remove();
 }
 
-// Goal form submission
-document.getElementById('goalForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = {
-        title: document.getElementById('goalTitle').value,
-        category: document.getElementById('goalCategory').value,
-        priority: document.getElementById('goalPriority').value,
-        description: document.getElementById('goalDescription').value,
-        startDate: document.getElementById('goalStartDate').value,
-        endDate: document.getElementById('goalEndDate').value,
-    };
-    
-    // Collect milestones
-    const milestoneInputs = document.querySelectorAll('.milestone-item input');
-    const milestones = Array.from(milestoneInputs)
-        .map(input => input.value.trim())
-        .filter(text => text)
-        .map(text => ({ text, completed: false }));
-    
-    const title = document.getElementById('goalModalTitle').textContent;
-    
-    if (title === 'Create New Goal') {
-        const goal = {
+function createNewItem() {
+    const opened = openAddModal('newpage', '➕ Create New', [
+        {
+            name: 'type', label: 'What would you like to create?', type: 'select', required: true, options: [
+                { value: '1', label: '🎯 Goal' },
+                { value: '2', label: '📝 Note' },
+                { value: '3', label: '✅ Task' },
+                { value: '4', label: '📁 Project' }
+            ]
+        },
+        { name: 'title', label: 'Title (for Project)', placeholder: 'Enter title' }
+    ]);
+    if (!opened) {
+        const choice = prompt('Create: 1. Goal 2. Note 3. Task 4. Project');
+        if (choice === '1') openGoalModal();
+        else if (choice === '2') openNoteModal();
+        else if (choice === '3') window.addNewTask();
+        else if (choice === '4') {
+            const title = prompt('Project title:');
+            if (!title) return;
+            const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+            projects.push({ id: Date.now(), title, description: '', progress: 0 });
+            localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+            switchSection('projects');
+            showNotification('Project created!', 'success');
+        }
+    }
+}
+
+function submitNewPage() {
+    const type = document.getElementById('add_type')?.value;
+    const title = document.getElementById('add_title')?.value;
+
+    if (type === '1') {
+        closeAddModal();
+        setTimeout(() => openGoalModal(), 100);
+    } else if (type === '2') {
+        closeAddModal();
+        setTimeout(() => openNoteModal(), 100);
+    } else if (type === '3') {
+        window.addNewTask();
+    } else if (type === '4') {
+        if (!title) {
+            showNotification('Please enter a project title', 'warning');
+            return;
+        }
+        const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+        projects.push({ id: Date.now(), title, description: '', progress: 0 });
+        localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+        switchSection('projects');
+        showNotification('Project created!', 'success');
+    }
+}
+
+function showTemplates() {
+    const opened = openAddModal('template', '📋 Choose Template', [
+        {
+            name: 'template', label: 'Select a Template', type: 'select', required: true, options: [
+                { value: 'study', label: '📚 Study Plan - Weekly schedule with subjects' },
+                { value: 'project', label: '🚀 Project Manager - Tasks, milestones, timeline' },
+                { value: 'blank', label: '📄 Blank Page - Start from scratch' }
+            ]
+        }
+    ]);
+    if (!opened) {
+        const choice = prompt('Template: 1. Study Plan 2. Project Manager 3. Blank');
+        applyTemplate(choice);
+    }
+}
+
+function applyTemplate(choice) {
+    if (choice === '1' || choice === 'study') {
+        // Create a study plan goal
+        goals.push({
             id: Date.now(),
-            ...formData,
-            milestones,
+            title: 'Weekly Study Plan',
+            category: 'academic',
+            priority: 'medium',
             progress: 0,
             status: 'active',
-            createdAt: new Date().toISOString(),
+            milestones: ['Monday: Math', 'Tuesday: Science', 'Wednesday: English', 'Thursday: History', 'Friday: Review']
+        });
+        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+        switchSection('goals');
+        showNotification('Study Plan template created!', 'success');
+    } else if (choice === '2' || choice === 'project') {
+        // Create a project
+        const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+        projects.push({
+            id: Date.now(),
+            title: 'New Project',
+            description: 'Project created from template',
+            progress: 0,
+            tasks: ['Planning', 'Development', 'Testing', 'Launch']
+        });
+        localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+        switchSection('projects');
+        showNotification('Project Manager template created!', 'success');
+    } else if (choice === '3' || choice === 'blank') {
+        // Create a blank note
+        notes.push({
+            id: Date.now(),
+            title: 'Untitled',
+            content: '',
             updatedAt: new Date().toISOString()
-        };
-        
-        goals.push(goal);
-        showNotification('Goal created successfully!', 'success');
-    } else {
-        // Edit existing goal
-        const goalId = parseInt(document.querySelector('.goal-card').dataset.goalId);
-        const goalIndex = goals.findIndex(g => g.id === goalId);
-        
-        if (goalIndex !== -1) {
-            goals[goalIndex] = {
-                ...goals[goalIndex],
-                ...formData,
-                milestones,
-                updatedAt: new Date().toISOString()
-            };
-            showNotification('Goal updated successfully!', 'success');
-        }
-    }
-    
-    localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-    closeGoalModal();
-    loadGoals();
-    updateDashboardStats();
-});
-
-function toggleMilestone(goalId, milestoneIndex) {
-    const goal = goals.find(g => g.id === goalId);
-    if (goal && goal.milestones && goal.milestones[milestoneIndex]) {
-        goal.milestones[milestoneIndex].completed = !goal.milestones[milestoneIndex].completed;
-        
-        // Update progress based on completed milestones
-        const completedMilestones = goal.milestones.filter(m => m.completed).length;
-        goal.progress = Math.round((completedMilestones / goal.milestones.length) * 100);
-        
-        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-        loadGoals();
-        updateDashboardStats();
-        showNotification('Milestone updated!', 'success');
-    }
-}
-
-function updateProgress(goalId) {
-    const newProgress = prompt('Enter progress percentage (0-100):');
-    if (newProgress === null) return;
-    
-    const progress = parseInt(newProgress);
-    if (isNaN(progress) || progress < 0 || progress > 100) {
-        alert('Please enter a valid percentage between 0 and 100');
-        return;
-    }
-    
-    const goal = goals.find(g => g.id === goalId);
-    if (goal) {
-        goal.progress = progress;
-        goal.updatedAt = new Date().toISOString();
-        
-        if (progress === 100) {
-            goal.status = 'completed';
-            goal.completedAt = new Date().toISOString();
-            showNotification('🎉 Congratulations! Goal completed!', 'success');
-        }
-        
-        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-        loadGoals();
-        updateDashboardStats();
-    }
-}
-
-function editGoal(goalId) {
-    openGoalModal(goalId);
-}
-
-function deleteGoal(goalId) {
-    if (confirm('Are you sure you want to delete this goal?')) {
-        goals = goals.filter(g => g.id !== goalId);
-        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-        loadGoals();
-        updateDashboardStats();
-        showNotification('Goal deleted', 'info');
-    }
-}
-
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
-    // Add sidebar navigation
-    document.querySelectorAll('.sidebar-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const section = this.getAttribute('data-section');
-            switchSection(section);
         });
-    });
-    
-    // Load initial dashboard
-    loadDashboard();
-    
-    // Setup Notion listeners
-    setupNotionListeners();
-    
-    // Close modals when clicking outside
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            closeGoalModal();
-            closeNoteModal();
-        }
-    });
-    
-    // Close modals on escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeGoalModal();
-            closeNoteModal();
-        }
-    });
-});
-
-// Utility function for notifications
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <span>${message}</span>
-        <button onclick="this.parentElement.remove()">&times;</button>
-    `;
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#667eea'};
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        z-index: 3000;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        animation: slideInRight 0.3s ease;
-        max-width: 300px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    `;
-    
-    notification.querySelector('button').style.cssText = `
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-// Enhanced functionality to fix all dashboard features
-function setupPlanningSystem() {
-    // Fix the planning section functionality
-    const planningBtn = document.querySelector('[onclick*="planning"]') || document.querySelector('.sidebar-item[data-section="planning"]');
-    if (planningBtn) {
-        planningBtn.addEventListener('click', function() {
-            switchSection('planning');
-            loadPlanningView();
-        });
+        localStorage.setItem('edugateway_notes', JSON.stringify(notes));
+        switchSection('notes');
+        showNotification('Blank page created!', 'success');
     }
 }
 
-function loadPlanningView() {
-    const planningContent = document.getElementById('planning') || document.querySelector('.planning-section');
-    if (!planningContent) return;
-    
-    planningContent.innerHTML = `
-        <div class="planning-dashboard">
-            <div class="section-header">
-                <h2>📋 Academic Planning</h2>
-                <button class="btn-primary" onclick="createNewPlan()">+ New Plan</button>
-            </div>
-            
-            <div class="planning-grid">
-                <div class="plan-card">
-                    <h3>🎓 Semester Planning</h3>
-                    <div class="plan-content">
-                        <div class="plan-item">
-                            <span class="plan-icon">📚</span>
-                            <div>
-                                <h4>Course Selection</h4>
-                                <p>Plan your courses for next semester</p>
-                            </div>
-                            <button class="btn-small" onclick="openCourseSelector()">Plan Courses</button>
-                        </div>
-                        <div class="plan-item">
-                            <span class="plan-icon">📝</span>
-                            <div>
-                                <h4>Assignment Tracker</h4>
-                                <p>Track all your assignments and deadlines</p>
-                            </div>
-                            <button class="btn-small" onclick="openAssignmentTracker()">Track Assignments</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="plan-card">
-                    <h3>🚀 Career Planning</h3>
-                    <div class="plan-content">
-                        <div class="plan-item">
-                            <span class="plan-icon">💼</span>
-                            <div>
-                                <h4>Career Roadmap</h4>
-                                <p>Define your career path and milestones</p>
-                            </div>
-                            <button class="btn-small" onclick="openCareerRoadmap()">Create Roadmap</button>
-                        </div>
-                        <div class="plan-item">
-                            <span class="plan-icon">🎯</span>
-                            <div>
-                                <h4>Skills Development</h4>
-                                <p>Track skills you need to develop</p>
-                            </div>
-                            <button class="btn-small" onclick="openSkillsTracker()">Track Skills</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function setupAcademicTracking() {
-    // Fix the academic section functionality
-    const academicBtn = document.querySelector('[onclick*="academic"]') || document.querySelector('.sidebar-item[data-section="academic"]');
-    if (academicBtn) {
-        academicBtn.addEventListener('click', function() {
-            switchSection('academic');
-            loadAcademicView();
-        });
-    }
-}
-
-function loadAcademicView() {
-    const academicContent = document.getElementById('academic') || document.querySelector('.academic-section');
-    if (!academicContent) return;
-    
-    academicContent.innerHTML = `
-        <div class="academic-dashboard">
-            <div class="section-header">
-                <h2>🎓 Academic Tracking</h2>
-                <button class="btn-primary" onclick="addNewCourse()">+ Add Course</button>
-            </div>
-            
-            <div class="academic-overview">
-                <div class="gpa-card">
-                    <h3>Current GPA</h3>
-                    <div class="gpa-display">3.75</div>
-                    <p class="gpa-trend">↗️ +0.12 this semester</p>
-                </div>
-                
-                <div class="credits-card">
-                    <h3>Credits</h3>
-                    <div class="credits-display">84/120</div>
-                    <p class="credits-progress">70% Complete</p>
-                </div>
-                
-                <div class="semester-card">
-                    <h3>Current Semester</h3>
-                    <div class="semester-display">Fall 2024</div>
-                    <p class="semester-info">5 courses, 16 credits</p>
-                </div>
-            </div>
-            
-            <div class="courses-section">
-                <h3>Current Courses</h3>
-                <div class="courses-grid">
-                    ${generateSampleCourses()}
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function generateSampleCourses() {
-    const courses = [
-        { name: "Data Structures", grade: "A-", credits: 4, progress: 85 },
-        { name: "Calculus III", grade: "B+", credits: 4, progress: 78 },
-        { name: "Physics II", grade: "A", credits: 3, progress: 92 },
-        { name: "English Literature", grade: "B", credits: 3, progress: 71 },
-        { name: "Computer Architecture", grade: "A-", credits: 4, progress: 88 }
-    ];
-    
-    return courses.map(course => `
-        <div class="course-card">
-            <div class="course-header">
-                <h4>${course.name}</h4>
-                <span class="grade-badge">${course.grade}</span>
-            </div>
-            <div class="course-details">
-                <p>Credits: ${course.credits}</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${course.progress}%"></div>
-                </div>
-                <p class="progress-text">${course.progress}% Complete</p>
-            </div>
-            <div class="course-actions">
-                <button class="btn-small" onclick="viewCourseDetails('${course.name}')">View Details</button>
-                <button class="btn-small" onclick="addAssignment('${course.name}')">Add Assignment</button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function setupTemplates() {
-    // Fix the +New Page button and templates
-    const newPageBtn = document.querySelector('.btn-new-page') || document.querySelector('[onclick*="newPage"]');
-    if (newPageBtn) {
-        newPageBtn.addEventListener('click', function() {
-            showTemplateSelector();
-        });
-    }
-}
-
-function showTemplateSelector() {
-    const modal = document.createElement('div');
-    modal.className = 'modal show';
-    modal.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.8); display: flex; align-items: center;
-        justify-content: center; z-index: 10000;
-    `;
-    
-    modal.innerHTML = `
-        <div class="modal-content" style="
-            background: white; border-radius: 20px; padding: 40px; max-width: 700px;
-            max-height: 90vh; overflow-y: auto; margin: 20px;
-        ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h2 style="margin: 0; color: #2d3748;">Choose a Template</h2>
-                <button class="close-modal" style="
-                    background: none; border: none; font-size: 24px; cursor: pointer; color: #999;
-                ">&times;</button>
-            </div>
-            
-            <div class="template-grid" style="
-                display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px; margin-bottom: 30px;
-            ">
-                <div class="template-card" onclick="createFromTemplate('study-planner')" style="
-                    border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px;
-                    cursor: pointer; transition: all 0.3s ease; text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 15px;">📚</div>
-                    <h3 style="margin: 0 0 10px 0;">Study Planner</h3>
-                    <p style="color: #4a5568; margin: 0;">Plan your study schedule and track progress</p>
-                </div>
-                
-                <div class="template-card" onclick="createFromTemplate('project-tracker')" style="
-                    border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px;
-                    cursor: pointer; transition: all 0.3s ease; text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 15px;">🚀</div>
-                    <h3 style="margin: 0 0 10px 0;">Project Tracker</h3>
-                    <p style="color: #4a5568; margin: 0;">Manage your projects and deadlines</p>
-                </div>
-                
-                <div class="template-card" onclick="createFromTemplate('research-notes')" style="
-                    border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px;
-                    cursor: pointer; transition: all 0.3s ease; text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 15px;">🔬</div>
-                    <h3 style="margin: 0 0 10px 0;">Research Notes</h3>
-                    <p style="color: #4a5568; margin: 0;">Organize research and citations</p>
-                </div>
-                
-                <div class="template-card" onclick="createFromTemplate('goal-tracker')" style="
-                    border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px;
-                    cursor: pointer; transition: all 0.3s ease; text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 15px;">🎯</div>
-                    <h3 style="margin: 0 0 10px 0;">Goal Tracker</h3>
-                    <p style="color: #4a5568; margin: 0;">Set and monitor your goals</p>
-                </div>
-                
-                <div class="template-card" onclick="createFromTemplate('blank')" style="
-                    border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px;
-                    cursor: pointer; transition: all 0.3s ease; text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 15px;">📝</div>
-                    <h3 style="margin: 0 0 10px 0;">Blank Page</h3>
-                    <p style="color: #4a5568; margin: 0;">Start with a clean slate</p>
-                </div>
-                
-                <div class="template-card" onclick="createFromTemplate('daily-journal')" style="
-                    border: 2px solid #e2e8f0; border-radius: 15px; padding: 20px;
-                    cursor: pointer; transition: all 0.3s ease; text-align: center;
-                ">
-                    <div style="font-size: 48px; margin-bottom: 15px;">📔</div>
-                    <h3 style="margin: 0 0 10px 0;">Daily Journal</h3>
-                    <p style="color: #4a5568; margin: 0;">Track daily thoughts and progress</p>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-    });
-}
-
-function makeAllButtonsFunctional() {
-    // Fix calendar functionality
-    setTimeout(() => {
-        const calendarSection = document.getElementById('calendar');
-        if (calendarSection) {
-            initializeWorkingCalendar();
-        }
-        
-        // Fix notes functionality
-        const notesSection = document.getElementById('notes');
-        if (notesSection) {
-            enhanceNotesSystem();
-        }
-        
-        // Add click handlers for all sidebar items
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            if (!item.hasAttribute('data-enhanced')) {
-                item.setAttribute('data-enhanced', 'true');
-                item.addEventListener('click', function() {
-                    const section = this.textContent.trim().toLowerCase();
-                    switchToSection(section);
-                });
-            }
-        });
-    }, 500);
-}
-
-function switchToSection(sectionName) {
-    const sectionMap = {
-        'dashboard': 'dashboard',
-        'goals': 'goals',
-        'calendar': 'calendar', 
-        'notes': 'notes',
-        'planning': 'planning',
-        'academic': 'academic'
-    };
-    
-    const sectionId = sectionMap[sectionName];
-    if (sectionId) {
-        switchSection(sectionId);
-        
-        if (sectionId === 'calendar') {
-            initializeWorkingCalendar();
-        } else if (sectionId === 'notes') {
-            enhanceNotesSystem();
-        } else if (sectionId === 'planning') {
-            loadPlanningView();
-        } else if (sectionId === 'academic') {
-            loadAcademicView();
-        }
-    }
-}
-
-// Global functions for template creation
-// Map UI buttons used in notion.html to available functions to avoid ReferenceErrors
-window.showTemplates = function() { try { showTemplateSelector(); } catch (e) { console.error(e); } };
-window.createNewItem = function() { try { showTemplateSelector(); } catch (e) { console.error(e); } };
-
-window.createFromTemplate = function(templateType) {
-    const templates = {
-        'study-planner': 'Study Planner - Track your study sessions and progress',
-        'project-tracker': 'Project Tracker - Manage deadlines and milestones', 
-        'research-notes': 'Research Notes - Organize your research findings',
-        'goal-tracker': 'Goal Tracker - Set and monitor your objectives',
-        'daily-journal': 'Daily Journal - Reflect on your day',
-        'blank': 'New Page - Start fresh'
-    };
-    
-    const title = templates[templateType] || 'New Page';
-    createNewPage(title, templateType);
-    document.querySelector('.modal').remove();
-}
-
-function createNewPage(title, templateType) {
-    const newPage = {
-        id: Date.now(),
-        title: title,
-        type: templateType,
-        content: getTemplateContent(templateType),
-        created: new Date().toISOString(),
-        lastModified: new Date().toISOString()
-    };
-    
-    const pages = JSON.parse(localStorage.getItem('user_pages')) || [];
-    pages.push(newPage);
-    localStorage.setItem('user_pages', JSON.stringify(pages));
-    
-    showNotification(`Created new ${title}!`, 'success');
-    
-    // Add to sidebar
-    addPageToSidebar(newPage);
-}
-
-function getTemplateContent(templateType) {
-    const templates = {
-        'study-planner': `
-            # Study Planner
-
-            ## Today's Study Goals
-            - [ ] Review Chapter 5
-            - [ ] Complete practice problems
-            - [ ] Study for exam
-
-            ## Study Schedule
-            | Time | Subject | Duration |
-            |------|---------|----------|
-            | 9:00 AM | Math | 2 hours |
-            | 2:00 PM | Physics | 1.5 hours |
-
-            ## Notes
-            Write your study notes here...
-        `,
-        'project-tracker': `
-            # Project Tracker
-
-            ## Current Projects
-            - [ ] **Research Paper** - Due: Nov 30
-            - [ ] **Group Presentation** - Due: Dec 5
-            - [ ] **Final Exam Prep** - Due: Dec 15
-
-            ## Milestones
-            - [x] Choose research topic
-            - [ ] Complete first draft
-            - [ ] Peer review
-
-            ## Next Actions
-            1. Schedule team meeting
-            2. Finalize bibliography
-            3. Practice presentation
-        `,
-        'blank': '# New Page\n\nStart writing here...'
-    };
-    
-    return templates[templateType] || templates['blank'];
-}
-
-function initializeWorkingCalendar() {
-    const calendarSection = document.getElementById('calendar');
-    if (!calendarSection) return;
-    
-    calendarSection.innerHTML = `
-        <div class="calendar-container">
-            <div class="calendar-header">
-                <h2>📅 Calendar</h2>
-                <div class="calendar-controls">
-                    <button class="btn-secondary" onclick="previousMonth()">‹ Prev</button>
-                    <h3 id="currentMonth">${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
-                    <button class="btn-secondary" onclick="nextMonth()">Next ›</button>
-                    <button class="btn-primary" onclick="addEvent()">+ Add Event</button>
-                </div>
-            </div>
-            
-            <div class="calendar-grid">
-                <div class="calendar-weekdays">
-                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-                </div>
-                <div class="calendar-days" id="calendarDays">
-                    ${generateCalendarDays()}
-                </div>
-            </div>
-            
-            <div class="upcoming-events">
-                <h3>Upcoming Events</h3>
-                <div id="upcomingEventsList">
-                    ${generateUpcomingEvents()}
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function generateCalendarDays() {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
-    let days = '';
-    for (let i = 0; i < 42; i++) {
-        const currentDate = new Date(startDate);
-        currentDate.setDate(startDate.getDate() + i);
-        
-        const isToday = currentDate.toDateString() === today.toDateString();
-        const isCurrentMonth = currentDate.getMonth() === today.getMonth();
-        
-        days += `
-            <div class="calendar-day ${isToday ? 'today' : ''} ${isCurrentMonth ? '' : 'other-month'}" 
-                 onclick="selectDate('${currentDate.toISOString()}')">
-                <span class="day-number">${currentDate.getDate()}</span>
-                <div class="day-events">
-                    ${Math.random() > 0.8 ? '<div class="event-dot"></div>' : ''}
-                </div>
-            </div>
-        `;
-    }
-    return days;
-}
-
-function generateUpcomingEvents() {
-    const sampleEvents = [
-        { title: "Math Exam", date: "Nov 15, 2024", type: "exam" },
-        { title: "Project Deadline", date: "Nov 20, 2024", type: "deadline" },
-        { title: "Career Fair", date: "Nov 25, 2024", type: "event" }
-    ];
-    
-    return sampleEvents.map(event => `
-        <div class="event-item ${event.type}">
-            <div class="event-date">${event.date}</div>
-            <div class="event-title">${event.title}</div>
-        </div>
-    `).join('');
-}
-
-// Global calendar functions
-window.addEvent = function() {
-    showNotification('Event creation modal would open here', 'info');
-}
-
-window.selectDate = function(dateStr) {
-    const date = new Date(dateStr).toLocaleDateString();
-    showNotification(`Selected date: ${date}`, 'info');
-}
-
-// Provide basic navigation stubs to prevent reference errors
-window.previousMonth = function() {
-    showNotification('Calendar navigation not implemented yet', 'info');
-}
-
-window.nextMonth = function() {
-    showNotification('Calendar navigation not implemented yet', 'info');
-}
-
-// ============================================
-// NOTION API INTEGRATION
-// ============================================
-// This section integrates with the Notion API via the backend server
-// to display Notion pages, databases, and content within BraineX.
-// All API calls go through /api/notion/* endpoints on the server.
-
-/**
- * Check Notion API configuration status
- * @returns {Promise<Object>} Status object with configured and ok flags
- */
-async function checkNotionStatus() {
-    try {
-        const response = await fetch(`${NOTION_API_BASE}/status`);
-        const result = await response.json();
-        notionConfigured = result.configured && result.ok;
-        return result;
-    } catch (error) {
-        // Keep console.error for debugging API connection issues
-        console.error('Failed to check Notion status:', error);
-        return { configured: false, error: error.message };
-    }
-}
-
-/**
- * Search Notion workspace for pages and databases
- * @param {string} query - Search query string (optional)
- * @param {string} filter - Filter type: 'all', 'page', or 'database' (default: 'all')
- * @returns {Promise<Array>} Array of Notion search results
- */
-async function searchNotion(query = '', filter = 'all') {
-    showNotionLoading();
-    
-    try {
-        const searchBody = {
-            query: query,
-            sort: { direction: 'descending', timestamp: 'last_edited_time' }
-        };
-        
-        // Add filter if not 'all'
-        if (filter !== 'all') {
-            searchBody.filter = { property: 'object', value: filter };
-        }
-        
-        const response = await fetch(`${NOTION_API_BASE}/search`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(searchBody)
-        });
-        
-        const result = await response.json();
-        
-        if (result.ok && result.data) {
-            displayNotionResults(result.data.results || []);
-            return result.data.results;
-        } else {
-            throw new Error(result.error || 'Search failed');
-        }
-    } catch (error) {
-        showNotionError('Failed to search Notion: ' + error.message);
-        return [];
-    }
-}
-
-/**
- * Load and display a specific Notion page with its content blocks
- * @param {string} pageId - The Notion page ID
- * @param {string} title - The page title
- * @param {string} url - The Notion page URL
- * @returns {Promise<void>}
- */
-async function loadNotionPage(pageId, title, url) {
-    const viewer = document.getElementById('notionViewer');
-    const content = document.getElementById('notionContent');
-    const titleEl = document.getElementById('notionViewerTitle');
-    const linkEl = document.getElementById('notionOpenLink');
-    
-    // Show viewer and set title
-    viewer.style.display = 'block';
-    titleEl.textContent = title || 'Loading...';
-    linkEl.href = url || '#';
-    
-    // Show skeleton loader
-    content.innerHTML = `
-        <div class="skeleton-loader">
-            <div class="skeleton-line" style="width: 80%;"></div>
-            <div class="skeleton-line" style="width: 60%;"></div>
-            <div class="skeleton-line" style="width: 90%;"></div>
-            <div class="skeleton-line" style="width: 70%;"></div>
-        </div>
-    `;
-    
-    try {
-        // Fetch page details
-        const pageResponse = await fetch(`${NOTION_API_BASE}/pages/${pageId}`);
-        const pageResult = await pageResponse.json();
-        
-        if (!pageResult.ok) {
-            throw new Error('Failed to load page details');
-        }
-        
-        // Fetch page content (blocks)
-        const blocksResponse = await fetch(`${NOTION_API_BASE}/blocks/${pageId}/children`);
-        const blocksResult = await blocksResponse.json();
-        
-        if (!blocksResult.ok) {
-            throw new Error('Failed to load page content');
-        }
-        
-        // Render page content
-        currentNotionPage = { page: pageResult.data, blocks: blocksResult.data.results };
-        renderNotionContent(pageResult.data, blocksResult.data.results);
-        
-    } catch (error) {
-        content.innerHTML = `
-            <div class="error-message">
-                <p>❌ Failed to load page: ${error.message}</p>
-                <button class="btn-secondary" onclick="document.getElementById('notionViewer').style.display='none'">Close</button>
-            </div>
-        `;
-    }
-}
-
-/**
- * Render Notion blocks into HTML and display in the content viewer
- * @param {Object} page - The Notion page object
- * @param {Array} blocks - Array of Notion block objects
- * @returns {void}
- */
-function renderNotionContent(page, blocks) {
-    const content = document.getElementById('notionContent');
-    
-    if (!blocks || blocks.length === 0) {
-        content.innerHTML = '<p class="empty-state">This page has no content yet.</p>';
-        return;
-    }
-    
-    let html = '';
-    
-    blocks.forEach(block => {
-        html += renderNotionBlock(block);
-    });
-    
-    content.innerHTML = html;
-}
-
-/**
- * Render individual Notion block based on type
- * Supports: paragraph, headings, lists, to-do, code, quote, callout, images, etc.
- * @param {Object} block - The Notion block object
- * @returns {string} HTML string representation of the block
- */
-function renderNotionBlock(block) {
-    const type = block.type;
-    const content = block[type];
-    
-    if (!content) return '';
-    
-    switch (type) {
-        case 'paragraph':
-            return `<p class="notion-paragraph">${extractRichText(content.rich_text)}</p>`;
-            
-        case 'heading_1':
-            return `<h1 class="notion-h1">${extractRichText(content.rich_text)}</h1>`;
-            
-        case 'heading_2':
-            return `<h2 class="notion-h2">${extractRichText(content.rich_text)}</h2>`;
-            
-        case 'heading_3':
-            return `<h3 class="notion-h3">${extractRichText(content.rich_text)}</h3>`;
-            
-        case 'bulleted_list_item':
-            return `<ul class="notion-list"><li>${extractRichText(content.rich_text)}</li></ul>`;
-            
-        case 'numbered_list_item':
-            return `<ol class="notion-list"><li>${extractRichText(content.rich_text)}</li></ol>`;
-            
-        case 'to_do':
-            const checked = content.checked ? 'checked' : '';
-            return `
-                <div class="notion-todo">
-                    <input type="checkbox" ${checked} disabled>
-                    <span class="${checked ? 'completed' : ''}">${extractRichText(content.rich_text)}</span>
-                </div>
-            `;
-            
-        case 'toggle':
-            return `
-                <details class="notion-toggle">
-                    <summary>${extractRichText(content.rich_text)}</summary>
-                </details>
-            `;
-            
-        case 'code':
-            const language = content.language || 'plain text';
-            return `
-                <pre class="notion-code"><code class="language-${language}">${extractRichText(content.rich_text)}</code></pre>
-            `;
-            
-        case 'quote':
-            return `<blockquote class="notion-quote">${extractRichText(content.rich_text)}</blockquote>`;
-            
-        case 'divider':
-            return '<hr class="notion-divider">';
-            
-        case 'callout':
-            const icon = content.icon?.emoji || '💡';
-            return `
-                <div class="notion-callout">
-                    <span class="callout-icon">${icon}</span>
-                    <div>${extractRichText(content.rich_text)}</div>
-                </div>
-            `;
-            
-        case 'image':
-            const imageUrl = content.external?.url || content.file?.url || '';
-            const caption = extractRichText(content.caption || []);
-            return `
-                <figure class="notion-image">
-                    <img src="${imageUrl}" alt="${caption}" loading="lazy">
-                    ${caption ? `<figcaption>${caption}</figcaption>` : ''}
-                </figure>
-            `;
-            
-        case 'bookmark':
-            return `
-                <a href="${content.url}" target="_blank" rel="noopener" class="notion-bookmark">
-                    🔗 ${content.url}
-                </a>
-            `;
-            
-        default:
-            return `<p class="notion-unsupported">📦 Unsupported block type: ${type}</p>`;
-    }
-}
-
-/**
- * Extract and format rich text from Notion rich text array
- * Handles bold, italic, strikethrough, underline, code, and links
- * @param {Array} richTextArray - Array of Notion rich text objects
- * @returns {string} Formatted HTML string
- */
-function extractRichText(richTextArray) {
-    if (!richTextArray || richTextArray.length === 0) return '';
-    
-    return richTextArray.map(text => {
-        let content = text.plain_text || '';
-        
-        // Apply annotations
-        if (text.annotations) {
-            if (text.annotations.bold) content = `<strong>${content}</strong>`;
-            if (text.annotations.italic) content = `<em>${content}</em>`;
-            if (text.annotations.strikethrough) content = `<s>${content}</s>`;
-            if (text.annotations.underline) content = `<u>${content}</u>`;
-            if (text.annotations.code) content = `<code>${content}</code>`;
-        }
-        
-        // Add link if present
-        if (text.href) {
-            content = `<a href="${text.href}" target="_blank" rel="noopener">${content}</a>`;
-        }
-        
-        return content;
-    }).join('');
-}
-
-/**
- * Display Notion search results in a grid layout
- * @param {Array} results - Array of Notion pages/databases from search
- * @returns {void}
- */
-function displayNotionResults(results) {
-    const container = document.getElementById('notionResults');
-    
-    if (results.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <p>🔍 No results found</p>
-                <p class="empty-state-subtitle">Try a different search term or check your Notion integration</p>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = results.map(item => {
-        const title = extractNotionTitle(item);
-        const type = item.object === 'database' ? '📊 Database' : '📄 Page';
-        const lastEdited = new Date(item.last_edited_time).toLocaleDateString();
-        const url = item.url;
-        const icon = item.icon?.emoji || (item.object === 'database' ? '📊' : '📄');
-        
-        return `
-            <div class="note-card notion-result-card" onclick="loadNotionPage('${item.id}', '${title.replace(/'/g, "\\'")}', '${url}')">
-                <div class="notion-result-header">
-                    <span class="notion-icon">${icon}</span>
-                    <span class="notion-type">${type}</span>
-                </div>
-                <h3 class="notion-result-title">${title}</h3>
-                <p class="notion-result-meta">Last edited: ${lastEdited}</p>
-                <div class="notion-result-actions">
-                    <button class="btn-small" onclick="event.stopPropagation(); loadNotionPage('${item.id}', '${title.replace(/'/g, "\\'")}', '${url}')">View</button>
-                    <a href="${url}" target="_blank" rel="noopener" class="btn-small btn-outline" onclick="event.stopPropagation()">Open in Notion ↗</a>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-/**
- * Extract title from Notion page/database object
- * Handles different title property formats
- * @param {Object} item - Notion page or database object
- * @returns {string} Extracted title or 'Untitled'
- */
-function extractNotionTitle(item) {
-    if (item.object === 'page') {
-        // Try different title properties
-        const properties = item.properties;
-        if (properties.title?.title) {
-            return extractRichText(properties.title.title) || 'Untitled';
-        }
-        if (properties.Name?.title) {
-            return extractRichText(properties.Name.title) || 'Untitled';
-        }
-    } else if (item.object === 'database') {
-        if (item.title) {
-            return extractRichText(item.title) || 'Untitled Database';
-        }
-    }
-    return 'Untitled';
-}
-
-/**
- * Show skeleton loader in the Notion results section
- * @returns {void}
- */
-function showNotionLoading() {
-    const container = document.getElementById('notionResults');
-    container.innerHTML = `
-        <div class="skeleton-loader">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-        </div>
-    `;
-}
-
-/**
- * Display error message in Notion results section with retry button
- * @param {string} message - Error message to display
- * @returns {void}
- */
-function showNotionError(message) {
-    const container = document.getElementById('notionResults');
-    container.innerHTML = `
-        <div class="error-message">
-            <p>❌ ${message}</p>
-            <button class="btn-secondary" onclick="initializeNotionSection()">Retry</button>
-        </div>
-    `;
-}
-
-/**
- * Show temporary status notification message
- * @param {string} message - Status message to display
- * @param {string} type - Notification type: 'info', 'success', 'warning', or 'error'
- * @returns {void}
- */
-function showNotionStatus(message, type = 'info') {
-    const statusEl = document.getElementById('notionStatus');
-    statusEl.textContent = message;
-    statusEl.className = `notification ${type}`;
-    statusEl.style.display = 'block';
-    
-    setTimeout(() => {
-        statusEl.style.display = 'none';
-    }, 5000);
-}
-
-/**
- * Initialize Notion section when user navigates to it
- * Checks configuration status and loads initial results if configured
- * @returns {Promise<void>}
- */
-async function initializeNotionSection() {
-    const status = await checkNotionStatus();
-    
-    if (!status.configured) {
-        showNotionStatus('Notion integration is not configured. Please set NOTION_TOKEN in your .env file.', 'warning');
-        document.getElementById('notionResults').innerHTML = `
-            <div class="empty-state">
-                <p>🔌 Notion Not Connected</p>
-                <p class="empty-state-subtitle">To use this feature, configure your Notion integration token.</p>
-                <ol style="text-align: left; max-width: 600px; margin: 1rem auto;">
-                    <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener">notion.so/my-integrations</a></li>
-                    <li>Create a new integration and copy the token</li>
-                    <li>Add it to your .env file as NOTION_TOKEN</li>
-                    <li>Restart the server</li>
-                    <li>Share your Notion pages with the integration</li>
-                </ol>
-            </div>
-        `;
-        return;
-    }
-    
-    if (!status.ok) {
-        showNotionStatus('Failed to connect to Notion. Check your token and try again.', 'error');
-        return;
-    }
-    
-    showNotionStatus('✅ Connected to Notion successfully!', 'success');
-    
-    // Load initial results
-    await searchNotion('', 'all');
-}
-
-/**
- * Setup event listeners for Notion section UI elements
- * Handles search, filter, and viewer close actions
- * @returns {void}
- */
-function setupNotionListeners() {
-    const searchBtn = document.getElementById('notionSearchBtn');
-    const searchInput = document.getElementById('notionSearchInput');
-    const filterType = document.getElementById('notionFilterType');
-    const closeViewerBtn = document.getElementById('closeViewerBtn');
-    
-    if (searchBtn) {
-        searchBtn.addEventListener('click', () => {
-            const query = searchInput.value.trim();
-            const filter = filterType.value;
-            searchNotion(query, filter);
-        });
-    }
-    
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                const filter = filterType.value;
-                searchNotion(query, filter);
+// Handle template submission from modal
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('universalAddForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            if (currentAddType === 'template') {
+                e.preventDefault();
+                const template = document.getElementById('add_template')?.value;
+                applyTemplate(template);
+                closeAddModal();
             }
         });
     }
-    
-    if (closeViewerBtn) {
-        closeViewerBtn.addEventListener('click', () => {
-            document.getElementById('notionViewer').style.display = 'none';
-        });
-    }
-}
+});
+
+// Global exposure for things that might need it
+window.switchSection = switchSection;
+window.setupNotionListeners = () => { };
+window.initializeNotionSection = () => { };
+window.addResource = addResource;
+window.addCourse = addCourse;
+window.addApplication = addApplication;
+window.addScholarshipTrack = addScholarshipTrack;
+window.addDeadline = addDeadline;
+window.createNewItem = createNewItem;
+window.saveQuickNote = saveQuickNote;
+window.addMilestone = addMilestone;
+window.removeMilestone = removeMilestone;
+window.showTemplates = showTemplates;
+window.applyTemplate = applyTemplate;

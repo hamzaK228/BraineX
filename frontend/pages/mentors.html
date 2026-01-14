@@ -110,6 +110,7 @@
     <meta name="twitter:image" content="https://BraineX.example/og-image.png">
     <link rel="preload" as="style" href="../assets/css/mentors.css">
     <link rel="prefetch" href="./projects.html">
+    <script src="../assets/js/theme.js"></script>
 </head>
 
 <body>
@@ -121,24 +122,24 @@
                     <span>BraineX</span>
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu"
-                    aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                    aria-controls="navMenu" aria-expanded="false">☰</button>
                 <ul class="nav-menu" id="navMenu">
-                    <li><a href="./main.html">Home</a></li>
-                    <li><a href="./fields.html">Fields</a></li>
-                    <li><a href="./scholarships.html">Scholarships</a></li>
-                    <li><a href="./projects.html">Projects</a></li>
-                    <li><a href="./roadmaps.html">Roadmaps</a></li>
-                    <li><a href="./mentors.html" class="active">Mentors</a></li>
-                    <li><a href="./events.html">Events</a></li>
-                    <li><a href="./notion.html">My Goals</a></li>
-                    <li><a href="./about.html">About</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/fields">Fields</a></li>
+                    <li><a href="/scholarships">Scholarships</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/roadmaps">Roadmaps</a></li>
+                    <li><a href="/mentors" class="active">Mentors</a></li>
+                    <li><a href="/events">Events</a></li>
+                    <li><a href="/notion">My Goals</a></li>
+                    <li><a href="/about">About</a></li>
                 </ul>
                 <div class="auth-buttons">
                     <a href="#login" class="btn btn-outline">Log In</a>
                     <a href="#signup" class="btn btn-primary">Sign Up</a>
                 </div>
-                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme"
-                    aria-pressed="false">🌙 Dark</button>
+                <button class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">🌙
+                    Dark</button>
             </nav>
         </div>
     </header>
@@ -242,7 +243,8 @@
                             <span class="session-type">1-on-1 Session</span>
                         </div>
 
-                        <button class="btn-connect-featured">Connect Now</button>
+                        <a href="#" class="btn-connect-featured"
+                            style="text-decoration: none; display: inline-block; text-align: center;">Connect Now</a>
                     </div>
 
                     <div class="mentor-featured-card">
@@ -276,7 +278,8 @@
                             <span class="session-type">1-on-1 Session</span>
                         </div>
 
-                        <button class="btn-connect-featured">Connect Now</button>
+                        <a href="#" class="btn-connect-featured"
+                            style="text-decoration: none; display: inline-block; text-align: center;">Connect Now</a>
                     </div>
 
                     <div class="mentor-featured-card">
@@ -310,7 +313,8 @@
                             <span class="session-type">1-on-1 Session</span>
                         </div>
 
-                        <button class="btn-connect-featured">Connect Now</button>
+                        <a href="#" class="btn-connect-featured"
+                            style="text-decoration: none; display: inline-block; text-align: center;">Connect Now</a>
                     </div>
                 </div>
             </div>
@@ -336,7 +340,48 @@
                 </div>
 
                 <div class="mentors-grid" id="mentorsGrid">
-                    <!-- Mentors will be populated here -->
+                    <!-- Static Fallback Content -->
+                    <div class="mentor-card">
+                        <div class="mentor-header">
+                            <div class="mentor-avatar-small">SJ</div>
+                            <div>
+                                <h3>Dr. Sarah Johnson</h3>
+                                <p class="mentor-role">AI Research Director</p>
+                                <p class="mentor-company">🏢 Google DeepMind</p>
+                            </div>
+                        </div>
+                        <p class="mentor-bio">Leading AI researcher helping students get into top PhD programs and tech
+                            companies.</p>
+                        <div class="mentor-tags">
+                            <span class="tag">Machine Learning</span><span class="tag">Research</span>
+                        </div>
+                        <div class="mentor-details">
+                            <div class="detail-item"><span>⭐ 5.0</span></div>
+                            <div class="detail-item"><span>👥 200 mentees</span></div>
+                            <div class="detail-item"><span>💰 $150/hr</span></div>
+                        </div>
+                        <button class="btn-connect">Connect</button>
+                    </div>
+                    <div class="mentor-card">
+                        <div class="mentor-header">
+                            <div class="mentor-avatar-small">MC</div>
+                            <div>
+                                <h3>Michael Chen</h3>
+                                <p class="mentor-role">Investment Banking VP</p>
+                                <p class="mentor-company">🏢 Goldman Sachs</p>
+                            </div>
+                        </div>
+                        <p class="mentor-bio">Finance expert specializing in IB recruiting and MBA admissions.</p>
+                        <div class="mentor-tags">
+                            <span class="tag">Finance</span><span class="tag">MBA</span>
+                        </div>
+                        <div class="mentor-details">
+                            <div class="detail-item"><span>⭐ 4.9</span></div>
+                            <div class="detail-item"><span>👥 150 mentees</span></div>
+                            <div class="detail-item"><span>💰 $120/hr</span></div>
+                        </div>
+                        <button class="btn-connect">Connect</button>
+                    </div>
                 </div>
 
                 <div class="load-more">
@@ -349,34 +394,47 @@
         <section class="how-it-works">
             <div class="container">
                 <h2>How Mentorship Works</h2>
-                <div class="steps-grid">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon">🔍</div>
+                <div class="steps-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                    <div class="step-card"
+                        style="background: var(--card-bg, #fff); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                        <div class="step-number"
+                            style="background: #667eea; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold;">
+                            1</div>
+                        <div class="step-icon" style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
                         <h3>Find Your Mentor</h3>
                         <p>Browse our directory of expert mentors and filter by field, experience, and location to find
                             the perfect match for your goals.</p>
                     </div>
 
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon">📅</div>
+                    <div class="step-card"
+                        style="background: var(--card-bg, #fff); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                        <div class="step-number"
+                            style="background: #667eea; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold;">
+                            2</div>
+                        <div class="step-icon" style="font-size: 2.5rem; margin-bottom: 1rem;">📅</div>
                         <h3>Book a Session</h3>
                         <p>Schedule a session at your convenience. Choose from 30-minute consultations to multi-hour
                             deep-dive sessions.</p>
                     </div>
 
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon">💬</div>
+                    <div class="step-card"
+                        style="background: var(--card-bg, #fff); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                        <div class="step-number"
+                            style="background: #667eea; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold;">
+                            3</div>
+                        <div class="step-icon" style="font-size: 2.5rem; margin-bottom: 1rem;">💬</div>
                         <h3>Get Guidance</h3>
                         <p>Have meaningful conversations about your career, education, and goals. Get actionable advice
                             and insider insights.</p>
                     </div>
 
-                    <div class="step-card">
-                        <div class="step-number">4</div>
-                        <div class="step-icon">🚀</div>
+                    <div class="step-card"
+                        style="background: var(--card-bg, #fff); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                        <div class="step-number"
+                            style="background: #667eea; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold;">
+                            4</div>
+                        <div class="step-icon" style="font-size: 2.5rem; margin-bottom: 1rem;">🚀</div>
                         <h3>Achieve Success</h3>
                         <p>Apply what you've learned and take concrete steps toward your goals with ongoing support from
                             your mentor.</p>
@@ -538,7 +596,8 @@
                             </div>
                         </div>
 
-                        <button class="btn-become-mentor">Apply to Become a Mentor</button>
+                        <button class="btn-become-mentor">Apply to Become
+                            a Mentor</button>
                     </div>
 
                     <div class="become-mentor-image">
@@ -552,6 +611,30 @@
 
         <!-- Footer -->
     </main>
+
+    <!-- Become Mentor Modal -->
+    <div id="becomeMentorModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>Become a Mentor</h2>
+            <p>Join our community of experts.</p>
+            <form class="auth-form" id="becomeMentorForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" required>
+                </div>
+                <div class="form-group">
+                    <label>Expertise</label>
+                    <input type="text" required placeholder="e.g. AI, Finance">
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn URL</label>
+                    <input type="url" required>
+                </div>
+                <button type="submit" class="btn-submit">Submit Application</button>
+            </form>
+        </div>
+    </div>
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -588,10 +671,10 @@
         </div>
     </footer>
 
+    <script defer src="../assets/js/auth-api.js"></script>
     <script defer src="../assets/js/global.js"></script>
     <script defer src="../assets/js/main.js"></script>
     <script defer src="../assets/js/mentors.js"></script>
 </body>
 
 </html>
-

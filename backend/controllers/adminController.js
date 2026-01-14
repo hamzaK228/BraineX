@@ -1,13 +1,14 @@
-const User = require('../models/User');
-const Scholarship = require('../models/Scholarship');
-const Mentor = require('../models/Mentor');
-const Field = require('../models/Field');
-const Application = require('../models/Application');
+import User from '../models/User.js';
+import Scholarship from '../models/Scholarship.js';
+import Mentor from '../models/Mentor.js';
+import Field from '../models/Field.js';
+import Application from '../models/Application.js';
+import { pool } from '../config/database.js';
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats
 // @access  Admin
-exports.getStats = async (req, res) => {
+export const getStats = async (req, res) => {
     try {
         const [
             totalUsers,
@@ -57,7 +58,7 @@ exports.getStats = async (req, res) => {
 // @desc    Get all users
 // @route   GET /api/admin/users
 // @access  Admin
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -105,7 +106,7 @@ exports.getUsers = async (req, res) => {
 // @desc    Update user status
 // @route   PUT /api/admin/users/:id
 // @access  Admin
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     try {
         const { isActive, role } = req.body;
         const updates = {};
@@ -143,7 +144,7 @@ exports.updateUser = async (req, res) => {
 // @desc    Delete user
 // @route   DELETE /api/admin/users/:id
 // @access  Admin
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
 
@@ -172,7 +173,7 @@ exports.deleteUser = async (req, res) => {
 // @desc    Get all scholarships
 // @route   GET /api/admin/scholarships
 // @access  Admin
-exports.getScholarships = async (req, res) => {
+export const getScholarships = async (req, res) => {
     try {
         const scholarships = await Scholarship.find().sort({ createdAt: -1 });
         res.json({
@@ -191,7 +192,7 @@ exports.getScholarships = async (req, res) => {
 // @desc    Create scholarship
 // @route   POST /api/admin/scholarships
 // @access  Admin
-exports.createScholarship = async (req, res) => {
+export const createScholarship = async (req, res) => {
     try {
         const scholarship = await Scholarship.create(req.body);
         res.status(201).json({
@@ -218,7 +219,7 @@ exports.createScholarship = async (req, res) => {
 // @desc    Update scholarship
 // @route   PUT /api/admin/scholarships/:id
 // @access  Admin
-exports.updateScholarship = async (req, res) => {
+export const updateScholarship = async (req, res) => {
     try {
         const scholarship = await Scholarship.findByIdAndUpdate(
             req.params.id,
@@ -250,7 +251,7 @@ exports.updateScholarship = async (req, res) => {
 // @desc    Delete scholarship
 // @route   DELETE /api/admin/scholarships/:id
 // @access  Admin
-exports.deleteScholarship = async (req, res) => {
+export const deleteScholarship = async (req, res) => {
     try {
         const scholarship = await Scholarship.findByIdAndDelete(req.params.id);
 
@@ -279,7 +280,7 @@ exports.deleteScholarship = async (req, res) => {
 // @desc    Get all mentors
 // @route   GET /api/admin/mentors
 // @access  Admin
-exports.getMentors = async (req, res) => {
+export const getMentors = async (req, res) => {
     try {
         const mentors = await Mentor.find().sort({ createdAt: -1 });
         res.json({
@@ -298,7 +299,7 @@ exports.getMentors = async (req, res) => {
 // @desc    Create mentor
 // @route   POST /api/admin/mentors
 // @access  Admin
-exports.createMentor = async (req, res) => {
+export const createMentor = async (req, res) => {
     try {
         const mentor = await Mentor.create(req.body);
         res.status(201).json({
@@ -331,7 +332,7 @@ exports.createMentor = async (req, res) => {
 // @desc    Update mentor
 // @route   PUT /api/admin/mentors/:id
 // @access  Admin
-exports.updateMentor = async (req, res) => {
+export const updateMentor = async (req, res) => {
     try {
         const mentor = await Mentor.findByIdAndUpdate(
             req.params.id,
@@ -363,7 +364,7 @@ exports.updateMentor = async (req, res) => {
 // @desc    Delete mentor
 // @route   DELETE /api/admin/mentors/:id
 // @access  Admin
-exports.deleteMentor = async (req, res) => {
+export const deleteMentor = async (req, res) => {
     try {
         const mentor = await Mentor.findByIdAndDelete(req.params.id);
 
@@ -392,7 +393,7 @@ exports.deleteMentor = async (req, res) => {
 // @desc    Get all fields
 // @route   GET /api/admin/fields
 // @access  Admin
-exports.getFields = async (req, res) => {
+export const getFields = async (req, res) => {
     try {
         const fields = await Field.find().sort({ name: 1 });
         res.json({
@@ -411,7 +412,7 @@ exports.getFields = async (req, res) => {
 // @desc    Create field
 // @route   POST /api/admin/fields
 // @access  Admin
-exports.createField = async (req, res) => {
+export const createField = async (req, res) => {
     try {
         const field = await Field.create(req.body);
         res.status(201).json({
@@ -437,7 +438,7 @@ exports.createField = async (req, res) => {
 // @desc    Update field
 // @route   PUT /api/admin/fields/:id
 // @access  Admin
-exports.updateField = async (req, res) => {
+export const updateField = async (req, res) => {
     try {
         const field = await Field.findByIdAndUpdate(
             req.params.id,
@@ -469,7 +470,7 @@ exports.updateField = async (req, res) => {
 // @desc    Delete field
 // @route   DELETE /api/admin/fields/:id
 // @access  Admin
-exports.deleteField = async (req, res) => {
+export const deleteField = async (req, res) => {
     try {
         const field = await Field.findByIdAndDelete(req.params.id);
 
@@ -498,7 +499,7 @@ exports.deleteField = async (req, res) => {
 // @desc    Get all applications
 // @route   GET /api/admin/applications
 // @access  Admin
-exports.getApplications = async (req, res) => {
+export const getApplications = async (req, res) => {
     try {
         const applications = await Application.find()
             .populate('user', 'name email')
@@ -522,7 +523,7 @@ exports.getApplications = async (req, res) => {
 // @desc    Update application status
 // @route   PUT /api/admin/applications/:id
 // @access  Admin
-exports.updateApplication = async (req, res) => {
+export const updateApplication = async (req, res) => {
     try {
         const { status, adminNotes } = req.body;
         const updates = { updatedAt: Date.now() };
@@ -567,7 +568,7 @@ exports.updateApplication = async (req, res) => {
 // @desc    Seed sample data
 // @route   POST /api/admin/seed
 // @access  Admin
-exports.seedData = async (req, res) => {
+export const seedData = async (req, res) => {
     try {
         // Check if data already exists
         const scholarshipCount = await Scholarship.countDocuments();

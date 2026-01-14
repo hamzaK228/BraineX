@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import notionService from '../services/notionService.js';
+
 const router = express.Router();
-const notionService = require('../services/notionService');
 
 // Check Notion API configuration status
 router.get('/status', async (req, res) => {
@@ -60,4 +61,4 @@ router.get('/blocks/:id/children', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

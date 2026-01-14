@@ -1,274 +1,300 @@
-const Scholarship = require('../models/Scholarship');
-const { memoryStore, isDemoMode } = require('../utils/memoryStore');
-const { validationResult } = require('express-validator');
+import { pool } from '../config/database.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { readJson, writeJson } from '../utils/jsonHelper.js';
 
-// @desc    Get all scholarships
-// @route   GET /api/scholarships
-// @access  Public
-exports.getScholarships = async (req, res) => {
+/**
+ * Get all scholarships with filtering and pagination
+ * @route GET /api/scholarships
+ */
+export const getScholarships = asyncHandler(async (req, res) => {
+    const { category, country, status = 'active', page = 1, limit = 20 } = req.query;
+
     try {
-        const { category, field, country, search } = req.query;
+        let query = 'SELECT * FROM scholarships WHERE status = ?';
+        const params = [status];
 
-        if (isDemoMode()) {
-            let results = memoryStore.scholarships.filter(s => s.status === 'active');
-
-            if (category && category !== 'all') {
-                results = results.filter(s => s.category === category);
-            }
-            if (field && field !== 'all') {
-                results = results.filter(s =>
-                    s.tags && s.tags.some(t => t.toLowerCase().includes(field.toLowerCase())) ||
-                    (s.field && s.field.toLowerCase().includes(field.toLowerCase()))
-                );
-            }
-            if (country && country !== 'all') {
-                results = results.filter(s => s.country.toLowerCase() === country.toLowerCase());
-            }
-            if (search) {
-                const searchLower = search.toLowerCase();
-                results = results.filter(s =>
-                    s.name.toLowerCase().includes(searchLower) ||
-                    s.organization.toLowerCase().includes(searchLower) ||
-                    s.description.toLowerCase().includes(searchLower)
-                );
-            }
-
-            return res.json({
-                success: true,
-                count: results.length,
-                data: results
-            });
+        if (category) {
+            query += ' AND category = ?';
+            params.push(category);
         }
 
-        // MongoDB Query
-        let query = { status: 'active' };
-
-        if (category && category !== 'all') {
-            query.category = category;
+        if (country) {
+            query += ' AND country = ?';
+            params.push(country);
         }
 
-        if (field && field !== 'all') {
-            // Check if field acts as a tag filter or a specific field property if added later
-            // For now, check tags or if we added a field property to schema (current schema doesn't have 'field' explicitly other than tags context or category)
-            // The service checked 'field' property but schema I created relies on tags or text.
-            // Let's assume we filter tags for now or check description
-            query.tags = { $regex: field, $options: 'i' };
+        // Add pagination
+        const offset = (page - 1) * limit;
+        query += ' ORDER BY deadline ASC LIMIT ? OFFSET ?';
+        params.push(parseInt(limit), parseInt(offset));
+
+        const [scholarships] = await pool.query(query, params);
+
+        // Get total count
+        let countQuery = 'SELECT COUNT(*) as total FROM scholarships WHERE status = ?';
+        const countParams = [status];
+
+        if (category) {
+            countQuery += ' AND category = ?';
+            countParams.push(category);
         }
 
-        if (country && country !== 'all') {
-            query.country = { $regex: new RegExp(`^${country}$`, 'i') };
+        if (country) {
+            countQuery += ' AND country = ?';
+            countParams.push(country);
         }
 
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { organization: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
-            ];
-        }
-
-        const scholarships = await Scholarship.find(query).sort({ createdAt: -1 });
+        const [countResult] = await pool.query(countQuery, countParams);
+        const total = countResult[0].total;
 
         res.json({
             success: true,
-            count: scholarships.length,
-            data: scholarships
+            data: scholarships,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit),
+            },
         });
     } catch (error) {
-        console.error('Get scholarships error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
+        console.warn('Database error in getScholarships, using fallback JSON:', error.message);
+        let scholarships = await readJson('scholarships.json');
 
-// @desc    Get all scholarships (Admin - includes inactive)
-// @route   GET /api/admin/scholarships
-// @access  Private/Admin
-exports.getAdminScholarships = async (req, res) => {
-    try {
-        if (isDemoMode()) {
-            return res.json({
-                success: true,
-                count: memoryStore.scholarships.length,
-                data: memoryStore.scholarships
-            });
-        }
+        // Filter
+        if (status) scholarships = scholarships.filter(s => s.status === status);
+        if (category) scholarships = scholarships.filter(s => s.category === category);
+        if (country) scholarships = scholarships.filter(s => s.country === country);
 
-        const scholarships = await Scholarship.find().sort({ createdAt: -1 });
+        const total = scholarships.length;
+        const start = (page - 1) * limit;
+        const paginated = scholarships.slice(start, start + parseInt(limit));
 
         res.json({
             success: true,
-            count: scholarships.length,
-            data: scholarships
+            data: paginated,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit),
+            },
+        });
+    }
+});
+
+/**
+ * Get scholarship by ID
+ * @route GET /api/scholarships/:id
+ */
+export const getScholarshipById = asyncHandler(async (req, res) => {
+    try {
+        const [scholarships] = await pool.query(
+            'SELECT * FROM scholarships WHERE id = ?',
+            [req.params.id]
+        );
+
+        if (scholarships.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Scholarship not found',
+            });
+        }
+
+        res.json({
+            success: true,
+            data: scholarships[0],
         });
     } catch (error) {
-        console.error('Get admin scholarships error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
-
-// @desc    Get scholarship by ID
-// @route   GET /api/scholarships/:id
-// @access  Public
-exports.getScholarshipById = async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        if (isDemoMode()) {
-            // Try to parse ID as number for demo data
-            const numericId = parseInt(id);
-            const scholarship = memoryStore.scholarships.find(s => s.id === numericId || s.id == id);
-
-            if (!scholarship) {
-                return res.status(404).json({ success: false, error: 'Scholarship not found' });
-            }
-
-            return res.json({ success: true, data: scholarship });
-        }
-
-        let scholarship;
-
-        // Check if ID is a valid ObjectId for Mongo
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            scholarship = await Scholarship.findById(id);
-        } else {
-            // Fallback for numeric IDs if we imported seeded data
-            scholarship = await Scholarship.findOne({ id: id });
-        }
+        console.warn('Database error in getScholarshipById, using fallback JSON:', error.message);
+        const scholarships = await readJson('scholarships.json');
+        const scholarship = scholarships.find(s => s.id == req.params.id);
 
         if (!scholarship) {
-            return res.status(404).json({ success: false, error: 'Scholarship not found' });
+            return res.status(404).json({
+                success: false,
+                error: 'Scholarship not found',
+            });
         }
 
-        res.json({ success: true, data: scholarship });
-    } catch (error) {
-        console.error('Get scholarship error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
+        res.json({
+            success: true,
+            data: scholarship,
+        });
     }
-};
+});
 
-// @desc    Create scholarship
-// @route   POST /api/scholarships
-// @access  Private/Admin
-exports.createScholarship = async (req, res) => {
+/**
+ * Create new scholarship (Admin only)
+ * @route POST /api/scholarships
+ */
+export const createScholarship = asyncHandler(async (req, res) => {
+    const {
+        name,
+        organization,
+        amount,
+        deadline,
+        description,
+        category,
+        country,
+        website,
+    } = req.body;
+
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ success: false, errors: errors.array() });
-        }
+        const [result] = await pool.query(
+            `INSERT INTO scholarships 
+        (name, organization, amount, deadline, description, category, country, website, created_by) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [name, organization, amount, deadline, description, category, country || null, website || null, req.user.id]
+        );
 
-        if (isDemoMode()) {
-            const newScholarship = {
-                id: Date.now(), // Generate numeric ID
-                ...req.body,
-                status: req.body.status || 'active',
-                createdAt: new Date().toISOString()
-            };
-            memoryStore.scholarships.push(newScholarship);
-            return res.status(201).json({ success: true, data: newScholarship });
-        }
+        res.status(201).json({
+            success: true,
+            message: 'Scholarship created successfully',
+            data: {
+                id: result.insertId,
+            },
+        });
+    } catch (error) {
+        console.warn('Database error in createScholarship, using fallback JSON:', error.message);
+        const scholarships = await readJson('scholarships.json');
+        const newId = scholarships.length > 0 ? Math.max(...scholarships.map(s => s.id)) + 1 : 1;
 
-        // MongoDB
-        // Logic to generate numeric ID if we want to keep it? 
-        // Or just let Mongo use _id. 
-        // For consistency let's try to add a numeric id if possible, or just rely on the model default (which I set to unique false/true but no auto-increment).
-        // I'll just save it. If the client sends an ID, use it, else let it be null or handle it.
-        // Actually, schema has `id: { type: Number, unique: true }`. If I don't give it, it might be null.
-        // Let's generate one to be safe.
-
-        const scholarshipData = {
-            ...req.body,
-            id: Date.now() // Simple unique ID generator
+        const newScholarship = {
+            id: newId,
+            name,
+            organization,
+            amount,
+            deadline,
+            description,
+            category,
+            country: country || null,
+            website: website || null,
+            status: 'active',
+            created_at: new Date().toISOString()
         };
 
-        const scholarship = await Scholarship.create(scholarshipData);
-        res.status(201).json({ success: true, data: scholarship });
-    } catch (error) {
-        console.error('Create scholarship error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
+        scholarships.push(newScholarship);
+        await writeJson('scholarships.json', scholarships);
 
-// @desc    Update scholarship
-// @route   PUT /api/scholarships/:id
-// @access  Private/Admin
-exports.updateScholarship = async (req, res) => {
+        res.status(201).json({
+            success: true,
+            message: 'Scholarship created successfully (Fallback)',
+            data: {
+                id: newId,
+            },
+        });
+    }
+});
+
+/**
+ * Update scholarship (Admin only)
+ * @route PUT /api/scholarships/:id
+ */
+export const updateScholarship = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Build dynamic update query
+    const fields = Object.keys(updates);
+    const values = Object.values(updates);
+
+    if (fields.length === 0) {
+        return res.status(400).json({
+            success: false,
+            error: 'No fields to update',
+        });
+    }
+
     try {
-        const id = req.params.id;
+        const setClause = fields.map(field => `${field} = ?`).join(', ');
 
-        if (isDemoMode()) {
-            const numericId = parseInt(id);
-            const index = memoryStore.scholarships.findIndex(s => s.id === numericId || s.id == id);
+        const [result] = await pool.query(
+            `UPDATE scholarships SET ${setClause} WHERE id = ?`,
+            [...values, id]
+        );
 
-            if (index === -1) {
-                return res.status(404).json({ success: false, error: 'Scholarship not found' });
-            }
-
-            memoryStore.scholarships[index] = {
-                ...memoryStore.scholarships[index],
-                ...req.body,
-                updatedAt: new Date().toISOString()
-            };
-
-            return res.json({ success: true, data: memoryStore.scholarships[index] });
-        }
-
-        let scholarship;
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            scholarship = await Scholarship.findByIdAndUpdate(id, req.body, {
-                new: true,
-                runValidators: true
-            });
-        } else {
-            scholarship = await Scholarship.findOneAndUpdate({ id: id }, req.body, {
-                new: true,
-                runValidators: true
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Scholarship not found',
             });
         }
 
-        if (!scholarship) {
-            return res.status(404).json({ success: false, error: 'Scholarship not found' });
-        }
-
-        res.json({ success: true, data: scholarship });
+        res.json({
+            success: true,
+            message: 'Scholarship updated successfully',
+        });
     } catch (error) {
-        console.error('Update scholarship error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-};
+        console.warn('Database error in updateScholarship, using fallback JSON:', error.message);
+        const scholarships = await readJson('scholarships.json');
+        const index = scholarships.findIndex(s => s.id == id);
 
-// @desc    Delete scholarship
-// @route   DELETE /api/scholarships/:id
-// @access  Private/Admin
-exports.deleteScholarship = async (req, res) => {
+        if (index === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Scholarship not found',
+            });
+        }
+
+        scholarships[index] = { ...scholarships[index], ...updates };
+        await writeJson('scholarships.json', scholarships);
+
+        res.json({
+            success: true,
+            message: 'Scholarship updated successfully (Fallback)',
+        });
+    }
+});
+
+/**
+ * Delete scholarship (Admin only)
+ * @route DELETE /api/scholarships/:id
+ */
+export const deleteScholarship = asyncHandler(async (req, res) => {
     try {
-        const id = req.params.id;
+        const [result] = await pool.query(
+            'DELETE FROM scholarships WHERE id = ?',
+            [req.params.id]
+        );
 
-        if (isDemoMode()) {
-            const numericId = parseInt(id);
-            const index = memoryStore.scholarships.findIndex(s => s.id === numericId || s.id == id);
-
-            if (index === -1) {
-                return res.status(404).json({ success: false, error: 'Scholarship not found' });
-            }
-
-            memoryStore.scholarships.splice(index, 1);
-            return res.json({ success: true, data: {} });
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Scholarship not found',
+            });
         }
 
-        let scholarship;
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-            scholarship = await Scholarship.findByIdAndDelete(id);
-        } else {
-            scholarship = await Scholarship.findOneAndDelete({ id: id });
-        }
-
-        if (!scholarship) {
-            return res.status(404).json({ success: false, error: 'Scholarship not found' });
-        }
-
-        res.json({ success: true, data: {} });
+        res.json({
+            success: true,
+            message: 'Scholarship deleted successfully',
+        });
     } catch (error) {
-        console.error('Delete scholarship error:', error);
-        res.status(500).json({ success: false, error: 'Server Error' });
+        console.warn('Database error in deleteScholarship, using fallback JSON:', error.message);
+        let scholarships = await readJson('scholarships.json');
+        const initialLength = scholarships.length;
+        scholarships = scholarships.filter(s => s.id != req.params.id);
+
+        if (scholarships.length === initialLength) {
+            return res.status(404).json({
+                success: false,
+                error: 'Scholarship not found',
+            });
+        }
+
+        await writeJson('scholarships.json', scholarships);
+
+        res.json({
+            success: true,
+            message: 'Scholarship deleted successfully (Fallback)',
+        });
     }
+});
+
+export default {
+    getScholarships,
+    getScholarshipById,
+    createScholarship,
+    updateScholarship,
+    deleteScholarship,
 };

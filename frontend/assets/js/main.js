@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = window.location.origin + '/api';
+const API_BASE_URL = '/api';
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function () {
@@ -26,21 +26,23 @@ async function loadPublicData() {
 
         if (fieldsRes.ok) {
             const data = await fieldsRes.json();
-            if (data.success) renderTracks(data.data);
+            if (data.success && data.data) renderTracks(data.data);
         }
 
         if (scholarshipsRes.ok) {
             const data = await scholarshipsRes.json();
-            if (data.success) renderScholarships(data.data);
+            if (data.success && data.data) renderScholarships(data.data);
         }
 
         if (mentorsRes.ok) {
             const data = await mentorsRes.json();
-            if (data.success) renderMentors(data.data);
+            if (data.success && data.data) renderMentors(data.data);
         }
 
     } catch (error) {
-        console.error('Error loading public data:', error);
+        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            console.error('Error loading public data:', error);
+        }
         showNotification('Unable to load some content. Please refresh completely.', 'error');
     } finally {
         document.body.classList.remove('loading-data');
@@ -51,133 +53,343 @@ function renderTracks(fields) {
     const slider = document.getElementById('tracksSlider');
     if (!slider) return;
 
-    slider.innerHTML = fields.map(field => `
-        <div class="track-card">
-            <h3>${field.icon || '📚'} ${field.name}</h3>
-            <p>${field.description}</p>
-            <div class="track-stats">
-                <div class="stat"><span>Salary:</span><strong>${field.salary || 'N/A'}</strong></div>
-                <div class="stat"><span>Careers:</span><strong>${field.careers ? field.careers.split(',')[0] : 'Various'}</strong></div>
+    slider.innerHTML = fields.map(field => {
+        const iconText = field.icon || '📚';
+        const nameText = field.name || 'Unknown';
+        const descText = field.description || 'No description';
+        const salaryText = field.salary || 'N/A';
+        const careerText = field.careers ? field.careers.split(',')[0] : 'Various';
+
+        return `
+            <div class="track-card">
+                <h3>${escapeHtml(iconText)} ${escapeHtml(nameText)}</h3>
+                <p>${escapeHtml(descText)}</p>
+                <div class="track-stats">
+                    <div class="stat"><span>Salary:</span><strong>${escapeHtml(salaryText)}</strong></div>
+                    <div class="stat"><span>Careers:</span><strong>${escapeHtml(careerText)}</strong></div>
+                </div>
+                <button class="btn-explore">Explore Track</button>
             </div>
-            <button class="btn-explore">Explore Track</button>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function renderScholarships(scholarships) {
     const grid = document.querySelector('.scholarship-grid');
     if (!grid) return;
 
-    // Limit to 6 for the homepage if needed, or show all
-    // For now showing all active ones
-    const activeScholarships = scholarships.filter(s => s.status === 'active');
+    // Only show top 4 most popular scholarships (Full Funding first)
+    const popularScholarships = scholarships
+        .filter(s => s.status === 'active')
+        .sort((a, b) => {
+            // Prioritize Full Funding scholarships
+            if (a.amount === 'Full Funding' && b.amount !== 'Full Funding') return -1;
+            if (b.amount === 'Full Funding' && a.amount !== 'Full Funding') return 1;
+            return 0;
+        })
+        .slice(0, 4); // Only show 4
 
-    grid.innerHTML = activeScholarships.map(s => `
-        <div class="scholarship-card" data-category="${s.category}" style="display: block; opacity: 1;">
-            <div class="scholarship-header">
-                <h3>${s.name}</h3>
-                <span class="scholarship-amount">${s.amount}</span>
+    grid.innerHTML = popularScholarships.map(s => {
+        const deadline = s.deadline ? new Date(s.deadline).toLocaleDateString() : 'N/A';
+        const name = escapeHtml(s.name || 'Scholarship');
+        const amount = escapeHtml(s.amount || 'N/A');
+        const org = escapeHtml(s.organization || 'N/A');
+        const country = escapeHtml(s.country || 'Global');
+        const desc = escapeHtml((s.description || '').substring(0, 100));
+        const category = escapeHtml(s.category || 'General');
+
+        return `
+            <div class="scholarship-card" data-category="${category}">
+                <div class="scholarship-header">
+                    <h3>${name}</h3>
+                    <span class="scholarship-amount">${amount}</span>
+                </div>
+                <div class="scholarship-details">
+                    <p><strong>Organization:</strong> ${org}</p>
+                    <p><strong>Country:</strong> ${country}</p>
+                    <p><strong>Deadline:</strong> ${deadline}</p>
+                </div>
+                <p class="scholarship-description">${desc}...</p>
+                <div class="scholarship-tags">
+                    <span class="tag">${category}</span>
+                    ${country !== 'Global' ? `<span class="tag">${country}</span>` : ''}
+                </div>
+                <a href="/scholarships?name=${encodeURIComponent(s.name)}" class="btn-apply" style="text-decoration: none; text-align: center; display: inline-block;">View Details</a>
             </div>
-            <div class="scholarship-details">
-                <p><strong>Organization:</strong> ${s.organization}</p>
-                <p><strong>Country:</strong> ${s.country || 'Global'}</p>
-                <p><strong>Deadline:</strong> ${new Date(s.deadline).toLocaleDateString()}</p>
-            </div>
-            <p class="scholarship-description">${s.description.substring(0, 100)}...</p>
-            <div class="scholarship-tags">
-                <span class="tag">${s.category}</span>
-                ${s.country ? `<span class="tag">${s.country}</span>` : ''}
-            </div>
-            <button class="btn-apply">View Details</button>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function renderMentors(mentors) {
     const grid = document.querySelector('.mentors-grid');
     if (!grid) return;
 
-    // Show verified mentors, maybe limit to 4
     const verifiedMentors = mentors.filter(m => m.status === 'verified').slice(0, 4);
 
-    grid.innerHTML = verifiedMentors.map(m => `
-        <div class="mentor-card">
-            <div class="mentor-avatar">
-                 <div style="background: #667eea; color: white; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
-                    ${m.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                 </div>
+    grid.innerHTML = verifiedMentors.map(m => {
+        const name = escapeHtml(m.name || 'Mentor');
+        return `
+            <div class="mentor-card">
+                <div class="mentor-avatar">
+                     <div style="background: #667eea; color: white; width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem;">
+                        ${name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                     </div>
+                </div>
+                <h3>${name}</h3>
+                <p class="mentor-title">${escapeHtml(m.title || 'Professional')}</p>
+                <p class="mentor-company">${escapeHtml(m.company || 'BraineX')}</p>
+                <div class="mentor-expertise">
+                    <span>${escapeHtml(m.field || 'General')}</span>
+                    <span>${escapeHtml(m.experience || 'Experienced')}</span>
+                </div>
+                <p class="mentor-bio">${m.bio ? escapeHtml(m.bio.substring(0, 80)) + '...' : 'Experienced mentor ready to help.'}</p>
+                <div class="mentor-stats">
+                    <div><strong>${m.mentees || 0}</strong> Mentees</div>
+                    <div><strong>${m.rating || '5.0'}★</strong> Rating</div>
+                </div>
+                <button class="btn-connect">Connect</button>
             </div>
-            <h3>${m.name}</h3>
-            <p class="mentor-title">${m.title}</p>
-            <p class="mentor-company">${m.company}</p>
-            <div class="mentor-expertise">
-                <span>${m.field}</span>
-                <span>${m.experience}</span>
-            </div>
-            <p class="mentor-bio">${m.bio ? m.bio.substring(0, 80) + '...' : 'Experienced mentor ready to help.'}</p>
-            <div class="mentor-stats">
-                <div><strong>${m.mentees || 0}</strong> Mentees</div>
-                <div><strong>${m.rating || '5.0'}★</strong> Rating</div>
-            </div>
-            <button class="btn-connect">Connect</button>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // --- UI & Event Delegation ---
 
 function setupUI() {
-    setupAllButtonHandlers();
+    setupInteractionHandlers();
     setupMobileMenu();
     setupSmoothScroll();
     setupIntersectionObservers();
-    setupModals();
-    setupAuthForms();
-    setupSearch();
-    setupFilters(); // Re-implemented with delegation
-    setupDelegatedActions(); // For dynamically created buttons
-    setupFAQ();
+    setupFormValidation();
+    setupTracksSlider();
     setupFAQ();
     setupTheme();
-    setupTracksSlider();
     animateStatsInit();
+
+    // Global Modal Delegation & CSP Comp
+    setupGlobalDelegation();
+
+    // NEW: Setup scholarship filters
+    setupScholarshipFilters();
+
+    // NEW: Setup roadmap tabs
+    setupRoadmapTabs();
+
+    // NEW: Setup Find Opportunities button
+    setupFindOpportunities();
 }
 
-// Global Event Delegation for Dynamic Content
-function setupDelegatedActions() {
-    document.body.addEventListener('click', function (e) {
-        // Track Explore
+// NEW: Handle Find Opportunities search
+function setupFindOpportunities() {
+    const searchBtn = document.querySelector('.btn-search');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const fieldSelect = document.querySelector('.search-bar select:first-child');
+            const typeSelect = document.querySelector('.search-bar select:nth-child(2)');
+            const dateInput = document.querySelector('.search-bar input[type="date"]');
+
+            const field = fieldSelect?.value || '';
+            const type = typeSelect?.value || '';
+            const date = dateInput?.value || '';
+
+            // Build query string
+            const params = new URLSearchParams();
+            if (field) params.append('field', field);
+            if (type) params.append('type', type);
+            if (date) params.append('deadline', date);
+
+            // Navigate to scholarships page with filters
+            const queryString = params.toString();
+            window.location.href = `/scholarships${queryString ? '?' + queryString : ''}`;
+        });
+    }
+}
+
+// NEW: Handle scholarship filter buttons on main page
+function setupScholarshipFilters() {
+    const filterBtns = document.querySelectorAll('.scholarship-filters .filter-btn');
+    const scholarshipCards = document.querySelectorAll('.scholarship-grid .scholarship-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active button
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.getAttribute('data-filter');
+
+            // Filter cards
+            scholarshipCards.forEach(card => {
+                const category = card.getAttribute('data-category')?.toLowerCase() || '';
+                if (filter === 'all') {
+                    card.style.display = '';
+                } else if (category.includes(filter) ||
+                    card.textContent.toLowerCase().includes(filter)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+}
+
+// NEW: Handle roadmap tabs on main page
+function setupRoadmapTabs() {
+    const tabs = document.querySelectorAll('.roadmap-tab');
+    const contents = document.querySelectorAll('.roadmap-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Update active tab
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+
+            // Show corresponding content
+            const targetId = tab.getAttribute('data-tab') + '-roadmap';
+            contents.forEach(content => {
+                if (content.id === targetId) {
+                    content.classList.add('active');
+                    content.setAttribute('aria-hidden', 'false');
+                } else {
+                    content.classList.remove('active');
+                    content.setAttribute('aria-hidden', 'true');
+                }
+            });
+        });
+    });
+}
+
+function setupInteractionHandlers() {
+    document.addEventListener('click', function (e) {
+        // Visual feedback for all buttons
+        const btn = e.target.closest('button, .btn, .category-card, .track-card, .benefit-card');
+        if (btn && !btn.disabled) {
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => btn.style.transform = '', 150);
+        }
+
+        // Track Explore - Navigate to fields page with track info
         if (e.target.closest('.btn-explore')) {
-            const btn = e.target.closest('.btn-explore');
-            const trackName = btn.closest('.track-card').querySelector('h3').textContent;
-            handleAction(btn, `Exploring ${trackName}... Redirecting to track details.`);
+            e.preventDefault();
+            const b = e.target.closest('.btn-explore');
+            const card = b.closest('.track-card');
+            if (card) {
+                const titleEl = card.querySelector('h3');
+                const name = titleEl ? titleEl.textContent : '';
+                // Extract field name from the title (remove emoji)
+                const fieldName = name.replace(/^[\u{1F300}-\u{1F9FF}\s]+/u, '').trim();
+                // Navigate to fields page with search for this field
+                window.location.href = `/fields?search=${encodeURIComponent(fieldName)}`;
+            } else {
+                window.location.href = '/fields';
+            }
         }
 
         // Scholarship Apply
         if (e.target.closest('.btn-apply')) {
-            const btn = e.target.closest('.btn-apply');
-            const scholarshipName = btn.closest('.scholarship-card').querySelector('h3').textContent;
-            handleAction(btn, `Redirecting to application for ${scholarshipName}...`);
+            const b = e.target.closest('.btn-apply');
+            const card = b.closest('.scholarship-card');
+            const name = card ? card.querySelector('h3').textContent : 'this scholarship';
+            window.location.href = `/scholarships?name=${encodeURIComponent(name)}`;
         }
 
         // Mentor Connect
         if (e.target.closest('.btn-connect')) {
-            const btn = e.target.closest('.btn-connect');
-            const mentorName = btn.closest('.mentor-card').querySelector('h3').textContent;
+            const b = e.target.closest('.btn-connect');
+            const card = b.closest('.mentor-card');
+            const name = card ? card.querySelector('h3').textContent : 'this mentor';
             if (checkLoginForAction()) {
-                handleAction(btn, `Connection request sent to ${mentorName}!`, 'Connected ✓');
+                handleAction(b, `Initiating connection with ${name}...`, 'Request Sent ✓');
             }
         }
     });
 }
 
-function handleAction(btn, alertMessage, successText = null) {
+function setupGlobalDelegation() {
+    document.addEventListener('click', function (e) {
+        // Modal Actions
+        const closeBtn = e.target.closest('.close-modal');
+        if (closeBtn || (e.target.classList.contains('modal') && !e.target.classList.contains('modal-content'))) {
+            window.closeModal();
+        }
+
+        const loginTrigger = e.target.closest('a[href="#login"]');
+        if (loginTrigger) {
+            e.preventDefault();
+            window.openModal('loginModal');
+        }
+
+        const signupTrigger = e.target.closest('a[href="#signup"]');
+        if (signupTrigger) {
+            e.preventDefault();
+            window.openModal('signupModal');
+        }
+
+        // Auth Form Shortcuts
+        const signupSwitch = e.target.closest('a[onclick="switchToSignup()"]') || (e.target.tagName === 'A' && e.target.textContent.toLowerCase().includes('sign up here'));
+        if (signupSwitch && e.target.closest('#loginModal')) {
+            e.preventDefault();
+            window.switchToSignup();
+        }
+
+        const loginSwitch = e.target.closest('a[onclick="switchToLogin()"]') || (e.target.tagName === 'A' && e.target.textContent.toLowerCase().includes('sign in here'));
+        if (loginSwitch && e.target.closest('#signupModal')) {
+            e.preventDefault();
+            window.switchToLogin();
+        }
+
+        // Password Toggles
+        const passToggle = e.target.closest('.password-toggle button, button[onclick^="togglePassword"]');
+        if (passToggle) {
+            e.preventDefault();
+            const input = passToggle.parentElement.querySelector('input');
+            if (input) {
+                input.type = input.type === 'password' ? 'text' : 'password';
+            }
+        }
+
+        // Social Logins
+        const socialBtn = e.target.closest('.btn-social');
+        if (socialBtn) {
+            const provider = socialBtn.getAttribute('data-provider') || 'social';
+            window.socialLogin(provider);
+        }
+
+        // FAQ Items
+        const faqHeader = e.target.closest('.faq-question');
+        if (faqHeader) {
+            window.toggleFAQ(faqHeader);
+        }
+
+        // Mobile Toggle Link Closing
+        if (e.target.closest('.nav-menu a')) {
+            const menu = document.getElementById('navMenu');
+            if (menu && menu.classList.contains('active')) {
+                window.toggleMenu();
+            }
+        }
+    });
+}
+
+function handleAction(btn, message, successText = null) {
     const originalText = btn.textContent;
     btn.textContent = 'Processing...';
     btn.disabled = true;
 
     setTimeout(() => {
-        showNotification(successText || 'Action completed!', 'success');
+        showNotification(successText || 'Action successful!', 'success');
         btn.textContent = successText || originalText;
         btn.disabled = false;
     }, 1000);
@@ -185,416 +397,294 @@ function handleAction(btn, alertMessage, successText = null) {
 
 function checkLoginForAction() {
     if (window.authAPI && window.authAPI.isAuthenticated()) return true;
-
-    // Not logged in
     window.openModal('loginModal');
-    showNotification('Please log in to continue', 'info');
+    showNotification('Please sign in to continue.', 'info');
     return false;
 }
 
-// Scholarship Filtering (Delegated)
-function setupFilters() {
-    const filterContainer = document.querySelector('.scholarship-filters');
-    if (!filterContainer) return;
+// --- Auth flows ---
 
-    filterContainer.addEventListener('click', function (e) {
-        if (e.target.classList.contains('filter-btn')) {
-            // Update Active State
-            filterContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
+async function checkLoginState() {
+    if (window.authAPI && window.authAPI.isAuthenticated()) {
+        try {
+            const res = await window.authAPI.getCurrentUser();
+            if (res.success) updateUIForUser(res.data);
+        } catch (e) {
+            console.error('Session verification failed', e);
+        }
+    }
+}
 
-            const filter = e.target.getAttribute('data-filter');
-            const cards = document.querySelectorAll('.scholarship-card');
-
-            cards.forEach(card => {
-                const category = card.getAttribute('data-category');
-                if (filter === 'all' || category === filter) {
-                    card.style.display = 'block';
-                    setTimeout(() => card.style.opacity = '1', 50);
-                } else {
-                    card.style.opacity = '0';
-                    setTimeout(() => card.style.display = 'none', 300);
-                }
+function updateUIForUser(user) {
+    const containers = document.querySelectorAll('.auth-buttons');
+    containers.forEach(container => {
+        container.innerHTML = `
+            <div class="user-profile" style="display: flex; align-items: center; gap: 15px;">
+                <span class="user-greeting" style="color: white; font-weight: 500;">Hi, ${user.firstName || 'Student'}</span>
+                <button class="btn btn-outline btn-logout" style="border-color: rgba(255,255,255,0.3); color: white;">Logout</button>
+            </div>
+        `;
+        const logoutBtn = container.querySelector('.btn-logout');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (window.authAPI) window.authAPI.logout();
+                window.location.reload();
             });
         }
     });
 }
 
-// --- Original UI Functions (Preserved & Optimized) ---
-
-function setupAllButtonHandlers() {
-    document.addEventListener('click', function (e) {
-        const btn = e.target.closest('button, .btn, .category-card, .track-card, .benefit-card');
-        if (btn && !btn.disabled) {
-            btn.style.transform = 'scale(0.95)';
-            setTimeout(() => btn.style.transform = '', 150);
-        }
-    });
-}
-
-function setupMobileMenu() {
-    window.toggleMenu = function () {
-        const menu = document.getElementById('navMenu');
-        const btn = document.querySelector('.mobile-menu-btn');
-        menu.classList.toggle('active');
-        const isActive = menu.classList.contains('active');
-        btn.setAttribute('aria-expanded', isActive);
-        btn.textContent = isActive ? '✕' : '☰';
-    };
-
-    const menuBtn = document.querySelector('.mobile-menu-btn');
-    if (menuBtn) {
-        menuBtn.addEventListener('click', window.toggleMenu);
-    }
-
-    // Close on link click
-    document.querySelectorAll('.nav-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-            const menu = document.getElementById('navMenu');
-            if (menu.classList.contains('active')) {
-                window.toggleMenu();
-            }
-        });
-    });
-}
-
-function setupTracksSlider() {
-    const prevBtn = document.querySelector('.slider-btn.btn-prev');
-    const nextBtn = document.querySelector('.slider-btn.btn-next');
-
-    if (prevBtn) prevBtn.addEventListener('click', () => window.scrollSlider('left'));
-    if (nextBtn) nextBtn.addEventListener('click', () => window.scrollSlider('right'));
-
-    window.scrollSlider = function (direction) {
-        const slider = document.getElementById('tracksSlider');
-        if (!slider) return;
-        const scrollAmount = 400;
-        if (direction === 'left') {
-            slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        } else {
-            slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-    };
-}
-
-function setupSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
-}
-
-function setupIntersectionObservers() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.category-card, .benefit-card, .about').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'all 0.6s ease-out';
-        observer.observe(el);
-    });
-}
-
-// Modal System
-let currentModal = null;
-
-window.openModal = function (modalId) {
-    if (currentModal) window.closeModal();
-    currentModal = document.getElementById(modalId);
-    if (currentModal) {
-        currentModal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-};
-
-window.closeModal = function () {
-    if (currentModal) {
-        currentModal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-        currentModal = null;
-    }
-};
-
-window.switchToLogin = () => { window.closeModal(); window.openModal('loginModal'); };
-window.switchToSignup = () => { window.closeModal(); window.openModal('signupModal'); };
-
-function setupModals() {
-    // Close buttons
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', window.closeModal);
-    });
-
-    // Backdrop clicks
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) window.closeModal();
-    });
-
-    // ESC key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') window.closeModal();
-    });
-
-    // Switch links
-    const switchSignup = document.querySelector('.js-switch-signup');
-    if (switchSignup) switchSignup.addEventListener('click', (e) => { e.preventDefault(); window.switchToSignup(); });
-
-    const switchLogin = document.querySelector('.js-switch-login');
-    if (switchLogin) switchLogin.addEventListener('click', (e) => { e.preventDefault(); window.switchToLogin(); });
-
-    // Password toggles
-    document.body.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-toggle-password')) {
-            const btn = e.target.closest('.btn-toggle-password');
-            const targetId = btn.getAttribute('data-target');
-            window.togglePassword(targetId);
-        }
-    });
-
-    // Social logins
-    document.body.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-social')) {
-            const btn = e.target.closest('.btn-social');
-            const provider = btn.getAttribute('data-provider');
-            window.socialLogin(provider);
-        }
-    });
-
-    // Forgot password
-    const forgotLink = document.querySelector('.js-forgot-password');
-    if (forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); window.forgotPassword(); });
-
-    // Bind triggers
-    const loginLink = document.querySelector('a[href="#login"]');
-    if (loginLink) loginLink.addEventListener('click', (e) => { e.preventDefault(); window.openModal('loginModal'); });
-
-    const signupLink = document.querySelector('a[href="#signup"]');
-    if (signupLink) signupLink.addEventListener('click', (e) => { e.preventDefault(); window.openModal('signupModal'); });
-}
-
-// Authentication Forms
-function setupAuthForms() {
-    // These should now ideally use authAPI if possible, or we keep logic here.
-    // admin.js uses authAPI. main.js previously simulated it or used auth-api.js?
-    // The previous main.js had extensive mock validation.
-    // We should switch to real authAPI calls.
-
+function setupFormValidation() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', async function (e) {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = this.email.value;
-            const password = this.password.value;
-
-            const btn = this.querySelector('button[type="submit"]');
-            btn.textContent = 'Signing in...';
+            const btn = loginForm.querySelector('button[type="submit"]');
             btn.disabled = true;
+            btn.textContent = 'Authenticating...';
 
             try {
-                if (window.authAPI) {
-                    const result = await window.authAPI.login(email, password);
-                    if (result.success) {
-                        window.closeModal();
-                        updateUIForUser(result.data);
-                        showNotification('Welcome back!', 'success');
-                    } else {
-                        showNotification(result.error || 'Login failed', 'error');
-                    }
+                const res = await window.authAPI.login({ email: loginForm.email.value, password: loginForm.password.value });
+                if (res.success) {
+                    window.closeModal();
+                    updateUIForUser(res.data);
+                    showNotification('Login successful!', 'success');
                 } else {
-                    console.error('AuthAPI not found');
-                    showNotification('Authentication service unavailable', 'error');
+                    showNotification(res.error || 'Invalid credentials', 'error');
                 }
-            } catch (error) {
-                console.error(error);
-                showNotification('An error occurred during login', 'error');
+            } catch (err) {
+                showNotification('Connection error', 'error');
             } finally {
-                btn.textContent = 'Sign In';
                 btn.disabled = false;
+                btn.textContent = 'Sign In';
             }
         });
     }
 
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
-        signupForm.addEventListener('submit', async function (e) {
+        signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Similar logic for signup...
-            const payload = {
-                firstName: this.firstName.value,
-                lastName: this.lastName.value,
-                email: this.email.value,
-                password: this.password.value,
-                field: this.field.value
+            const btn = signupForm.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            const data = {
+                firstName: signupForm.firstName.value,
+                lastName: signupForm.lastName.value,
+                email: signupForm.email.value,
+                password: signupForm.password.value,
+                field: signupForm.field.value
             };
 
-            const btn = this.querySelector('button[type="submit"]');
-            btn.textContent = 'Creating account...';
-            btn.disabled = true;
-
             try {
-                if (window.authAPI) {
-                    const result = await window.authAPI.register(payload);
-                    if (result.success) {
-                        window.closeModal();
-                        updateUIForUser(result.data);
-                        showNotification('Account created!', 'success');
-                    } else {
-                        showError(this, result.error || 'Signup failed');
-                    }
+                const res = await window.authAPI.register(data);
+                if (res.success) {
+                    window.closeModal();
+                    updateUIForUser(res.data);
+                    showNotification('Welcome to BraineX!', 'success');
+                } else {
+                    showNotification(res.error || 'Registration failed', 'error');
                 }
-            } catch (error) {
-                showError(this, 'An error occurred');
+            } catch (err) {
+                showNotification('Connection error', 'error');
             } finally {
-                btn.textContent = 'Create Account';
                 btn.disabled = false;
+                btn.textContent = 'Create Account';
             }
         });
     }
 }
 
-function checkLoginState() {
-    if (window.authAPI && window.authAPI.isAuthenticated()) {
-        window.authAPI.getCurrentUser().then(res => {
-            if (res.success) updateUIForUser(res.data);
+// --- Menu & Navigation ---
+
+function setupMobileMenu() {
+    window.toggleMenu = function () {
+        const menu = document.getElementById('navMenu');
+        const btn = document.querySelector('.mobile-menu-btn');
+        if (!menu || !btn) return;
+
+        const isOpen = menu.classList.toggle('active');
+        btn.setAttribute('aria-expanded', isOpen);
+        btn.textContent = isOpen ? '✕' : '☰';
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+    };
+
+    const btn = document.querySelector('.mobile-menu-btn');
+    if (btn) btn.addEventListener('click', window.toggleMenu);
+}
+
+function setupSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         });
+    });
+}
+
+// --- Specific Features ---
+
+function setupTracksSlider() {
+    const slider = document.getElementById('tracksSlider');
+    const prev = document.querySelector('.slider-btn.btn-prev');
+    const next = document.querySelector('.slider-btn.btn-next');
+
+    if (!slider) return;
+
+    const scroll = (dir) => {
+        const amount = slider.clientWidth * 0.8;
+        slider.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
+    };
+
+    if (prev) prev.addEventListener('click', () => scroll('left'));
+    if (next) next.addEventListener('click', () => scroll('right'));
+}
+
+window.toggleFAQ = function (question) {
+    const item = question.closest('.faq-item');
+    if (!item) return;
+
+    const wasActive = item.classList.contains('active');
+
+    // Close others
+    document.querySelectorAll('.faq-item.active').forEach(i => {
+        i.classList.remove('active');
+        const ans = i.querySelector('.faq-answer');
+        if (ans) ans.style.maxHeight = null;
+        const tg = i.querySelector('.faq-toggle');
+        if (tg) tg.textContent = '+';
+    });
+
+    if (!wasActive) {
+        item.classList.add('active');
+        const ans = item.querySelector('.faq-answer');
+        if (ans) ans.style.maxHeight = ans.scrollHeight + "px";
+        const tg = item.querySelector('.faq-toggle');
+        if (tg) tg.textContent = '-';
     }
-}
-
-function updateUIForUser(user) {
-    const authButtons = document.querySelector('.auth-buttons');
-    if (authButtons) {
-        authButtons.innerHTML = `
-            <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
-                <span style="color: white; font-weight: 500;">Hello, ${user.firstName || user.name || 'User'}</span>
-                <button class="btn btn-outline js-logout-btn">Logout</button>
-            </div>
-        `;
-
-        // Add listener for dynamically created button
-        const logoutBtn = authButtons.querySelector('.js-logout-btn');
-        if (logoutBtn) logoutBtn.addEventListener('click', window.logout);
-    }
-}
-
-window.logout = function () {
-    if (window.authAPI) window.authAPI.logout();
-    location.reload();
 };
-
-function showError(form, message) {
-    showNotification(message, 'error');
-}
-
-window.togglePassword = function (id) {
-    const input = document.getElementById(id);
-    input.type = input.type === 'password' ? 'text' : 'password';
-};
-
-window.toggleFAQ = function (el) {
-    el.parentElement.classList.toggle('active');
-};
-
-function setupSearch() {
-    const btn = document.querySelector('.btn-search');
-    if (btn) {
-        btn.addEventListener('click', () => {
-            btn.textContent = 'Searching...';
-            setTimeout(() => {
-                showNotification('Search is coming soon! Try filtering below.', 'info');
-                btn.textContent = 'Find Opportunities';
-            }, 800);
-        });
-    }
-}
 
 function setupFAQ() {
-    // Handled by inline toggleFAQ or could be delegate
+    // Delegation is handled in setupGlobalDelegation
 }
 
 function setupTheme() {
-    window.toggleTheme = function () {
-        const html = document.documentElement;
+    const getTheme = () => localStorage.getItem('brainex_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const setTheme = (t) => {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('brainex_theme', t);
         const btn = document.querySelector('.theme-toggle');
-
-        // Add transition class
-        html.classList.add('theme-transitioning');
-
-        const currentTheme = html.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('brainex_theme', newTheme);
-
-        if (btn) {
-            btn.innerHTML = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
-            btn.setAttribute('aria-pressed', newTheme === 'dark');
-        }
-
-        // Remove transition class after it finishes
-        setTimeout(() => {
-            html.classList.remove('theme-transitioning');
-        }, 500);
+        if (btn) btn.innerHTML = t === 'dark' ? '☀️ Light' : '🌙 Dark';
     };
 
-    const themeBtn = document.querySelector('.theme-toggle');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', window.toggleTheme);
-    }
+    setTheme(getTheme());
 
-    // Load saved theme
-    const savedTheme = localStorage.getItem('brainex_theme');
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        const btn = document.querySelector('.theme-toggle');
-        if (btn) {
-            btn.innerHTML = '☀️ Light';
-            btn.setAttribute('aria-pressed', true);
-        }
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
+    window.toggleTheme = () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+    };
+}
+
+// --- Modals ---
+
+let currentActiveModal = null;
+
+window.openModal = function (id) {
+    if (currentActiveModal) window.closeModal();
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        currentActiveModal = modal;
     }
+};
+
+window.closeModal = function () {
+    if (currentActiveModal) {
+        currentActiveModal.classList.remove('show');
+        document.body.style.overflow = '';
+        currentActiveModal = null;
+    }
+};
+
+window.switchToLogin = () => window.openModal('loginModal');
+window.switchToSignup = () => window.openModal('signupModal');
+
+// --- Utilities ---
+
+function setupIntersectionObservers() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.category-card, .benefit-card, .track-card, .scholarship-card').forEach(el => observer.observe(el));
 }
 
 function animateStatsInit() {
-    // Stats animation logic
-}
-
-function showNotification(msg, type) {
-    // Reuse notification logic
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`; // Ensure CSS exists
-    notification.textContent = msg;
-    notification.style.cssText = `
-        position: fixed; top: 20px; right: 20px; 
-        background: ${type === 'success' ? '#28a745' : '#dc3545'}; 
-        color: white; padding: 1rem; border-radius: 8px; z-index: 9999;
-    `;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
-
-// Export specific functions if needed
-window.socialLogin = (p) => showNotification(`Login with ${p} coming soon!`, 'info');
-window.forgotPassword = () => showNotification('Password reset link sent to your email.', 'success');
-
-// Roadmap Tabs (Legacy preserved)
-document.querySelectorAll('.roadmap-tab').forEach(tab => {
-    tab.addEventListener('click', function () {
-        const target = this.getAttribute('data-tab');
-        document.querySelectorAll('.roadmap-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.roadmap-content').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById(`${target}-roadmap`).classList.add('active');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = parseInt(entry.target.innerText.replace(/\D/g, ''));
+                if (!isNaN(target)) animateNumber(entry.target, target);
+                observer.unobserve(entry.target);
+            }
+        });
     });
-});
+
+    document.querySelectorAll('.stat-number').forEach(s => observer.observe(s));
+}
+
+function animateNumber(el, target) {
+    let current = 0;
+    const increment = target / 60;
+    const interval = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            el.innerText = target + (el.innerText.includes('%') ? '%' : '+');
+            clearInterval(interval);
+        } else {
+            el.innerText = Math.floor(current) + (el.innerText.includes('%') ? '%' : '+');
+        }
+    }, 16);
+}
+
+function showNotification(msg, type = 'info') {
+    const existing = document.querySelector('.notification-container');
+    const container = existing || document.createElement('div');
+    if (!existing) {
+        container.className = 'notification-container';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; pointer-events: none;';
+        document.body.appendChild(container);
+    }
+
+    const note = document.createElement('div');
+    note.className = `notification ${type}`;
+    note.innerText = msg;
+    note.style.cssText = `
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white; padding: 12px 24px; border-radius: 8px; margin-bottom: 10px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); pointer-events: auto;
+        animation: slideIn 0.3s ease-out forwards;
+    `;
+
+    container.appendChild(note);
+    setTimeout(() => {
+        note.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => note.remove(), 300);
+    }, 4000);
+}
+
+// Global Exports
+window.socialLogin = (provider) => showNotification(`Social login with ${provider} is not configured.`, 'info');
+window.forgotPassword = () => showNotification("Password reset feature coming soon!", "info");

@@ -21,7 +21,7 @@
     background: #ffffff !important;
     border-radius: 16px !important;
     padding: 2rem !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
     border: 1px solid #f0f0f0 !important;
     transition: all 0.3s ease !important;
     position: relative;
@@ -93,7 +93,7 @@
 .project-featured-card:hover,
 .event-featured-card:hover {
     transform: translateY(-8px) !important;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Dark Mode - Keep dark theme consistent */
@@ -345,9 +345,17 @@ html[data-theme='dark'] .stat-card p {
 }
 
 @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .resource-icon {
@@ -439,6 +447,9 @@ html[data-theme='dark'] .stat-card p {
     box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3) !important;
     position: relative;
     overflow: hidden;
+    text-decoration: none !important;
+    cursor: pointer;
+    display: inline-block;
 }
 
 .btn-primary::before,
@@ -519,16 +530,17 @@ html[data-theme='dark'] .stat-card p {
 
 /* ===== RESPONSIVE IMPROVEMENTS ===== */
 @media (max-width: 768px) {
+
     .stat-number,
     .stat-item .stat-number,
     .stat-card h3 {
         font-size: 2.5rem !important;
     }
-    
+
     .category-card .category-icon {
         font-size: 3rem;
     }
-    
+
     .pathway-icon {
         width: 60px;
         height: 60px;

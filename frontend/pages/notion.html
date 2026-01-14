@@ -94,6 +94,12 @@
     <link rel="stylesheet" href="../assets/css/notion.css" media="print" onload="this.media='all'"><noscript>
         <link rel="stylesheet" href="../assets/css/notion.css">
     </noscript>
+    <link rel="stylesheet" href="../assets/css/my-goals-enhanced.css" media="print" onload="this.media='all'"><noscript>
+        <link rel="stylesheet" href="../assets/css/my-goals-enhanced.css">
+    </noscript>
+    <link rel="stylesheet" href="../assets/css/add-modal.css" media="print" onload="this.media='all'"><noscript>
+        <link rel="stylesheet" href="../assets/css/add-modal.css">
+    </noscript>
     <link rel="stylesheet" href="../assets/css/unified-cards.css" media="print" onload="this.media='all'"><noscript>
         <link rel="stylesheet" href="../assets/css/unified-cards.css">
     </noscript>
@@ -110,6 +116,8 @@
     <meta name="twitter:image" content="https://BraineX.example/og-image.png">
     <link rel="preload" as="style" href="../assets/css/main.css">
 
+    <script src="../assets/js/theme.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 
 <body>
@@ -121,24 +129,24 @@
                     <span>BraineX</span>
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu"
-                    aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                    aria-controls="navMenu" aria-expanded="false">☰</button>
                 <ul class="nav-menu" id="navMenu">
-                    <li><a href="./main.html">Home</a></li>
-                    <li><a href="./fields.html">Fields</a></li>
-                    <li><a href="./scholarships.html">Scholarships</a></li>
-                    <li><a href="./projects.html">Projects</a></li>
-                    <li><a href="./roadmaps.html">Roadmaps</a></li>
-                    <li><a href="./mentors.html">Mentors</a></li>
-                    <li><a href="./events.html">Events</a></li>
-                    <li><a href="./notion.html" class="active">My Goals</a></li>
-                    <li><a href="./about.html">About</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/fields">Fields</a></li>
+                    <li><a href="/scholarships">Scholarships</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/roadmaps">Roadmaps</a></li>
+                    <li><a href="/mentors">Mentors</a></li>
+                    <li><a href="/events">Events</a></li>
+                    <li><a href="/notion" class="active">My Goals</a></li>
+                    <li><a href="/about">About</a></li>
                 </ul>
                 <div class="auth-buttons">
                     <a href="#login" class="btn btn-outline">Log In</a>
                     <a href="#signup" class="btn btn-primary">Sign Up</a>
                 </div>
-                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme"
-                    aria-pressed="false">🌙 Dark</button>
+                <button class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">🌙
+                    Dark</button>
             </nav>
         </div>
     </header>
@@ -148,7 +156,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h3>📋 My Workspace</h3>
-                <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Close sidebar">×</button>
+                <button class="sidebar-toggle js-toggle-sidebar" aria-label="Close sidebar">×</button>
             </div>
 
             <div class="sidebar-section">
@@ -158,8 +166,7 @@
                     <li><a href="#goals" class="sidebar-link" data-section="goals">🎯 Goals</a></li>
                     <li><a href="#progress" class="sidebar-link" data-section="progress">📈 Progress</a></li>
                     <li><a href="#calendar" class="sidebar-link" data-section="calendar">📅 Calendar</a></li>
-                    <li><a href="#notion-guides" class="sidebar-link" data-section="notion-guides">🧭 Notion Guides</a>
-                    </li>
+
                 </ul>
             </div>
 
@@ -168,7 +175,7 @@
                 <ul class="sidebar-menu">
                     <li><a href="#notes" class="sidebar-link" data-section="notes">📔 Notes</a></li>
                     <li><a href="#tasks" class="sidebar-link" data-section="tasks">✅ Tasks</a></li>
-                    <li><a href="#projects-plan" class="sidebar-link" data-section="projects">📁 Projects</a></li>
+                    <li><a href="#projects" class="sidebar-link" data-section="projects">📁 Projects</a></li>
                     <li><a href="#resources" class="sidebar-link" data-section="resources">🔗 Resources</a></li>
                 </ul>
             </div>
@@ -186,14 +193,14 @@
             </div>
 
             <div class="sidebar-actions">
-                <button class="btn-new" onclick="createNewItem()">+ New Page</button>
-                <button class="btn-template" onclick="showTemplates()">📋 Templates</button>
+                <button class="btn-new js-new-item">+ New Page</button>
+                <button class="btn-template js-show-templates">📋 Templates</button>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
-            <button class="sidebar-open" onclick="toggleSidebar()" aria-label="Open sidebar">☰</button>
+            <button class="sidebar-open js-toggle-sidebar" aria-label="Open sidebar">☰</button>
 
             <!-- Overview Section -->
             <section class="content-section active" id="overview">
@@ -239,7 +246,7 @@
                         <div class="deadline-list" id="upcomingDeadlines">
                             <!-- Deadlines will be populated here -->
                         </div>
-                        <button class="btn-card" onclick="switchSection('deadlines')">View All Deadlines</button>
+                        <button class="btn-card js-switch-section" data-section="deadlines">View All Deadlines</button>
                     </div>
 
                     <div class="dashboard-card">
@@ -247,16 +254,16 @@
                         <div class="goals-preview" id="recentGoals">
                             <!-- Goals will be populated here -->
                         </div>
-                        <button class="btn-card" onclick="switchSection('goals')">Manage Goals</button>
+                        <button class="btn-card js-switch-section" data-section="goals">Manage Goals</button>
                     </div>
 
                     <div class="dashboard-card">
                         <h3>📝 Quick Notes</h3>
                         <div class="quick-notes">
                             <textarea placeholder="Jot down quick thoughts..." id="quickNote"></textarea>
-                            <button class="btn-save-note" onclick="saveQuickNote()">Save</button>
+                            <button class="btn-save-note js-save-quick-note">Save</button>
                         </div>
-                        <button class="btn-card" onclick="switchSection('notes')">View All Notes</button>
+                        <button class="btn-card js-switch-section" data-section="notes">View All Notes</button>
                     </div>
 
                     <div class="dashboard-card">
@@ -271,7 +278,7 @@
                                 <span>Prepare for midterm exams</span>
                             </div>
                         </div>
-                        <button class="btn-card" onclick="editWeeklyFocus()">Edit Focus</button>
+                        <button class="btn-card js-edit-focus">Edit Focus</button>
                     </div>
                 </div>
             </section>
@@ -281,7 +288,7 @@
                 <div class="page-header">
                     <h1>🎯 My Goals</h1>
                     <p class="page-subtitle">Set, track, and achieve your academic and personal objectives</p>
-                    <button class="btn-primary" onclick="openGoalModal()">+ Add New Goal</button>
+                    <button class="btn-primary js-open-goal-modal">+ Add New Goal</button>
                 </div>
 
                 <div class="goals-filters">
@@ -343,7 +350,7 @@
                 <div class="page-header">
                     <h1>📔 My Notes</h1>
                     <p class="page-subtitle">Capture ideas, thoughts, and important information</p>
-                    <button class="btn-primary" onclick="createNewNote()">+ New Note</button>
+                    <button class="btn-primary" id="createNewNoteBtn">+ New Note</button>
                 </div>
 
                 <div class="notes-grid" id="notesGrid">
@@ -356,7 +363,7 @@
                 <div class="page-header">
                     <h1>✅ Task Manager</h1>
                     <p class="page-subtitle">Organize and prioritize your daily tasks</p>
-                    <button class="btn-primary" onclick="addNewTask()">+ Add Task</button>
+                    <button class="btn-primary" id="addNewTaskBtn">+ Add Task</button>
                 </div>
 
                 <div class="tasks-board">
@@ -386,16 +393,16 @@
                 <div class="page-header">
                     <h1>📅 Calendar & Deadlines</h1>
                     <p class="page-subtitle">Stay organized with important dates and deadlines</p>
-                    <button class="btn-primary" onclick="addEvent()">+ Add Event</button>
+                    <button class="btn-primary" id="addCalendarEventBtn">+ Add Event</button>
                 </div>
 
                 <div class="calendar-container">
                     <div class="calendar-header">
-                        <button class="calendar-nav" onclick="previousMonth()">&lt;</button>
+                        <button class="calendar-nav" id="prevMonthBtn">&lt;</button>
                         <h3 id="currentMonth">December 2024</h3>
-                        <button class="calendar-nav" onclick="nextMonth()">&gt;</button>
+                        <button class="calendar-nav" id="nextMonthBtn">&gt;</button>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid">
+                    <div class="calendar-grid" id="calendarDays">
                         <!-- Calendar will be populated here -->
                     </div>
                 </div>
@@ -408,43 +415,75 @@
                 </div>
             </section>
 
-            <!-- Notion Guides Section -->
-            <section class="content-section" id="notion-guides">
+            <!-- Projects Section -->
+            <section class="content-section" id="projects">
                 <div class="page-header">
-                    <h1>🧭 Notion Guides & Roadmaps</h1>
-                    <p class="page-subtitle">Search and view guides from your connected Notion workspace</p>
+                    <h1>📁 Project Planning</h1>
+                    <p class="page-subtitle">Manage your academic and personal projects</p>
+                    <button class="btn-primary" id="addNewProjectBtn">+ New Project</button>
                 </div>
-
-                <div class="goals-filters" style="margin-bottom: 1rem;">
-                    <div style="display:flex; gap:.5rem; flex:1;">
-                        <input id="notionSearchInput" type="text" placeholder="Search Notion pages, databases..."
-                            style="flex:1; padding:.7rem 1rem; border:1px solid #e6e6e3; border-radius:8px;">
-                        <select id="notionFilterType"
-                            style="padding:.7rem 1rem; border:1px solid #e6e6e3; border-radius:8px;">
-                            <option value="all">All</option>
-                            <option value="page">Pages</option>
-                            <option value="database">Databases</option>
-                        </select>
-                        <button class="btn-primary" id="notionSearchBtn">Search</button>
-                    </div>
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- Projects will be populated here -->
                 </div>
+            </section>
 
-                <div id="notionStatus" class="notification info" style="display:none;"></div>
-
-                <div id="notionResults" class="notes-grid" aria-live="polite">
-                    <!-- Results populated here -->
+            <!-- Resources Section -->
+            <section class="content-section" id="resources">
+                <div class="page-header">
+                    <h1>🔗 Resources & Links</h1>
+                    <p class="page-subtitle">Save important links, documents, and materials</p>
+                    <button class="btn-primary js-add-resource">+ Add Resource</button>
                 </div>
+                <div class="resources-grid" id="resourcesGrid">
+                    <!-- Resources will be populated here -->
+                </div>
+            </section>
 
-                <div id="notionViewer" style="margin-top:2rem; display:none;">
-                    <div class="page-header" style="margin-bottom:1rem;">
-                        <h2 id="notionViewerTitle" style="margin-bottom:.5rem;">Selected Page</h2>
-                        <div style="display:flex; gap:.5rem;">
-                            <a id="notionOpenLink" href="#" target="_blank" rel="noopener" class="btn btn-outline">Open
-                                in Notion ↗</a>
-                            <button class="btn-secondary" id="closeViewerBtn">Close</button>
-                        </div>
-                    </div>
-                    <div id="notionContent" class="notion-content skeleton"></div>
+            <!-- Courses Section -->
+            <section class="content-section" id="courses">
+                <div class="page-header">
+                    <h1>📚 Course Tracker</h1>
+                    <p class="page-subtitle">Monitor your academic progress and grades</p>
+                    <button class="btn-primary js-add-course">+ Add Course</button>
+                </div>
+                <div class="courses-grid" id="coursesGrid">
+                    <!-- Courses will be populated here -->
+                </div>
+            </section>
+
+            <!-- Applications Section -->
+            <section class="content-section" id="applications">
+                <div class="page-header">
+                    <h1>📄 Application Tracker</h1>
+                    <p class="page-subtitle">Track your university and job applications</p>
+                    <button class="btn-primary js-add-application">+ New Application</button>
+                </div>
+                <div class="applications-list" id="applicationsList">
+                    <!-- Applications will be populated here -->
+                </div>
+            </section>
+
+            <!-- Scholarship Tracker Section -->
+            <section class="content-section" id="scholarships-tracker">
+                <div class="page-header">
+                    <h1>💰 Scholarship Tracker</h1>
+                    <p class="page-subtitle">Manage your scholarship hunt and status</p>
+                    <button class="btn-primary js-add-scholarship-track">+ Add Scholarship</button>
+                </div>
+                <div class="scholarships-list" id="scholarshipTrackerList">
+                    <!-- Scholarships will be populated here -->
+                </div>
+            </section>
+
+            <!-- Deadlines Section -->
+            <section class="content-section" id="deadlines">
+                <div class="page-header">
+                    <h1>⏰ Upcoming Deadlines</h1>
+                    <p class="page-subtitle">Never miss an important date</p>
+                    <button class="btn-primary js-add-deadline">+ Add Deadline</button>
+                </div>
+                <div class="deadlines-list" id="allDeadlinesList">
+                    <!-- Deadlines will be populated here -->
                 </div>
             </section>
         </main>
@@ -454,7 +493,7 @@
             <div class="modal-content goal-modal-content">
                 <div class="modal-header">
                     <h2 id="goalModalTitle">Create New Goal</h2>
-                    <button class="close-modal" onclick="closeGoalModal()" aria-label="Close modal">&times;</button>
+                    <button class="close-modal js-close-goal-modal" aria-label="Close modal">&times;</button>
                 </div>
 
                 <form id="goalForm">
@@ -506,15 +545,15 @@
                         <div class="milestones-container" id="milestonesContainer">
                             <div class="milestone-item">
                                 <input type="text" placeholder="Add a milestone...">
-                                <button type="button" onclick="removeMilestone(this)">×</button>
+                                <button type="button" class="js-remove-milestone">×</button>
                             </div>
                         </div>
-                        <button type="button" class="btn-add-milestone" onclick="addMilestone()">+ Add
+                        <button type="button" class="btn-add-milestone js-add-milestone">+ Add
                             Milestone</button>
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="closeGoalModal()">Cancel</button>
+                        <button type="button" class="btn-secondary js-close-goal-modal">Cancel</button>
                         <button type="submit" class="btn-primary">Save Goal</button>
                     </div>
                 </form>
@@ -526,15 +565,15 @@
             <div class="modal-content note-modal-content">
                 <div class="modal-header">
                     <input type="text" id="noteTitle" placeholder="Untitled Note" class="note-title-input">
-                    <button class="close-modal" onclick="closeNoteModal()" aria-label="Close modal">&times;</button>
+                    <button class="close-modal js-close-note-modal" aria-label="Close modal">&times;</button>
                 </div>
 
                 <div class="note-toolbar">
-                    <button class="toolbar-btn" onclick="formatText('bold')"><b>B</b></button>
-                    <button class="toolbar-btn" onclick="formatText('italic')"><i>I</i></button>
-                    <button class="toolbar-btn" onclick="formatText('underline')"><u>U</u></button>
-                    <button class="toolbar-btn" onclick="insertList()">• List</button>
-                    <button class="toolbar-btn" onclick="insertLink()">🔗 Link</button>
+                    <button class="toolbar-btn" data-cmd="bold"><b>B</b></button>
+                    <button class="toolbar-btn" data-cmd="italic"><i>I</i></button>
+                    <button class="toolbar-btn" data-cmd="underline"><u>U</u></button>
+                    <button class="toolbar-btn" data-cmd="list">• List</button>
+                    <button class="toolbar-btn" data-cmd="link">🔗 Link</button>
                 </div>
 
                 <div class="note-editor">
@@ -542,12 +581,30 @@
                 </div>
 
                 <div class="note-actions">
-                    <button class="btn-secondary" onclick="closeNoteModal()">Close</button>
-                    <button class="btn-primary" onclick="saveNote()">Save Note</button>
+                    <button class="btn-secondary" id="closeNoteModalBtn">Close</button>
+                    <button class="btn-primary" id="saveNoteBtn">Save Note</button>
                 </div>
             </div>
         </div>
 
+        <!-- Universal Add Item Modal -->
+        <div class="add-item-modal" id="universalAddModal">
+            <div class="add-modal-content">
+                <div class="add-modal-header">
+                    <h2 id="addModalTitle">Add Item</h2>
+                    <button class="add-modal-close" onclick="closeAddModal()">&times;</button>
+                </div>
+                <form id="universalAddForm">
+                    <div id="addModalFields"></div>
+                    <div class="add-form-actions">
+                        <button type="button" class="btn-add-cancel" onclick="closeAddModal()">Cancel</button>
+                        <button type="submit" class="btn-add-submit">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script defer src="../assets/js/auth-api.js"></script>
         <script defer src="../assets/js/global.js"></script>
         <script defer src="../assets/js/main.js"></script>
         <script defer src="../assets/js/notion.js"></script>
@@ -555,4 +612,3 @@
 </body>
 
 </html>
-

@@ -1493,18 +1493,35 @@ footer {
         flex-direction: column;
         width: 100%;
         position: fixed;
-        /* Fixed to cover screen correctly */
-        top: 70px;
-        /* Below header */
+        top: 60px;
+        /* Reduced to match header height */
         left: 0;
-        background: var(--header-bg);
-        padding: 2rem;
+        height: calc(100vh - 60px);
+        background: var(--bg-primary);
+        /* Use a solid background for contrast */
+        padding: 3rem 2rem;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        z-index: 1001;
+        z-index: 2001;
+        /* Above almost everything */
+        overflow-y: auto;
+        text-align: center;
+        gap: 2rem !important;
     }
 
     .nav-menu.active {
-        display: flex;
+        display: flex !important;
+    }
+
+    .nav-menu a {
+        color: var(--text-primary) !important;
+        font-size: 1.25rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--divider-color);
+        width: 100%;
+    }
+
+    .nav-menu li {
+        width: 100%;
     }
 
     .auth-buttons {

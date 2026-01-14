@@ -109,6 +109,7 @@
     <meta name="twitter:description" content="Find academic and career roadmaps.">
     <meta name="twitter:image" content="https://BraineX.example/og-image.png">
     <link rel="preload" as="style" href="../assets/css/main.css">
+    <script src="../assets/js/theme.js"></script>
 </head>
 
 <body>
@@ -120,24 +121,24 @@
                     <span>BraineX</span>
                 </div>
                 <button class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu"
-                    aria-controls="navMenu" aria-expanded="false" onclick="toggleMenu()">☰</button>
+                    aria-controls="navMenu" aria-expanded="false">☰</button>
                 <ul class="nav-menu" id="navMenu">
-                    <li><a href="./main.html">Home</a></li>
-                    <li><a href="./fields.html">Fields</a></li>
-                    <li><a href="./scholarships.html">Scholarships</a></li>
-                    <li><a href="./projects.html">Projects</a></li>
-                    <li><a href="./roadmaps.html" class="active">Roadmaps</a></li>
-                    <li><a href="./mentors.html">Mentors</a></li>
-                    <li><a href="./events.html">Events</a></li>
-                    <li><a href="./notion.html">My Goals</a></li>
-                    <li><a href="./about.html">About</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/fields">Fields</a></li>
+                    <li><a href="/scholarships">Scholarships</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/roadmaps" class="active">Roadmaps</a></li>
+                    <li><a href="/mentors">Mentors</a></li>
+                    <li><a href="/events">Events</a></li>
+                    <li><a href="/notion">My Goals</a></li>
+                    <li><a href="/about">About</a></li>
                 </ul>
                 <div class="auth-buttons">
                     <a href="#login" class="btn btn-outline">Log In</a>
                     <a href="#signup" class="btn btn-primary">Sign Up</a>
                 </div>
-                <button class="theme-toggle" type="button" onclick="toggleTheme()" aria-label="Toggle color theme"
-                    aria-pressed="false">🌙 Dark</button>
+                <button class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false">🌙
+                    Dark</button>
             </nav>
         </div>
     </header>
@@ -212,7 +213,8 @@
                             </div>
                         </div>
 
-                        <button class="btn-roadmap">Start Roadmap</button>
+                        <a href="#" class="btn-roadmap" style="text-decoration: none; text-align: center;">Start
+                            Roadmap</a>
                     </div>
 
                     <div class="roadmap-card">
@@ -243,7 +245,8 @@
                             </div>
                         </div>
 
-                        <button class="btn-roadmap">Start Roadmap</button>
+                        <a href="#" class="btn-roadmap" style="text-decoration: none; text-align: center;">Start
+                            Roadmap</a>
                     </div>
 
                     <div class="roadmap-card">
@@ -274,7 +277,8 @@
                             </div>
                         </div>
 
-                        <button class="btn-roadmap">Start Roadmap</button>
+                        <a href="#" class="btn-roadmap" style="text-decoration: none; text-align: center;">Start
+                            Roadmap</a>
                     </div>
                 </div>
             </div>
@@ -391,10 +395,10 @@
         </div>
     </footer>
 
+    <script defer src="../assets/js/auth-api.js"></script>
     <script defer src="../assets/js/global.js"></script>
     <script defer src="../assets/js/main.js"></script>
     <script defer src="../assets/js/roadmaps.js"></script>
 </body>
 
 </html>
-

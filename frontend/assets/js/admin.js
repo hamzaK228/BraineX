@@ -31,14 +31,16 @@ document.addEventListener('DOMContentLoaded', async function () {
 function checkAdminAuth() {
     // Ensure authAPI is initialized
     if (typeof window.authAPI === 'undefined') {
-        console.error('AuthAPI not loaded');
-        window.location.href = 'main.html';
+        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            console.error('AuthAPI not loaded');
+        }
+        window.location.href = '/';
         return false;
     }
 
     if (!window.authAPI.isAuthenticated()) {
         // Not logged in at all
-        window.location.href = 'main.html#login';
+        window.location.href = '/#login';
         return false;
     }
 
@@ -46,7 +48,7 @@ function checkAdminAuth() {
         // Logged in but not admin
         showNotification('Access denied. Admin privileges required.', 'error');
         setTimeout(() => {
-            window.location.href = 'main.html';
+            window.location.href = '/';
         }, 2000);
         return false;
     }
@@ -56,12 +58,14 @@ function checkAdminAuth() {
 
 // Sidebar navigation
 function initializeSidebarNavigation() {
-    document.querySelectorAll('.menu-link').forEach(link => {
-        link.addEventListener('click', function (e) {
+    document.querySelector('.admin-sidebar').addEventListener('click', function (e) {
+        // Handle menu links
+        const link = e.target.closest('.menu-link');
+        if (link) {
             e.preventDefault();
-            const section = this.getAttribute('data-section');
+            const section = link.getAttribute('data-section');
             switchAdminSection(section);
-        });
+        }
     });
 }
 
@@ -144,10 +148,11 @@ async function loadDashboard() {
 }
 
 function updateDashboardStats(stats) {
-    if (document.getElementById('totalUsers')) document.getElementById('totalUsers').textContent = stats.users || 0;
-    if (document.getElementById('totalScholarships')) document.getElementById('totalScholarships').textContent = stats.scholarships || 0;
-    if (document.getElementById('totalMentors')) document.getElementById('totalMentors').textContent = stats.mentors || 0;
-    if (document.getElementById('monthlyRevenue')) document.getElementById('monthlyRevenue').textContent = '$45,250'; // Mock
+    // Fix property names to match backend API response
+    if (document.getElementById('totalUsers')) document.getElementById('totalUsers').textContent = stats.users?.total || stats.totalUsers || 0;
+    if (document.getElementById('totalScholarships')) document.getElementById('totalScholarships').textContent = stats.totalScholarships || 0;
+    if (document.getElementById('totalMentors')) document.getElementById('totalMentors').textContent = stats.totalMentors || 0;
+    if (document.getElementById('monthlyRevenue')) document.getElementById('monthlyRevenue').textContent = '$' + (stats.monthlyRevenue || 45250).toLocaleString();
 }
 
 function loadRecentActivity() {
@@ -197,9 +202,9 @@ function renderScholarshipsTable(scholarships) {
             <td><span class="status-badge status-${scholarship.status}">${scholarship.status}</span></td>
             <td>
                 <div class="table-actions">
-                    <button class="btn-table btn-edit" onclick="editScholarship('${scholarship.id || scholarship._id}')">Edit</button>
-                    <button class="btn-table btn-view" onclick="viewScholarship('${scholarship.id || scholarship._id}')">View</button>
-                    <button class="btn-table btn-delete" onclick="deleteScholarship('${scholarship.id || scholarship._id}')">Delete</button>
+                    <button class="btn-table btn-edit" data-action="edit-scholarship" data-id="${scholarship.id || scholarship._id}">Edit</button>
+                    <button class="btn-table btn-view" data-action="view-scholarship" data-id="${scholarship.id || scholarship._id}">View</button>
+                    <button class="btn-table btn-delete" data-action="delete-scholarship" data-id="${scholarship.id || scholarship._id}">Delete</button>
                 </div>
             </td>
         </tr>
@@ -236,9 +241,9 @@ function renderMentorsTable(mentors) {
             <td><span class="status-badge status-${mentor.status}">${mentor.status}</span></td>
             <td>
                 <div class="table-actions">
-                    <button class="btn-table btn-edit" onclick="editMentor('${mentor.id || mentor._id}')">Edit</button>
-                    <button class="btn-table btn-view" onclick="viewMentor('${mentor.id || mentor._id}')">View</button>
-                    <button class="btn-table btn-delete" onclick="deleteMentor('${mentor.id || mentor._id}')">Delete</button>
+                    <button class="btn-table btn-edit" data-action="edit-mentor" data-id="${mentor.id || mentor._id}">Edit</button>
+                    <button class="btn-table btn-view" data-action="view-mentor" data-id="${mentor.id || mentor._id}">View</button>
+                    <button class="btn-table btn-delete" data-action="delete-mentor" data-id="${mentor.id || mentor._id}">Delete</button>
                 </div>
             </td>
         </tr>
@@ -279,8 +284,8 @@ function renderFieldsGrid(fields) {
                 <span>Salary: ${field.salary || 'N/A'}</span>
             </div>
             <div class="table-actions">
-                <button class="btn-table btn-edit" onclick="editField('${field.id || field._id}')">Edit</button>
-                <button class="btn-table btn-delete" onclick="deleteField('${field.id || field._id}')">Delete</button>
+                <button class="btn-table btn-edit" data-action="edit-field" data-id="${field.id || field._id}">Edit</button>
+                <button class="btn-table btn-delete" data-action="delete-field" data-id="${field.id || field._id}">Delete</button>
             </div>
         </div>
     `).join('');
@@ -305,7 +310,37 @@ async function loadUsersTable() {
 
 // --- Forms & CRUD ---
 
+// --- Forms & CRUD & Event Delegation ---
+
 function initializeFormHandlers() {
+    // Global Click Delegation for Table Actions and Modals
+    document.addEventListener('click', async function (e) {
+        const target = e.target;
+
+        // Table Actions
+        if (target.matches('[data-action="edit-scholarship"]')) editScholarship(target.dataset.id);
+        if (target.matches('[data-action="view-scholarship"]')) viewScholarship(target.dataset.id);
+        if (target.matches('[data-action="delete-scholarship"]')) deleteScholarship(target.dataset.id);
+
+        if (target.matches('[data-action="edit-mentor"]')) editMentor(target.dataset.id);
+        if (target.matches('[data-action="view-mentor"]')) viewMentor(target.dataset.id);
+        if (target.matches('[data-action="delete-mentor"]')) deleteMentor(target.dataset.id);
+
+        if (target.matches('[data-action="edit-field"]')) editField(target.dataset.id);
+        if (target.matches('[data-action="delete-field"]')) deleteField(target.dataset.id);
+
+        // Modal Openers
+        if (target.matches('.js-add-scholarship')) showAddScholarshipModal();
+        if (target.matches('.js-add-mentor')) showAddMentorModal();
+        if (target.matches('.js-add-field')) showAddFieldModal();
+
+        // Modal Closers
+        if (target.matches('.js-close-admin-modal') || target.matches('.close-modal')) closeAdminModal();
+
+        // Logout
+        if (target.matches('.js-logout')) window.logout();
+    });
+
     // Scholarship form
     const scholarshipForm = document.getElementById('addScholarshipForm');
     if (scholarshipForm) {
@@ -640,7 +675,7 @@ window.deleteField = async function (id) {
 // Logout
 window.logout = function () {
     window.authAPI.logout();
-    window.location.href = 'main.html';
+    window.location.href = '/';
 };
 
 // Notification function

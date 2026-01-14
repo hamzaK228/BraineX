@@ -1,6 +1,6 @@
 // Projects Page Full Functionality
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeProjectsPage();
     loadProjectsData();
     setupProjectFilters();
@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeProjectsPage() {
     // Load projects from localStorage or create sample data
     let projects = JSON.parse(localStorage.getItem('projects')) || [];
-    
+
     if (projects.length === 0) {
         projects = getSampleProjects();
         localStorage.setItem('projects', JSON.stringify(projects));
     }
-    
+
     displayProjects(projects);
     updateProjectStats(projects);
 }
@@ -366,19 +366,19 @@ function getSampleProjects() {
 function displayProjects(projects) {
     const projectsGrid = document.getElementById('projectsGrid');
     if (!projectsGrid) return;
-    
+
     projectsGrid.innerHTML = projects.map(project => createProjectCard(project)).join('');
 }
 
 function createProjectCard(project) {
     const progressColor = project.progress >= 80 ? '#28a745' : project.progress >= 50 ? '#ffc107' : '#dc3545';
-    
+
     return `
         <div class=\"project-card enhanced\" data-project-id=\"${project.id}\" data-category=\"${project.category}\" data-status=\"${project.status}\">
             <div class="project-badge ${project.status}">
-                ${project.status === 'recruiting' ? '🔍 Recruiting' : 
-                  project.status === 'active' ? '⚡ Active' : 
-                  project.status === 'completed' ? '✅ Completed' : '📋 Planning'}
+                ${project.status === 'recruiting' ? '🔍 Recruiting' :
+            project.status === 'active' ? '⚡ Active' :
+                project.status === 'completed' ? '✅ Completed' : '📋 Planning'}
             </div>
             
             <div class="project-header">
@@ -424,26 +424,26 @@ function createProjectCard(project) {
                 </div>
                 
                 <div class="project-skills">
-                    ${project.skills.slice(0, 4).map(skill => 
-                        `<span class="skill-tag">${skill}</span>`
-                    ).join('')}
+                    ${project.skills.slice(0, 4).map(skill =>
+                    `<span class="skill-tag">${skill}</span>`
+                ).join('')}
                 </div>
                 
                 <div class="project-tags">
-                    ${project.tags.map(tag => 
-                        `<span class="project-tag">${tag}</span>`
-                    ).join('')}
+                    ${project.tags.map(tag =>
+                    `<span class="project-tag">${tag}</span>`
+                ).join('')}
                 </div>
             </div>
             
             <div class="project-actions">
-                <button class="btn-project-primary" onclick="viewProjectDetails(${project.id})">
+                <button class="btn-project-primary js-view-details" data-id="${project.id}">
                     View Details
                 </button>
-                <button class="btn-project-secondary" onclick="applyToProject(${project.id})">
+                <button class="btn-project-secondary js-apply" data-id="${project.id}">
                     ${project.status === 'recruiting' ? 'Apply Now' : 'Join Project'}
                 </button>
-                <button class="btn-project-bookmark" onclick="bookmarkProject(${project.id})" title="Bookmark">
+                <button class="btn-project-bookmark js-bookmark" data-id="${project.id}" title="Bookmark">
                     🔖
                 </button>
             </div>
@@ -451,18 +451,41 @@ function createProjectCard(project) {
     `;
 }
 
+function initializeProjectActions() {
+    document.addEventListener('click', function (e) {
+        const viewBtn = e.target.closest('.js-view-details');
+        if (viewBtn) {
+            const id = parseInt(viewBtn.getAttribute('data-id'));
+            viewProjectDetails(id);
+        }
+
+        const applyBtn = e.target.closest('.js-apply');
+        if (applyBtn) {
+            const id = parseInt(applyBtn.getAttribute('data-id'));
+            applyToProject(id);
+        }
+
+        const bookmarkBtn = e.target.closest('.js-bookmark');
+        if (bookmarkBtn) {
+            const id = parseInt(bookmarkBtn.getAttribute('data-id'));
+            bookmarkProject(id);
+        }
+    });
+}
+
+
 function setupProjectFilters() {
     const categoryBtns = document.querySelectorAll('.category-card');
     const filterSelects = document.querySelectorAll('.filter-select');
-    
+
     categoryBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const category = this.getAttribute('data-category') || 
-                           this.querySelector('h3').textContent.toLowerCase().replace(' ', '');
+        btn.addEventListener('click', function () {
+            const category = this.getAttribute('data-category') ||
+                this.querySelector('h3').textContent.toLowerCase().replace(' ', '');
             filterProjects(category);
         });
     });
-    
+
     filterSelects.forEach(select => {
         select.addEventListener('change', applyAllFilters);
     });
@@ -471,25 +494,25 @@ function setupProjectFilters() {
 function filterProjects(category) {
     const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
     let filtered = projects;
-    
+
     if (category && category !== 'all') {
         const categoryMap = {
             'research': 'research',
-            'tech': 'tech', 
+            'tech': 'tech',
             'social': 'social',
             'business': 'business',
             'innovation': 'tech'
         };
-        
+
         const filterCategory = categoryMap[category] || category;
         filtered = projects.filter(p => p.category === filterCategory);
     }
-    
+
     displayProjects(filtered);
-    
+
     // Scroll to projects section
     document.getElementById('projectDirectory')?.scrollIntoView({ behavior: 'smooth' });
-    
+
     BraineX.showNotification(`Found ${filtered.length} projects in ${category} category`, 'success');
 }
 
@@ -497,23 +520,23 @@ function applyAllFilters() {
     const categoryFilter = document.getElementById('categoryFilter')?.value;
     const statusFilter = document.getElementById('statusFilter')?.value;
     const sortFilter = document.getElementById('sortFilter')?.value;
-    
+
     const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
     let filtered = [...projects];
-    
+
     // Apply category filter
     if (categoryFilter) {
         filtered = filtered.filter(p => p.category === categoryFilter);
     }
-    
+
     // Apply status filter
     if (statusFilter) {
         filtered = filtered.filter(p => p.status === statusFilter);
     }
-    
+
     // Apply sorting
     if (sortFilter) {
-        switch(sortFilter) {
+        switch (sortFilter) {
             case 'newest':
                 filtered.sort((a, b) => new Date(b.created) - new Date(a.created));
                 break;
@@ -528,7 +551,7 @@ function applyAllFilters() {
                 break;
         }
     }
-    
+
     displayProjects(filtered);
 }
 
@@ -542,7 +565,7 @@ function setupProjectModals() {
             btn.onclick = () => document.getElementById('projectDirectory')?.scrollIntoView({ behavior: 'smooth' });
         }
     });
-    
+
     // Featured project buttons
     document.querySelectorAll('.btn-project-primary').forEach(btn => {
         const card = btn.closest('.project-featured-card');
@@ -561,7 +584,7 @@ function openCreateProjectModal() {
         BraineX.openModal('loginModal');
         return;
     }
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.innerHTML = `
@@ -670,20 +693,43 @@ function openCreateProjectModal() {
             </form>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setupProjectFormHandlers();
 }
 
+// Aliases for HTML accessibility
+window.openProjectModal = openCreateProjectModal;
+window.closeProjectModal = function () {
+    const modal = document.querySelector('.project-create-modal');
+    if (modal) {
+        modal.closest('.modal').remove();
+    }
+};
+
+// Ensure login modal fallback
+const originalOpenModal = BraineX.openModal;
+BraineX.openModal = function (id) {
+    const modal = document.getElementById(id);
+    if (!modal && id === 'loginModal') {
+        // Fallback if login modal is not present in this page
+        alert('Please log in to continue (Auth Modal not present in this page)');
+        // Ideally redirect to home where modal exists
+        // window.location.href = '/main.html#login';
+        return;
+    }
+    if (originalOpenModal) originalOpenModal(id);
+};
+
 function setupProjectFormHandlers() {
     let currentStep = 1;
-    
-    window.nextStep = function() {
+
+    window.nextStep = function () {
         if (currentStep < 2) {
             document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
             currentStep++;
             document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
-            
+
             document.querySelector('.btn-prev').style.display = 'block';
             if (currentStep === 2) {
                 document.querySelector('.btn-next').style.display = 'none';
@@ -691,13 +737,13 @@ function setupProjectFormHandlers() {
             }
         }
     };
-    
-    window.prevStep = function() {
+
+    window.prevStep = function () {
         if (currentStep > 1) {
             document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
             currentStep--;
             document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
-            
+
             if (currentStep === 1) {
                 document.querySelector('.btn-prev').style.display = 'none';
             }
@@ -705,15 +751,15 @@ function setupProjectFormHandlers() {
             document.querySelector('.btn-create').style.display = 'none';
         }
     };
-    
-    document.getElementById('createProjectForm').addEventListener('submit', function(e) {
+
+    document.getElementById('createProjectForm').addEventListener('submit', function (e) {
         const submitBtn = this.querySelector('.btn-create');
         setLoadingState(submitBtn, true, 'Creating...');
         e.preventDefault();
-        
+
         const formData = new FormData(this);
         const user = JSON.parse(localStorage.getItem('BraineX_user'));
-        
+
         const newProject = {
             id: Date.now(),
             title: formData.get('title'),
@@ -730,7 +776,7 @@ function setupProjectFormHandlers() {
             applications: 0,
             views: 1,
             created: new Date().toISOString().split('T')[0],
-            deadline: new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0], // 1 year from now
+            deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
             image: getRandomProjectIcon(),
             universities: [user.email.split('@')[1] || 'University'],
             mentor: 'TBD',
@@ -738,19 +784,19 @@ function setupProjectFormHandlers() {
             outcomes: ['Project completion', 'Learning experience'],
             collaboration: 'Remote collaboration welcome'
         };
-        
+
         // Save project
         const projects = JSON.parse(localStorage.getItem('projects')) || [];
         projects.unshift(newProject);
         localStorage.setItem('projects', JSON.stringify(projects));
-        
+
         // Close modal and refresh
         this.closest('.modal').remove();
-       setLoadingState(document.querySelector('.btn-create'), false);
-       displayProjects(projects);
-       
-       BraineX.showNotification(`Project "${newProject.title}" created successfully!`, 'success');
-        
+        setLoadingState(document.querySelector('.btn-create'), false);
+        displayProjects(projects);
+
+        BraineX.showNotification(`Project "${newProject.title}" created successfully!`, 'success');
+
         // Scroll to the new project
         setTimeout(() => {
             document.getElementById('projectDirectory')?.scrollIntoView({ behavior: 'smooth' });
@@ -766,12 +812,12 @@ function getRandomProjectIcon() {
 function viewProjectDetails(projectId) {
     const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
     const project = projects.find(p => p.id === projectId);
-    
+
     if (!project) {
         BraineX.showNotification('Project not found', 'error');
         return;
     }
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.innerHTML = `
@@ -862,7 +908,7 @@ function viewProjectDetails(projectId) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 }
 
@@ -873,15 +919,15 @@ function applyToProject(projectId) {
         BraineX.openModal('loginModal');
         return;
     }
-    
+
     const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
     const project = projects.find(p => p.id === projectId);
-    
+
     if (!project) {
         BraineX.showNotification('Project not found', 'error');
         return;
     }
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.innerHTML = `
@@ -938,18 +984,18 @@ function applyToProject(projectId) {
             </form>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
-    document.getElementById('projectApplicationForm').addEventListener('submit', function(e) {
+
+    document.getElementById('projectApplicationForm').addEventListener('submit', function (e) {
         const submitBtn = this.querySelector('.btn-primary[type="submit"]') || this.querySelector('.btn-primary');
         setLoadingState(submitBtn, true, 'Submitting...');
         e.preventDefault();
-        
+
         // Save application
         const applications = JSON.parse(localStorage.getItem('project_applications')) || [];
         const formData = new FormData(this);
-        
+
         const application = {
             projectId: projectId,
             projectTitle: project.title,
@@ -963,21 +1009,21 @@ function applyToProject(projectId) {
             appliedAt: new Date().toISOString(),
             status: 'pending'
         };
-        
+
         applications.push(application);
         localStorage.setItem('project_applications', JSON.stringify(applications));
-        
+
         // Update project application count
-        const updatedProjects = projects.map(p => 
-            p.id === projectId ? {...p, applications: p.applications + 1} : p
+        const updatedProjects = projects.map(p =>
+            p.id === projectId ? { ...p, applications: p.applications + 1 } : p
         );
         localStorage.setItem('projects', JSON.stringify(updatedProjects));
-        
+
         this.closest('.modal').remove();
-       setLoadingState(document.querySelector('.application-form .btn-primary[type="submit"]'), false);
-       BraineX.showNotification('Application submitted successfully! The team will review and get back to you.', 'success');
-       
-       // Refresh projects display
+        setLoadingState(document.querySelector('.application-form .btn-primary[type="submit"]'), false);
+        BraineX.showNotification('Application submitted successfully! The team will review and get back to you.', 'success');
+
+        // Refresh projects display
         displayProjects(updatedProjects);
     });
 }
@@ -985,12 +1031,12 @@ function applyToProject(projectId) {
 function contactProjectTeam(projectId) {
     const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
     const project = projects.find(p => p.id === projectId);
-    
+
     if (project) {
         const message = `Hi! I'm interested in your project "${project.title}". Could we discuss potential collaboration?`;
         const subject = `Interest in ${project.title}`;
         const mailtoLink = `mailto:contact@BraineX.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-        
+
         window.open(mailtoLink, '_blank');
         BraineX.showNotification('Opening email client to contact the team', 'success');
     }
@@ -1003,9 +1049,9 @@ function bookmarkProject(projectId) {
         BraineX.openModal('loginModal');
         return;
     }
-    
+
     let bookmarks = JSON.parse(localStorage.getItem('bookmarked_projects')) || [];
-    
+
     if (bookmarks.includes(projectId)) {
         bookmarks = bookmarks.filter(id => id !== projectId);
         BraineX.showNotification('Project removed from bookmarks', 'info');
@@ -1013,7 +1059,7 @@ function bookmarkProject(projectId) {
         bookmarks.push(projectId);
         BraineX.showNotification('Project bookmarked successfully!', 'success');
     }
-    
+
     localStorage.setItem('bookmarked_projects', JSON.stringify(bookmarks));
 }
 
@@ -1054,13 +1100,13 @@ function showFeaturedProjectDetails(title) {
             impact: "Personalizing education for over 10,000 students across 15 schools"
         }
     };
-    
+
     const data = featuredData[title];
     if (!data) {
         BraineX.showNotification('Project details not available', 'error');
         return;
     }
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal show';
     modal.innerHTML = `
@@ -1135,7 +1181,7 @@ function showFeaturedProjectDetails(title) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 }
 
@@ -1151,19 +1197,19 @@ function updateProjectStats(projects) {
 }
 
 // Initialize category button handlers
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Enhanced category button functionality
     document.querySelectorAll('.btn-category').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const card = this.closest('.category-card');
             const categoryText = card.querySelector('h3').textContent;
-            
+
             let category = 'all';
             if (categoryText.includes('Research')) category = 'research';
             else if (categoryText.includes('Tech')) category = 'tech';
             else if (categoryText.includes('Social')) category = 'social';
             else if (categoryText.includes('Entrepreneurship')) category = 'business';
-            
+
             filterProjects(category);
         });
     });
@@ -1175,9 +1221,9 @@ function initializeProjectActions() {
     document.querySelectorAll('.btn-start-project, .btn-new-project').forEach(btn => {
         btn.addEventListener('click', showStartProjectModal);
     });
-    
+
     document.querySelectorAll('.btn-browse-projects, .btn-browse').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             document.querySelector('#projectsGrid, .projects-grid')?.scrollIntoView({ behavior: 'smooth' });
         });
     });
@@ -1191,7 +1237,7 @@ function showStartProjectModal() {
         background: rgba(0, 0, 0, 0.8); display: flex; align-items: center;
         justify-content: center; z-index: 10000;
     `;
-    
+
     modal.innerHTML = `
         <div class="modal-content" style="
             background: white; border-radius: 20px; padding: 40px; max-width: 600px;
@@ -1242,14 +1288,14 @@ function showStartProjectModal() {
             </form>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
     modal.querySelector('.btn-cancel').addEventListener('click', () => modal.remove());
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-    
-    modal.querySelector('#startProjectForm').addEventListener('submit', function(e) {
+
+    modal.querySelector('#startProjectForm').addEventListener('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const projectData = {
@@ -1265,14 +1311,14 @@ function showStartProjectModal() {
             teamSize: 1,
             funding: 0
         };
-        
+
         const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
         projects.unshift(projectData);
         localStorage.setItem('projects', JSON.stringify(projects));
-        
+
         BraineX.showNotification('🎉 Project created successfully!', 'success');
         modal.remove();
-        
+
         setTimeout(() => {
             displayProjects(projects);
             updateProjectStats(projects);
@@ -1284,16 +1330,16 @@ function setupCategoryExplore() {
     document.querySelectorAll('.category-card, .research-category').forEach(card => {
         const exploreBtn = card.querySelector('.btn-explore-category, .btn-explore, button');
         if (exploreBtn && exploreBtn.textContent.toLowerCase().includes('explore')) {
-            exploreBtn.addEventListener('click', function() {
+            exploreBtn.addEventListener('click', function () {
                 const categoryName = card.querySelector('h3, h4')?.textContent || 'research';
                 const category = categoryName.toLowerCase().includes('research') ? 'research' :
-                               categoryName.toLowerCase().includes('tech') ? 'tech' :
-                               categoryName.toLowerCase().includes('social') ? 'social' : 'startup';
-                
+                    categoryName.toLowerCase().includes('tech') ? 'tech' :
+                        categoryName.toLowerCase().includes('social') ? 'social' : 'startup';
+
                 const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
                 const filtered = projects.filter(p => p.category === category);
                 displayProjects(filtered);
-                
+
                 document.querySelector('#projectsGrid, .projects-grid')?.scrollIntoView({ behavior: 'smooth' });
                 BraineX.showNotification(`Found ${filtered.length} ${category} projects`, 'success');
             });
