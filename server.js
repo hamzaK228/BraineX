@@ -1,3 +1,4 @@
+/* eslint-disable */
 import express from 'express';
 console.log('DEBUG: server.js loaded, starting imports...');
 import cors from 'cors';

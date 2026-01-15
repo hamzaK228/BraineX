@@ -1,0 +1,230 @@
+﻿
+C:\Users\MMM\Desktop
+\BraineX-main\databa
+se\migrate.js: line 
+51, col 9, Error - 
+Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+C:\Users\MMM\Desktop
+\BraineX-main\databa
+se\seed.js: line 
+129, col 9, Error - 
+Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 2, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 3, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 4, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 5, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 6, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 7, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 8, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 9, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 10, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 11, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\debug.
+js: line 12, col 7, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\fronte
+nd\service-worker.js
+: line 2, col 7, 
+Error - 
+'CACHE_NAME' is 
+assigned a value 
+but never used. 
+(no-unused-vars)
+C:\Users\MMM\Desktop
+\BraineX-main\fronte
+nd\service-worker.js
+: line 133, col 9, 
+Error - 'clients' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\jest.c
+onfig.js: line 1, 
+col 1, Error - 
+'module' is not 
+defined. (no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\reprod
+uce_issue.js: line 
+1, col 15, Error - 
+'require' is not 
+defined. (no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\reprod
+uce_issue.js: line 
+2, col 16, Error - 
+'require' is not 
+defined. (no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\reprod
+uce_issue.js: line 
+3, col 7, Error - 
+'jwt' is assigned a 
+value but never 
+used. 
+(no-unused-vars)
+C:\Users\MMM\Desktop
+\BraineX-main\reprod
+uce_issue.js: line 
+3, col 13, Error - 
+'require' is not 
+defined. (no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\script
+s\seed-admin.js: 
+line 4, col 1, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\script
+s\seed-admin.js: 
+line 5, col 18, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\script
+s\seed-admin.js: 
+line 6, col 16, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\script
+s\seed-admin.js: 
+line 69, col 9, 
+Error - Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+accessibility.test.j
+s: line 1, col 26, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+accessibility.test.j
+s: line 2, col 19, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+accessibility.test.j
+s: line 45, col 9, 
+Error - Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+api.test.js: line 
+1, col 17, Error - 
+'require' is not 
+defined. (no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+api.test.js: line 
+2, col 13, Error - 
+'require' is not 
+defined. (no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+performance.test.js:
+ line 1, col 20, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+performance.test.js:
+ line 2, col 24, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+performance.test.js:
+ line 3, col 12, 
+Error - 'require' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\tests\
+performance.test.js:
+ line 45, col 9, 
+Error - Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+
+

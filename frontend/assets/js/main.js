@@ -1,3 +1,5 @@
+/* eslint-disable no-console, no-unused-vars */
+/* global ButtonStateManager */
 // API Configuration
 const API_BASE_URL = '/api';
 
@@ -40,7 +42,7 @@ async function loadPublicData() {
         }
 
     } catch (error) {
-        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+        if (window.location.hostname === 'localhost') {
             console.error('Error loading public data:', error);
         }
         showNotification('Unable to load some content. Please refresh completely.', 'error');

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Universities | BraineX</title>
+    <link rel="stylesheet" href="../../assets/css/design-system.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/universities/style.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav style="padding: 1rem 0;">
+                <a href="index.html" class="btn btn-outline">&larr; Back to List</a>
+                <h2>Compare Universities</h2>
+                <button onclick="window.print()" class="btn btn-primary">Export PDF</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 40px; padding-bottom: 4rem;">
+        <div id="comparisonContainer" style="overflow-x: auto;">
+            <!-- Table will be injected here -->
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const ids = params.get('ids') ? params.get('ids').split(',') : [];
+
+            if (ids.length === 0) {
+                document.getElementById('comparisonContainer').innerHTML = '<p>No universities selected.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('../../data/universities.json');
+                const allData = await response.json();
+                const selected = allData.filter(u => ids.includes(u.id));
+
+                renderTable(selected);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        function renderTable(universities) {
+            const props = [
+                { label: 'Global Ranking', key: 'ranking', format: v => `#${v}` },
+                { label: 'Location', key: 'location', format: v => `${v.city}, ${v.country}` },
+                { label: 'Type', key: 'type' },
+                { label: 'Tuition (Year)', key: 'tuition', format: v => `$${v.toLocaleString()}` },
+                { label: 'Acceptance Rate', key: 'acceptance_rate', format: v => `${v}%` },
+                { label: 'SAT Scores', key: 'scores', format: v => v.sat },
+                { label: 'Top Programs', key: 'programs', format: v => v.join(', ') },
+                { label: 'Website', key: 'website', format: (v, obj) => `<a href="#">Visit Site</a>` }
+            ];
+
+            let html = '<table class="comparison-table"><thead><tr><th>Feature</th>';
+            universities.forEach(u => {
+                html += `<th>
+                    <div style="text-align:center">
+                        <img src="${u.logo}" style="width:60px; height:60px; object-fit:contain; margin-bottom:1rem;">
+                        <div>${u.name}</div>
+                    </div>
+                </th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            props.forEach(prop => {
+                html += `<tr><td>${prop.label}</td>`;
+                universities.forEach(u => {
+                    let val = u[prop.key];
+                    if (prop.format) val = prop.format(val, u);
+                    html += `<td style="text-align:center">${val}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('comparisonContainer').innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

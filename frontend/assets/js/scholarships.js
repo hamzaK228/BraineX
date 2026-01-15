@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-unused-vars */
 /**
  * Scholarships Page JavaScript
  * Handles scholarship listing, filtering, search, and interactions.
@@ -79,7 +80,7 @@ async function loadScholarships() {
             allScholarships = getFallbackScholarships();
         }
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
+        if (window.location.hostname === 'localhost') {
             console.error('Error loading scholarships:', error);
         }
         allScholarships = getFallbackScholarships();

@@ -1,0 +1,43 @@
+﻿
+C:\Users\MMM\Desktop
+\BraineX-main\databa
+se\migrate.js: line 
+51, col 9, Error - 
+Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+C:\Users\MMM\Desktop
+\BraineX-main\databa
+se\seed.js: line 
+129, col 9, Error - 
+Don't use 
+process.exit(); 
+throw an error 
+instead. 
+(no-process-exit)
+C:\Users\MMM\Desktop
+\BraineX-main\fronte
+nd\service-worker.js
+: line 2, col 7, 
+Error - 
+'CACHE_NAME' is 
+assigned a value 
+but never used. 
+(no-unused-vars)
+C:\Users\MMM\Desktop
+\BraineX-main\fronte
+nd\service-worker.js
+: line 133, col 9, 
+Error - 'clients' 
+is not defined. 
+(no-undef)
+C:\Users\MMM\Desktop
+\BraineX-main\jest.c
+onfig.js: line 1, 
+col 1, Error - 
+'module' is not 
+defined. (no-undef)
+
+

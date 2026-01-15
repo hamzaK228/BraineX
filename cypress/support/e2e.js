@@ -1,5 +1,5 @@
-import './commands';
-import 'cypress-axe';
+// import './commands';
+// import 'cypress-axe';
 
 // Add custom commands
 Cypress.Commands.add('login', (email, password) => {

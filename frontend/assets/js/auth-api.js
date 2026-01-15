@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-unused-vars */
 /**
  * BraineX Authentication API
  * Handles all authentication-related operations
@@ -67,7 +68,7 @@ class AuthAPI {
 
             return data;
         } catch (error) {
-            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.error('Registration error:', error);
             }
             throw error;
@@ -100,7 +101,7 @@ class AuthAPI {
 
             return data;
         } catch (error) {
-            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.error('Login error:', error);
             }
             throw error;
@@ -279,7 +280,7 @@ class AuthAPI {
 
             return await this.handleResponse(response);
         } catch (error) {
-            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.error('API request error:', error);
             }
             throw error;

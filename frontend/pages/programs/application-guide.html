@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Assistant | BraineX</title>
+    <link rel="stylesheet" href="../../assets/css/design-system.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/programs/style.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav style="padding:1rem 0;">
+                <a href="index.html" class="btn btn-outline">&larr; Back to Programs</a>
+                <h2>Application Assistant</h2>
+                <div></div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="guide-container" style="margin-top:40px;">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:0%"></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div id="step1" class="guide-step active">
+            <h2>Step 1: Check Eligibility</h2>
+            <p>Before starting your application, verify you meet the core requirements.</p>
+
+            <div style="background:var(--uni-card-bg); padding:1.5rem; border-radius:1rem; margin:1.5rem 0;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="chk1"> <label for="chk1">I am within the age range (15-18)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="chk2"> <label for="chk2">I have valid transcripts available</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="chk3"> <label for="chk3">I can commit to the full date range</label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary js-next">Next: Preparation</button>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="step2" class="guide-step">
+            <h2>Step 2: Gather Materials</h2>
+            <p>Successfully applying requires organization. Prepare these documents now.</p>
+
+            <ul style="margin:2rem 0; line-height:2;">
+                <li>📄 <strong>High School Transcript:</strong> Request official copy from counselor.</li>
+                <li>✍️ <strong>Teacher Recommendations:</strong> Ask 2 teachers (STEM/Humanities preference).</li>
+                <li>📝 <strong>Resume/CV:</strong> Update with latest activities and awards.</li>
+                <li>💲 <strong>Tax Returns:</strong> If applying for financial aid (parents' 1040 form).</li>
+            </ul>
+
+            <div style="display:flex; gap:1rem;">
+                <button class="btn btn-outline js-prev">Back</button>
+                <button class="btn btn-primary js-next">Next: Essay Writing</button>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div id="step3" class="guide-step">
+            <h2>Step 3: Essay Strategy</h2>
+            <p>Most programs ask: "Why this program?" and "Tell us about a challenge."</p>
+
+            <div class="alert" style="background:#eff6ff; padding:1rem; border-left:4px solid #3b82f6; margin:1rem 0;">
+                <strong>Pro Tip:</strong> Be specific. Mention specific professors, labs, or curriculum details found on
+                their website.
+            </div>
+
+            <textarea class="ds-input" rows="6" placeholder="Draft your 'Why Us' essay here..."></textarea>
+
+            <div style="display:flex; gap:1rem; margin-top:1rem;">
+                <button class="btn btn-outline js-prev">Back</button>
+                <button class="btn btn-primary js-next">Next: Final Review</button>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div id="step4" class="guide-step">
+            <h2>Step 4: Final Submission Checklist</h2>
+            <p>You are ready to submit! Do one final pass.</p>
+
+            <div style="text-align:center; margin:3rem 0;">
+                <button onclick="alert('Redirecting to official portal...')" class="btn btn-lg btn-success">
+                    Go to Official Portal & Submit 🚀
+                </button>
+            </div>
+
+            <div style="display:flex; gap:1rem;">
+                <button class="btn btn-outline js-prev">Back</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../../assets/js/programs/engine.js"></script>
+</body>
+
+</html>

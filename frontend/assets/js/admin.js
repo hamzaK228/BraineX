@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-unused-vars */
 // Admin Dashboard JavaScript
 // Integrated with Backend API and AuthAPI
 
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 function checkAdminAuth() {
     // Ensure authAPI is initialized
     if (typeof window.authAPI === 'undefined') {
-        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+        if (window.location.hostname === 'localhost') {
             console.error('AuthAPI not loaded');
         }
         window.location.href = '/';

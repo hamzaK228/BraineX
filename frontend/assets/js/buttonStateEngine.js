@@ -1,9 +1,18 @@
 /**
- * BUTTON STATE ENGINE v2.0 - Production Ready
- * Mandatory implementation - NO placeholders
+ * BUTTON STATE ENGINE v2.0
+ * Manages button states (idle, loading, success, error) with accessibility support.
  */
 
 class ButtonStateEngine {
+    /**
+     * @param {HTMLButtonElement} button - The button element to manage.
+     * @param {Object} [options] - Configuration options.
+     * @param {string} [options.loadingText] - Text to show during loading.
+     * @param {number} [options.successDuration] - Duration of success state in ms.
+     * @param {number} [options.errorDuration] - Duration of error state in ms.
+     * @param {boolean} [options.preventDoubleClick] - Whether to debounce clicks.
+     * @param {string} [options.spinnerTemplate] - HTML for the loading spinner.
+     */
     constructor(button, options = {}) {
         if (!button) throw new Error('ButtonStateEngine: Valid button element required');
 
@@ -11,7 +20,6 @@ class ButtonStateEngine {
         this.originalHTML = button.innerHTML;
         this.originalDisabled = button.disabled;
         this.originalAriaLabel = button.getAttribute('aria-label') || '';
-        this.originalClasses = button.className;
 
         // State tracking
         this.currentState = 'idle';
@@ -33,30 +41,36 @@ class ButtonStateEngine {
         };
 
         this.lastClickTime = 0;
+        this.successTimer = null;
+        this.errorTimer = null;
+
         this.init();
     }
 
+    /**
+     * Initialize event listeners and ARIA attributes.
+     */
     init() {
-        // IMPLEMENT: Set initial aria attributes
         if (!this.button.getAttribute('aria-live')) {
             this.button.setAttribute('aria-live', 'polite');
         }
 
-        // IMPLEMENT: Add event listeners for state transitions
         if (this.options.preventDoubleClick) {
             this.button.addEventListener('click', (e) => this.handleClick(e), { capture: true });
         }
     }
 
+    /**
+     * Handle click events to prevent double submission.
+     * @param {Event} e - Click event.
+     */
     handleClick(e) {
-        // Prevent clicks if not idle
         if (this.currentState !== this.states.IDLE) {
             e.stopImmediatePropagation();
             e.preventDefault();
             return;
         }
 
-        // Debounce check
         const now = Date.now();
         if (now - this.lastClickTime < 500) {
             e.stopImmediatePropagation();
@@ -66,50 +80,41 @@ class ButtonStateEngine {
         this.lastClickTime = now;
     }
 
+    /**
+     * Set button to loading state.
+     * @param {string} [customText] - Optional text to override default loading text.
+     */
     setLoading(customText) {
         if (this.currentState === this.states.LOADING) return;
 
-        // REQUIRED IMPLEMENTATION:
-        // 1. Set button disabled
         this.button.disabled = true;
 
-        // 2. Add spinner HTML
         const text = customText || this.options.loadingText;
         this.button.innerHTML = `${this.options.spinnerTemplate} ${text}`;
 
-        // 3. Set aria-busy="true"
         this.button.setAttribute('aria-busy', 'true');
         this.button.setAttribute('aria-label', text);
 
-        // 4. Store click timestamp (handled in handleClick, but updated here for good measure)
         this.lastClickTime = Date.now();
-
-        // 5. Update currentState
         this.currentState = this.states.LOADING;
-
-        // 6. Add loading CSS class
         this.button.classList.add('bse-loading');
     }
 
+    /**
+     * Set button to success state.
+     * @param {string} [message] - Success message to display.
+     */
     setSuccess(message = 'Success!') {
-        // REQUIRED IMPLEMENTATION:
-        this.button.disabled = true; // Keep disabled during success message
-
-        // 1. Show checkmark icon
+        this.button.disabled = true;
         this.button.innerHTML = `<span class="bse-icon-success">✓</span> ${message}`;
-
-        // 2. Update aria-label to message
         this.button.setAttribute('aria-label', message);
         this.button.removeAttribute('aria-busy');
 
-        // 3. Add success CSS class
         this.button.classList.remove('bse-loading', 'bse-error');
         this.button.classList.add('bse-success');
 
         this.currentState = this.states.SUCCESS;
 
-        // 4. Wait successDuration
-        // 5. Auto-restore to idle
         if (this.successTimer) clearTimeout(this.successTimer);
         this.successTimer = setTimeout(() => {
             if (this.currentState === this.states.SUCCESS) {
@@ -118,24 +123,22 @@ class ButtonStateEngine {
         }, this.options.successDuration);
     }
 
+    /**
+     * Set button to error state.
+     * @param {string} [message] - Error message to display.
+     * @param {Function} [retryCallback] - Optional callback for retry action.
+     */
     setError(message = 'An error occurred', retryCallback = null) {
-        // REQUIRED IMPLEMENTATION:
-        this.button.disabled = false; // Allow interaction (e.g. retry)
-
-        // 1. Show error icon
+        this.button.disabled = false;
         this.button.innerHTML = `<span class="bse-icon-error">⚠️</span> ${message}`;
-
-        // 2. Update aria-label to error message
         this.button.setAttribute('aria-label', message);
         this.button.removeAttribute('aria-busy');
 
-        // 3. Add error CSS class
         this.button.classList.remove('bse-loading', 'bse-success');
         this.button.classList.add('bse-error');
 
         this.currentState = this.states.ERROR;
 
-        // 4. If retryCallback provided, add retry button logic (simplified: clicking again retries)
         if (typeof retryCallback === 'function') {
             const retryHandler = (e) => {
                 this.button.removeEventListener('click', retryHandler);
@@ -143,7 +146,6 @@ class ButtonStateEngine {
             };
             this.button.addEventListener('click', retryHandler, { once: true });
         } else {
-            // Auto restore if no retry callback after error duration
             if (this.errorTimer) clearTimeout(this.errorTimer);
             this.errorTimer = setTimeout(() => {
                 if (this.currentState === this.states.ERROR) {
@@ -152,19 +154,16 @@ class ButtonStateEngine {
             }, this.options.errorDuration);
         }
 
-        // 5. Maintain focus for accessibility
         this.button.focus();
     }
 
+    /**
+     * Restore button to original state.
+     */
     restore() {
-        // REQUIRED IMPLEMENTATION:
-        // 1. Restore original HTML
         this.button.innerHTML = this.originalHTML;
-
-        // 2. Restore disabled state
         this.button.disabled = this.originalDisabled;
 
-        // 3. Restore aria-label
         if (this.originalAriaLabel) {
             this.button.setAttribute('aria-label', this.originalAriaLabel);
         } else {
@@ -172,28 +171,29 @@ class ButtonStateEngine {
         }
         this.button.removeAttribute('aria-busy');
 
-        // 4. Remove all state CSS classes
         this.button.classList.remove('bse-loading', 'bse-success', 'bse-error');
-
-        // 5. Set currentState = 'idle'
         this.currentState = this.states.IDLE;
 
-        // 6. Re-enable event listeners (Implicit by removing blocking states)
-
-        // Clear timers
         if (this.successTimer) clearTimeout(this.successTimer);
         if (this.errorTimer) clearTimeout(this.errorTimer);
     }
 
+    /**
+     * Check if button is currently processing.
+     * @returns {boolean} True if in loading state.
+     */
     isProcessing() {
         return this.currentState === this.states.LOADING;
     }
 }
 
-// GLOBAL HELPER FUNCTIONS (IMPLEMENT ALL)
 const ButtonStateManager = {
     engines: new Map(),
 
+    /**
+     * Initialize all buttons matching selector.
+     * @param {string} [selector] - CSS selector for buttons.
+     */
     initAll: (selector = '[data-button-state]') => {
         const buttons = document.querySelectorAll(selector);
         buttons.forEach(btn => {
@@ -203,6 +203,11 @@ const ButtonStateManager = {
         });
     },
 
+    /**
+     * Get or create engine for a button.
+     * @param {HTMLButtonElement} button - The button element.
+     * @returns {ButtonStateEngine} The engine instance.
+     */
     getEngine: (button) => {
         if (!ButtonStateManager.engines.has(button)) {
             ButtonStateManager.engines.set(button, new ButtonStateEngine(button));
@@ -210,6 +215,12 @@ const ButtonStateManager = {
         return ButtonStateManager.engines.get(button);
     },
 
+    /**
+     * Debounce a click handler.
+     * @param {HTMLButtonElement} button - Button to attach to.
+     * @param {Function} callback - Function to run on click.
+     * @param {number} [delay] - Debounce delay in ms.
+     */
     debounceClick: (button, callback, delay = 2000) => {
         let lastClick = 0;
         button.addEventListener('click', (e) => {
@@ -224,16 +235,19 @@ const ButtonStateManager = {
         });
     },
 
+    /**
+     * Show a toast notification.
+     * @param {string} message - Message to show.
+     * @param {string} [type] - 'info', 'success', or 'error'.
+     */
     createToast: (message, type = 'info') => {
-        // Use existing showNotification if available, or fallback
         if (typeof window.showNotification === 'function') {
             window.showNotification(message, type);
         } else {
-            // Fallback implementation
             const container = document.getElementById('bse-toasts') || (() => {
                 const c = document.createElement('div');
                 c.id = 'bse-toasts';
-                c.style.cssText = 'position:Fixed;top:20px;right:20px;z-index:9999;';
+                c.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;pointer-events:none;';
                 document.body.appendChild(c);
                 return c;
             })();
@@ -243,6 +257,7 @@ const ButtonStateManager = {
             toast.style.cssText = `
                 background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6'};
                 color:white;padding:12px;margin-bottom:10px;border-radius:6px;box-shadow:0 4px 6px rgba(0,0,0,0.1);
+                pointer-events:auto;
             `;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
@@ -250,13 +265,14 @@ const ButtonStateManager = {
     }
 };
 
-// Export to window
 window.ButtonStateEngine = ButtonStateEngine;
 window.ButtonStateManager = ButtonStateManager;
 
-// Inject basic CSS for the engine
-const style = document.createElement('style');
-style.textContent = `
+(function () {
+    if (document.getElementById('bse-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'bse-styles';
+    style.textContent = `
     .bse-loading { opacity: 0.8; cursor: wait; }
     .bse-success { background-color: var(--color-success, #10b981) !important; color: white !important; border-color: transparent !important; }
     .bse-error { background-color: var(--color-error, #ef4444) !important; color: white !important; border-color: transparent !important; animation: bse-shake 0.4s ease-in-out; }
@@ -264,4 +280,5 @@ style.textContent = `
     @keyframes bse-spin { to { transform: rotate(360deg); } }
     @keyframes bse-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 `;
-document.head.appendChild(style);
+    document.head.appendChild(style);
+})();

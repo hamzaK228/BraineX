@@ -37,7 +37,7 @@ async function handleLogout() {
         try {
             await window.authAPI.logout();
         } catch (error) {
-            if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.error('Logout failed:', error);
             }
             // Clear local state anyway
@@ -120,7 +120,7 @@ function debounce(func, wait) {
  * Handle API errors
  */
 function handleAPIError(error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.error('API Error:', error);
     }
 
