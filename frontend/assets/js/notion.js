@@ -7,27 +7,43 @@ let notes = JSON.parse(localStorage.getItem('edugateway_notes')) || [];
 let calendarEvents = JSON.parse(localStorage.getItem('edugateway_events')) || [];
 let userPages = JSON.parse(localStorage.getItem('user_pages')) || [];
 let weeklyFocus = JSON.parse(localStorage.getItem('edugateway_weekly_focus')) || [
-    { emoji: '🎓', text: 'Complete scholarship applications' },
-    { emoji: '📚', text: 'Prepare for midterm exams' }
+  { emoji: '🎓', text: 'Complete scholarship applications' },
+  { emoji: '📚', text: 'Prepare for midterm exams' },
 ];
 
 // Pre-populate goals if empty
 if (goals.length === 0) {
-    goals = [
-        { id: 1, title: 'Complete Web Dev Bootcamp', category: 'career', priority: 'high', progress: 65, status: 'active', endDate: '2025-06-01' },
-        { id: 2, title: 'Read 12 Books', category: 'personal', priority: 'medium', progress: 15, status: 'active', endDate: '2025-12-31' }
-    ];
-    localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+  goals = [
+    {
+      id: 1,
+      title: 'Complete Web Dev Bootcamp',
+      category: 'career',
+      priority: 'high',
+      progress: 65,
+      status: 'active',
+      endDate: '2025-06-01',
+    },
+    {
+      id: 2,
+      title: 'Read 12 Books',
+      category: 'personal',
+      priority: 'medium',
+      progress: 15,
+      status: 'active',
+      endDate: '2025-12-31',
+    },
+  ];
+  localStorage.setItem('edugateway_goals', JSON.stringify(goals));
 }
 
 // Pre-populate tasks if empty
 if (tasks.length === 0) {
-    tasks = [
-        { id: 1, title: 'Clean up workspace', status: 'todo' },
-        { id: 2, title: 'Update resume', status: 'in-progress' },
-        { id: 3, title: 'Submit application', status: 'completed' }
-    ];
-    localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+  tasks = [
+    { id: 1, title: 'Clean up workspace', status: 'todo' },
+    { id: 2, title: 'Update resume', status: 'in-progress' },
+    { id: 3, title: 'Submit application', status: 'completed' },
+  ];
+  localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
 }
 
 // Notion API Integration
@@ -36,127 +52,170 @@ let currentViewDate = new Date();
 
 // Sidebar functionality
 function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content');
-    if (sidebar) sidebar.classList.toggle('closed');
-    if (mainContent) mainContent.classList.toggle('sidebar-closed');
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.querySelector('.main-content');
+  if (sidebar) sidebar.classList.toggle('closed');
+  if (mainContent) mainContent.classList.toggle('sidebar-closed');
 }
 
 function switchSection(sectionId) {
-    document.querySelectorAll('.content-section').forEach(section => {
-        section.classList.remove('active');
-    });
+  document.querySelectorAll('.content-section').forEach((section) => {
+    section.classList.remove('active');
+  });
 
-    const targetSection = document.getElementById(sectionId);
-    if (!targetSection) {
-        // Fallback for #projects-plan -> projects
-        if (sectionId === 'projects-plan') sectionId = 'projects';
-        const fallbackSection = document.getElementById(sectionId);
-        if (fallbackSection) {
-            fallbackSection.classList.add('active');
-        } else {
-            const overview = document.getElementById('overview');
-            if (overview) overview.classList.add('active');
-            sectionId = 'overview';
-        }
+  const targetSection = document.getElementById(sectionId);
+  if (!targetSection) {
+    // Fallback for #projects-plan -> projects
+    if (sectionId === 'projects-plan') sectionId = 'projects';
+    const fallbackSection = document.getElementById(sectionId);
+    if (fallbackSection) {
+      fallbackSection.classList.add('active');
     } else {
-        targetSection.classList.add('active');
+      const overview = document.getElementById('overview');
+      if (overview) overview.classList.add('active');
+      sectionId = 'overview';
     }
+  } else {
+    targetSection.classList.add('active');
+  }
 
-    document.querySelectorAll('.sidebar-link').forEach(link => {
-        link.classList.remove('active');
-    });
+  document.querySelectorAll('.sidebar-link').forEach((link) => {
+    link.classList.remove('active');
+  });
 
-    const activeLink = document.querySelector(`[data-section="${sectionId}"]`);
-    if (activeLink) activeLink.classList.add('active');
+  const activeLink = document.querySelector(`[data-section="${sectionId}"]`);
+  if (activeLink) activeLink.classList.add('active');
 
-    loadSectionData(sectionId);
+  loadSectionData(sectionId);
 }
 
 function loadSectionData(sectionId) {
-    switch (sectionId) {
-        case 'overview': loadDashboard(); break;
-        case 'goals': loadGoals(); break;
-        case 'progress': loadProgress(); break;
-        case 'notes': loadNotes(); break;
-        case 'tasks': loadTasks(); break;
-        case 'calendar': loadCalendar(); break;
-        case 'projects': loadProjects(); break;
-        case 'resources': loadResources(); break;
-        case 'courses': loadCourses(); break;
-        case 'applications': loadApplications(); break;
-        case 'scholarships-tracker': loadScholarshipTracker(); break;
-        case 'deadlines': loadDeadlines(); break;
-    }
+  switch (sectionId) {
+    case 'overview':
+      loadDashboard();
+      break;
+    case 'goals':
+      loadGoals();
+      break;
+    case 'progress':
+      loadProgress();
+      break;
+    case 'notes':
+      loadNotes();
+      break;
+    case 'tasks':
+      loadTasks();
+      break;
+    case 'calendar':
+      loadCalendar();
+      break;
+    case 'projects':
+      loadProjects();
+      break;
+    case 'resources':
+      loadResources();
+      break;
+    case 'courses':
+      loadCourses();
+      break;
+    case 'applications':
+      loadApplications();
+      break;
+    case 'scholarships-tracker':
+      loadScholarshipTracker();
+      break;
+    case 'deadlines':
+      loadDeadlines();
+      break;
+  }
 }
 
 // Dashboard functionality
 function loadDashboard() {
-    updateDashboardStats();
-    loadUpcomingDeadlines();
-    loadRecentGoals();
-    loadWeeklyFocus();
+  updateDashboardStats();
+  loadUpcomingDeadlines();
+  loadRecentGoals();
+  loadWeeklyFocus();
 }
 
 function loadWeeklyFocus() {
-    const container = document.getElementById('weeklyFocus');
-    if (!container) return;
-    container.innerHTML = weeklyFocus.map((item, index) => `
+  const container = document.getElementById('weeklyFocus');
+  if (!container) return;
+  container.innerHTML = weeklyFocus
+    .map(
+      (item, index) => `
         <div class="focus-item">
             <span class="focus-emoji">${item.emoji}</span>
             <span>${item.text}</span>
             <button class="btn-remove-focus" data-index="${index}">×</button>
         </div>
-    `).join('');
+    `
+    )
+    .join('');
 }
 
 window.removeFocusItem = function (index) {
-    weeklyFocus.splice(index, 1);
-    localStorage.setItem('edugateway_weekly_focus', JSON.stringify(weeklyFocus));
-    loadWeeklyFocus();
+  weeklyFocus.splice(index, 1);
+  localStorage.setItem('edugateway_weekly_focus', JSON.stringify(weeklyFocus));
+  loadWeeklyFocus();
 };
 
 window.editWeeklyFocus = function () {
-    const text = prompt('Enter new focus item:');
-    if (!text) return;
-    const emoji = prompt('Enter an emoji (optional):', '🎯');
-    weeklyFocus.push({ emoji: emoji || '🎯', text });
-    localStorage.setItem('edugateway_weekly_focus', JSON.stringify(weeklyFocus));
-    loadWeeklyFocus();
+  const text = prompt('Enter new focus item:');
+  if (!text) return;
+  const emoji = prompt('Enter an emoji (optional):', '🎯');
+  weeklyFocus.push({ emoji: emoji || '🎯', text });
+  localStorage.setItem('edugateway_weekly_focus', JSON.stringify(weeklyFocus));
+  loadWeeklyFocus();
 };
 
 function updateDashboardStats() {
-    const activeGoals = goals.filter(goal => goal.status !== 'completed').length;
-    const completedTasksCount = tasks.filter(task => task.status === 'completed').length;
-    const overallProgress = goals.length > 0 ? Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length) : 0;
+  const activeGoals = goals.filter((goal) => goal.status !== 'completed').length;
+  const completedTasksCount = tasks.filter((task) => task.status === 'completed').length;
+  const overallProgress =
+    goals.length > 0
+      ? Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length)
+      : 0;
 
-    if (document.getElementById('totalGoals')) document.getElementById('totalGoals').textContent = activeGoals;
-    if (document.getElementById('completedTasks')) document.getElementById('completedTasks').textContent = completedTasksCount; // Dashboard display
-    if (document.getElementById('progressPercent')) document.getElementById('progressPercent').textContent = overallProgress + '%';
-    if (document.getElementById('currentStreak')) document.getElementById('currentStreak').textContent = calculateStreak();
+  if (document.getElementById('totalGoals'))
+    document.getElementById('totalGoals').textContent = activeGoals;
+  if (document.getElementById('completedTasks'))
+    document.getElementById('completedTasks').textContent = completedTasksCount; // Dashboard display
+  if (document.getElementById('progressPercent'))
+    document.getElementById('progressPercent').textContent = overallProgress + '%';
+  if (document.getElementById('currentStreak'))
+    document.getElementById('currentStreak').textContent = calculateStreak();
 }
 
 function calculateStreak() {
-    return tasks.filter(t => t.status === 'completed').length > 0 ? 5 : 0;
+  return tasks.filter((t) => t.status === 'completed').length > 0 ? 5 : 0;
 }
 
 function loadUpcomingDeadlines() {
-    const container = document.getElementById('upcomingDeadlines');
-    if (!container) return;
-    const upcoming = goals.filter(g => g.endDate && new Date(g.endDate) >= new Date()).slice(0, 3);
-    container.innerHTML = upcoming.map(g => `
+  const container = document.getElementById('upcomingDeadlines');
+  if (!container) return;
+  const upcoming = goals.filter((g) => g.endDate && new Date(g.endDate) >= new Date()).slice(0, 3);
+  container.innerHTML =
+    upcoming
+      .map(
+        (g) => `
         <div class="deadline-item">
             <span class="deadline-title">${g.title}</span>
             <span class="deadline-days">${Math.ceil((new Date(g.endDate) - new Date()) / 86400000)}d left</span>
         </div>
-    `).join('') || '<p class="empty-state">No upcoming deadlines</p>';
+    `
+      )
+      .join('') || '<p class="empty-state">No upcoming deadlines</p>';
 }
 
 function loadRecentGoals() {
-    const container = document.getElementById('recentGoals');
-    if (!container) return;
-    const recent = goals.slice(-3);
-    container.innerHTML = recent.map(g => `
+  const container = document.getElementById('recentGoals');
+  if (!container) return;
+  const recent = goals.slice(-3);
+  container.innerHTML =
+    recent
+      .map(
+        (g) => `
         <div class="goal-preview">
             <div class="goal-preview-title">${g.title}</div>
             <div class="goal-preview-progress">
@@ -164,33 +223,36 @@ function loadRecentGoals() {
                 <span>${g.progress}%</span>
             </div>
         </div>
-    `).join('') || '<p class="empty-state">No goals yet</p>';
+    `
+      )
+      .join('') || '<p class="empty-state">No goals yet</p>';
 }
 
 // Goals
 function loadGoals() {
-    const container = document.getElementById('goalsContainer');
-    if (!container) return;
-    const filter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-    const sort = document.getElementById('goalSort')?.value || 'date';
+  const container = document.getElementById('goalsContainer');
+  if (!container) return;
+  const filter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+  const sort = document.getElementById('goalSort')?.value || 'date';
 
-    let filtered = [...goals];
-    if (filter !== 'all') filtered = filtered.filter(g => g.category === filter);
+  let filtered = [...goals];
+  if (filter !== 'all') filtered = filtered.filter((g) => g.category === filter);
 
-    filtered.sort((a, b) => {
-        if (sort === 'progress') return b.progress - a.progress;
-        if (sort === 'priority') {
-            const m = { high: 3, medium: 2, low: 1 };
-            return m[b.priority] - m[a.priority];
-        }
-        return b.id - a.id;
-    });
+  filtered.sort((a, b) => {
+    if (sort === 'progress') return b.progress - a.progress;
+    if (sort === 'priority') {
+      const m = { high: 3, medium: 2, low: 1 };
+      return m[b.priority] - m[a.priority];
+    }
+    return b.id - a.id;
+  });
 
-    container.innerHTML = filtered.map(createGoalCard).join('') || '<p class="empty-state">No goals found.</p>';
+  container.innerHTML =
+    filtered.map(createGoalCard).join('') || '<p class="empty-state">No goals found.</p>';
 }
 
 function createGoalCard(goal) {
-    return `
+  return `
         <div class="goal-card" data-goal-id="${goal.id}">
             <div class="goal-header">
                 <h3>${goal.title}</h3>
@@ -212,111 +274,116 @@ function createGoalCard(goal) {
 }
 
 window.updateProgressImmediate = function (id, val) {
-    const goal = goals.find(g => g.id === parseInt(id));
-    if (goal) {
-        goal.progress = parseInt(val);
-        if (goal.progress === 100) goal.status = 'completed';
-        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-        updateDashboardStats();
-        // UI Polish: Update card directly
-        const card = document.querySelector(`.goal-card[data-goal-id="${id}"]`);
-        if (card) {
-            card.querySelector('.progress-fill').style.width = val + '%';
-            card.querySelector('.progress-text').textContent = val + '% complete';
-        }
+  const goal = goals.find((g) => g.id === parseInt(id));
+  if (goal) {
+    goal.progress = parseInt(val);
+    if (goal.progress === 100) goal.status = 'completed';
+    localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+    updateDashboardStats();
+    // UI Polish: Update card directly
+    const card = document.querySelector(`.goal-card[data-goal-id="${id}"]`);
+    if (card) {
+      card.querySelector('.progress-fill').style.width = val + '%';
+      card.querySelector('.progress-text').textContent = val + '% complete';
     }
+  }
 };
 
 window.deleteGoal = function (id) {
-    if (confirm('Delete goal?')) {
-        goals = goals.filter(g => g.id !== parseInt(id));
-        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-        loadGoals();
-        updateDashboardStats();
-    }
+  if (confirm('Delete goal?')) {
+    goals = goals.filter((g) => g.id !== parseInt(id));
+    localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+    loadGoals();
+    updateDashboardStats();
+  }
 };
 
 function openGoalModal(id = null) {
-    const modal = document.getElementById('goalModal');
-    if (!modal) return;
-    if (id) {
-        const g = goals.find(goal => goal.id === parseInt(id));
-        document.getElementById('goalTitle').value = g.title;
-        document.getElementById('goalCategory').value = g.category;
-        document.getElementById('goalPriority').value = g.priority;
-        modal.dataset.editingId = id;
-    } else {
-        document.getElementById('goalForm').reset();
-        delete modal.dataset.editingId;
-    }
-    modal.classList.add('show');
+  const modal = document.getElementById('goalModal');
+  if (!modal) return;
+  if (id) {
+    const g = goals.find((goal) => goal.id === parseInt(id));
+    document.getElementById('goalTitle').value = g.title;
+    document.getElementById('goalCategory').value = g.category;
+    document.getElementById('goalPriority').value = g.priority;
+    modal.dataset.editingId = id;
+  } else {
+    document.getElementById('goalForm').reset();
+    delete modal.dataset.editingId;
+  }
+  modal.classList.add('show');
 }
 
 window.closeGoalModal = () => {
-    const modal = document.getElementById('goalModal');
-    if (modal) modal.classList.remove('show');
+  const modal = document.getElementById('goalModal');
+  if (modal) modal.classList.remove('show');
 };
 
 // Notes
 function loadNotes() {
-    const grid = document.getElementById('notesGrid');
-    if (!grid) return;
-    grid.innerHTML = notes.map(n => `
+  const grid = document.getElementById('notesGrid');
+  if (!grid) return;
+  grid.innerHTML =
+    notes
+      .map(
+        (n) => `
         <div class="note-card" data-id="${n.id}">
             <h4>${n.title}</h4>
             <p>${n.content.replace(/<[^>]*>/g, '').substring(0, 50)}...</p>
         </div>
-    `).join('') || '<p class="empty-state">No notes.</p>';
+    `
+      )
+      .join('') || '<p class="empty-state">No notes.</p>';
 }
 
 function openNoteModal(id = null) {
-    const modal = document.getElementById('noteModal');
-    if (!modal) return;
-    const title = document.getElementById('noteTitle');
-    const content = document.getElementById('noteContent');
-    if (id) {
-        const n = notes.find(note => note.id === parseInt(id));
-        title.value = n.title;
-        content.innerHTML = n.content;
-        modal.dataset.editingId = id;
-    } else {
-        title.value = '';
-        content.innerHTML = '';
-        delete modal.dataset.editingId;
-    }
-    modal.classList.add('show');
+  const modal = document.getElementById('noteModal');
+  if (!modal) return;
+  const title = document.getElementById('noteTitle');
+  const content = document.getElementById('noteContent');
+  if (id) {
+    const n = notes.find((note) => note.id === parseInt(id));
+    title.value = n.title;
+    content.innerHTML = n.content;
+    modal.dataset.editingId = id;
+  } else {
+    title.value = '';
+    content.innerHTML = '';
+    delete modal.dataset.editingId;
+  }
+  modal.classList.add('show');
 }
 
 window.saveNote = function () {
-    const title = document.getElementById('noteTitle').value || 'Untitled';
-    const content = document.getElementById('noteContent').innerHTML;
-    const modal = document.getElementById('noteModal');
-    const editingId = modal.dataset.editingId;
+  const title = document.getElementById('noteTitle').value || 'Untitled';
+  const content = document.getElementById('noteContent').innerHTML;
+  const modal = document.getElementById('noteModal');
+  const editingId = modal.dataset.editingId;
 
-    if (editingId) {
-        const idx = notes.findIndex(n => n.id === parseInt(editingId));
-        notes[idx] = { ...notes[idx], title, content, updatedAt: new Date().toISOString() };
-    } else {
-        notes.unshift({ id: Date.now(), title, content, updatedAt: new Date().toISOString() });
-    }
-    localStorage.setItem('edugateway_notes', JSON.stringify(notes));
-    modal.classList.remove('show');
-    loadNotes();
+  if (editingId) {
+    const idx = notes.findIndex((n) => n.id === parseInt(editingId));
+    notes[idx] = { ...notes[idx], title, content, updatedAt: new Date().toISOString() };
+  } else {
+    notes.unshift({ id: Date.now(), title, content, updatedAt: new Date().toISOString() });
+  }
+  localStorage.setItem('edugateway_notes', JSON.stringify(notes));
+  modal.classList.remove('show');
+  loadNotes();
 };
 
 window.closeNoteModal = () => {
-    const modal = document.getElementById('noteModal');
-    if (modal) modal.classList.remove('show');
+  const modal = document.getElementById('noteModal');
+  if (modal) modal.classList.remove('show');
 };
 
 // Tasks
 function loadTasks() {
-    const todoList = document.getElementById('todoTasks');
-    const inProgressList = document.getElementById('inProgressTasks');
-    const completedList = document.getElementById('completedTasks'); // Correct ID from notion.html
-    if (!todoList) return;
+  const todoList = document.getElementById('todoTasks');
+  const inProgressList = document.getElementById('inProgressTasks');
+  const completedList = document.getElementById('completedTasks'); // Correct ID from notion.html
+  if (!todoList) return;
 
-    const render = t => `
+  const render = (t) => `
         <div class="task-item">
             <span>${t.title}</span>
             <div class="task-btns">
@@ -328,87 +395,112 @@ function loadTasks() {
         </div>
     `;
 
-    todoList.innerHTML = tasks.filter(t => t.status === 'todo').map(render).join('');
-    inProgressList.innerHTML = tasks.filter(t => t.status === 'in-progress').map(render).join('');
-    if (completedList) completedList.innerHTML = tasks.filter(t => t.status === 'completed').map(render).join('');
+  todoList.innerHTML = tasks
+    .filter((t) => t.status === 'todo')
+    .map(render)
+    .join('');
+  inProgressList.innerHTML = tasks
+    .filter((t) => t.status === 'in-progress')
+    .map(render)
+    .join('');
+  if (completedList)
+    completedList.innerHTML = tasks
+      .filter((t) => t.status === 'completed')
+      .map(render)
+      .join('');
 }
 
 window.moveTask = (id, s) => {
-    const t = tasks.find(task => task.id === parseInt(id));
-    if (t) {
-        t.status = s;
-        localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
-        loadTasks();
-        updateDashboardStats();
-    }
-};
-
-window.deleteTask = id => {
-    tasks = tasks.filter(t => t.id !== parseInt(id));
+  const t = tasks.find((task) => task.id === parseInt(id));
+  if (t) {
+    t.status = s;
     localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
     loadTasks();
     updateDashboardStats();
+  }
+};
+
+window.deleteTask = (id) => {
+  tasks = tasks.filter((t) => t.id !== parseInt(id));
+  localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+  loadTasks();
+  updateDashboardStats();
 };
 
 window.addNewTask = () => {
-    const t = prompt('Task title:');
-    if (t) {
-        tasks.push({ id: Date.now(), title: t, status: 'todo' });
-        localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
-        loadTasks();
-    }
+  const t = prompt('Task title:');
+  if (t) {
+    tasks.push({ id: Date.now(), title: t, status: 'todo' });
+    localStorage.setItem('edugateway_tasks', JSON.stringify(tasks));
+    loadTasks();
+  }
 };
 
 // Calendar
 function loadCalendar() {
-    const grid = document.getElementById('calendarDays');
-    if (!grid) return;
-    const date = currentViewDate;
-    const monthHeader = document.getElementById('currentMonth');
-    if (monthHeader) monthHeader.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const grid = document.getElementById('calendarDays');
+  if (!grid) return;
+  const date = currentViewDate;
+  const monthHeader = document.getElementById('currentMonth');
+  if (monthHeader)
+    monthHeader.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-    const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
-    let html = '';
-    for (let i = 0; i < first; i++) html += '<div class="calendar-day empty"></div>';
-    for (let i = 1; i <= days; i++) {
-        const dayEvents = calendarEvents.filter(e => {
-            const evDate = new Date(e.date);
-            return evDate.getDate() === i && evDate.getMonth() === date.getMonth() && evDate.getFullYear() === date.getFullYear();
-        });
-        const hasEvents = dayEvents.length > 0;
-        const eventTitles = dayEvents.map(e => e.title).join(', ');
-        const isToday = new Date().getDate() === i && new Date().getMonth() === date.getMonth() && new Date().getFullYear() === date.getFullYear();
-        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvents ? 'has-event' : ''}" data-day="${i}" title="${hasEvents ? eventTitles : 'Click to add event'}">
+  let html = '';
+  for (let i = 0; i < first; i++) html += '<div class="calendar-day empty"></div>';
+  for (let i = 1; i <= days; i++) {
+    const dayEvents = calendarEvents.filter((e) => {
+      const evDate = new Date(e.date);
+      return (
+        evDate.getDate() === i &&
+        evDate.getMonth() === date.getMonth() &&
+        evDate.getFullYear() === date.getFullYear()
+      );
+    });
+    const hasEvents = dayEvents.length > 0;
+    const eventTitles = dayEvents.map((e) => e.title).join(', ');
+    const isToday =
+      new Date().getDate() === i &&
+      new Date().getMonth() === date.getMonth() &&
+      new Date().getFullYear() === date.getFullYear();
+    html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvents ? 'has-event' : ''}" data-day="${i}" title="${hasEvents ? eventTitles : 'Click to add event'}">
             <span class="day-number">${i}</span>
             ${hasEvents ? `<span class="event-indicator">${dayEvents.length}</span>` : ''}
         </div>`;
-    }
-    grid.innerHTML = html;
+  }
+  grid.innerHTML = html;
 
-    // Load events list
-    loadCalendarEventsList();
+  // Load events list
+  loadCalendarEventsList();
 }
 
 function loadCalendarEventsList() {
-    const eventsList = document.getElementById('eventsList');
-    if (!eventsList) return;
+  const eventsList = document.getElementById('eventsList');
+  if (!eventsList) return;
 
-    const currentMonthEvents = calendarEvents.filter(e => {
+  const currentMonthEvents = calendarEvents
+    .filter((e) => {
+      const evDate = new Date(e.date);
+      return (
+        evDate.getMonth() === currentViewDate.getMonth() &&
+        evDate.getFullYear() === currentViewDate.getFullYear()
+      );
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (currentMonthEvents.length === 0) {
+    eventsList.innerHTML =
+      '<div class="empty-state"><p>No events this month. Click on a day to add one!</p></div>';
+  } else {
+    eventsList.innerHTML = currentMonthEvents
+      .map((e) => {
         const evDate = new Date(e.date);
-        return evDate.getMonth() === currentViewDate.getMonth() && evDate.getFullYear() === currentViewDate.getFullYear();
-    }).sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    if (currentMonthEvents.length === 0) {
-        eventsList.innerHTML = '<div class="empty-state"><p>No events this month. Click on a day to add one!</p></div>';
-    } else {
-        eventsList.innerHTML = currentMonthEvents.map(e => {
-            const evDate = new Date(e.date);
-            const dayOfWeek = evDate.toLocaleDateString('en-US', { weekday: 'short' });
-            const dayNum = evDate.getDate();
-            const isPast = evDate < new Date();
-            return `
+        const dayOfWeek = evDate.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNum = evDate.getDate();
+        const isPast = evDate < new Date();
+        return `
                 <div class="event-item ${isPast ? 'past-event' : ''}">
                     <div class="event-date-badge">
                         <span class="event-day">${dayNum}</span>
@@ -421,354 +513,375 @@ function loadCalendarEventsList() {
                     <button class="btn-delete-event" data-id="${e.id}">🗑️</button>
                 </div>
             `;
-        }).join('');
+      })
+      .join('');
 
-        // Add delete listeners
-        eventsList.querySelectorAll('.btn-delete-event').forEach(btn => {
-            btn.addEventListener('click', () => deleteCalendarEvent(btn.dataset.id));
-        });
-    }
+    // Add delete listeners
+    eventsList.querySelectorAll('.btn-delete-event').forEach((btn) => {
+      btn.addEventListener('click', () => deleteCalendarEvent(btn.dataset.id));
+    });
+  }
 }
 
 function deleteCalendarEvent(id) {
-    if (confirm('Delete this event?')) {
-        calendarEvents = calendarEvents.filter(e => e.id != id);
-        localStorage.setItem('edugateway_events', JSON.stringify(calendarEvents));
-        loadCalendar();
-        showNotification('Event deleted', 'success');
-    }
+  if (confirm('Delete this event?')) {
+    calendarEvents = calendarEvents.filter((e) => e.id != id);
+    localStorage.setItem('edugateway_events', JSON.stringify(calendarEvents));
+    loadCalendar();
+    showNotification('Event deleted', 'success');
+  }
 }
 
-window.previousMonth = () => { currentViewDate.setMonth(currentViewDate.getMonth() - 1); loadCalendar(); };
-window.nextMonth = () => { currentViewDate.setMonth(currentViewDate.getMonth() + 1); loadCalendar(); };
+window.previousMonth = () => {
+  currentViewDate.setMonth(currentViewDate.getMonth() - 1);
+  loadCalendar();
+};
+window.nextMonth = () => {
+  currentViewDate.setMonth(currentViewDate.getMonth() + 1);
+  loadCalendar();
+};
 
 window.addCalendarEvent = (day) => {
-    const t = prompt('Event title:');
-    if (t) {
-        calendarEvents.push({ id: Date.now(), title: t, date: new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), day).toISOString() });
-        localStorage.setItem('edugateway_events', JSON.stringify(calendarEvents));
-        loadCalendar();
-        showNotification(`Event "${t}" added!`, 'success');
-    }
+  const t = prompt('Event title:');
+  if (t) {
+    calendarEvents.push({
+      id: Date.now(),
+      title: t,
+      date: new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), day).toISOString(),
+    });
+    localStorage.setItem('edugateway_events', JSON.stringify(calendarEvents));
+    loadCalendar();
+    showNotification(`Event "${t}" added!`, 'success');
+  }
 };
 
 // Progress Section
 function loadProgress() {
-    const canvas = document.getElementById('goalsChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById('goalsChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
-    const completed = goals.filter(g => g.status === 'completed').length;
-    const inProgress = goals.filter(g => g.status !== 'completed').length;
+  const completed = goals.filter((g) => g.status === 'completed').length;
+  const inProgress = goals.filter((g) => g.status !== 'completed').length;
 
-    if (window.myGoalsChart) window.myGoalsChart.destroy();
+  if (window.myGoalsChart) window.myGoalsChart.destroy();
 
-    window.myGoalsChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Completed', 'In Progress'],
-            datasets: [{
-                data: [completed, inProgress],
-                backgroundColor: ['#48bb78', '#667eea'],
-                borderWidth: 0
-            }]
+  window.myGoalsChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'In Progress'],
+      datasets: [
+        {
+          data: [completed, inProgress],
+          backgroundColor: ['#48bb78', '#667eea'],
+          borderWidth: 0,
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
-        }
-    });
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+    },
+  });
 }
 
 // Templates & New Page
 window.showTemplates = function () {
-    const t = prompt('Choose Template: 1. Study Plan 2. Project Manager 3. Blank Notebook');
-    if (t === '1') createFromTemplate('study');
-    else if (t === '2') createFromTemplate('project');
-    else if (t) createFromTemplate('blank');
+  const t = prompt('Choose Template: 1. Study Plan 2. Project Manager 3. Blank Notebook');
+  if (t === '1') createFromTemplate('study');
+  else if (t === '2') createFromTemplate('project');
+  else if (t) createFromTemplate('blank');
 };
 
 function createFromTemplate(type) {
-    const p = { id: Date.now(), title: type.toUpperCase() + ' Page', type };
-    userPages.push(p);
-    localStorage.setItem('user_pages', JSON.stringify(userPages));
-    showNotification('New page created! You can find it in your sidebar soon.', 'success');
+  const p = { id: Date.now(), title: type.toUpperCase() + ' Page', type };
+  userPages.push(p);
+  localStorage.setItem('user_pages', JSON.stringify(userPages));
+  showNotification('New page created! You can find it in your sidebar soon.', 'success');
 }
 
 // Event Delegation & Init (CSP Compatible)
 function setupEventListeners() {
-    // Sidebar Toggles
-    document.querySelectorAll('.js-toggle-sidebar').forEach(btn => {
-        btn.addEventListener('click', toggleSidebar);
+  // Sidebar Toggles
+  document.querySelectorAll('.js-toggle-sidebar').forEach((btn) => {
+    btn.addEventListener('click', toggleSidebar);
+  });
+
+  // Section Switching
+  document.querySelectorAll('.js-switch-section').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const section = btn.getAttribute('data-section');
+      if (section) switchSection(section);
     });
+  });
 
-    // Section Switching
-    document.querySelectorAll('.js-switch-section').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const section = btn.getAttribute('data-section');
-            if (section) switchSection(section);
-        });
+  // Goal Modal
+  const openGoalBtn = document.querySelector('.js-open-goal-modal');
+  if (openGoalBtn) openGoalBtn.addEventListener('click', openGoalModal);
+
+  document.querySelectorAll('.js-close-goal-modal').forEach((btn) => {
+    btn.addEventListener('click', closeGoalModal);
+  });
+
+  // Note Modal
+  document.querySelectorAll('.js-close-note-modal').forEach((btn) => {
+    btn.addEventListener('click', closeNoteModal);
+  });
+
+  const closeNoteBtn = document.getElementById('closeNoteModalBtn');
+  if (closeNoteBtn) closeNoteBtn.addEventListener('click', closeNoteModal);
+
+  // Milestones
+  const addMilestoneBtn = document.querySelector('.js-add-milestone');
+  if (addMilestoneBtn) addMilestoneBtn.addEventListener('click', addMilestone);
+
+  const milestonesContainer = document.getElementById('milestonesContainer');
+  if (milestonesContainer) {
+    milestonesContainer.addEventListener('click', (e) => {
+      if (e.target.closest('.js-remove-milestone')) {
+        removeMilestone(e.target.closest('.js-remove-milestone'));
+      }
     });
+  }
 
-    // Goal Modal
-    const openGoalBtn = document.querySelector('.js-open-goal-modal');
-    if (openGoalBtn) openGoalBtn.addEventListener('click', openGoalModal);
+  // Quick Actions
+  const saveQuickNoteBtn = document.querySelector('.js-save-quick-note');
+  if (saveQuickNoteBtn) saveQuickNoteBtn.addEventListener('click', saveQuickNote);
 
-    document.querySelectorAll('.js-close-goal-modal').forEach(btn => {
-        btn.addEventListener('click', closeGoalModal);
-    });
+  const editFocusBtn = document.querySelector('.js-edit-focus');
+  if (editFocusBtn) editFocusBtn.addEventListener('click', editWeeklyFocus);
 
-    // Note Modal
-    document.querySelectorAll('.js-close-note-modal').forEach(btn => {
-        btn.addEventListener('click', closeNoteModal);
-    });
+  // Resource/Course/etc.
+  const addResBtn = document.querySelector('.js-add-resource');
+  if (addResBtn) addResBtn.addEventListener('click', addResource);
 
-    const closeNoteBtn = document.getElementById('closeNoteModalBtn');
-    if (closeNoteBtn) closeNoteBtn.addEventListener('click', closeNoteModal);
+  const addCourseBtn = document.querySelector('.js-add-course');
+  if (addCourseBtn) addCourseBtn.addEventListener('click', addCourse);
 
-    // Milestones
-    const addMilestoneBtn = document.querySelector('.js-add-milestone');
-    if (addMilestoneBtn) addMilestoneBtn.addEventListener('click', addMilestone);
+  const addAppBtn = document.querySelector('.js-add-application');
+  if (addAppBtn) addAppBtn.addEventListener('click', addApplication);
 
-    const milestonesContainer = document.getElementById('milestonesContainer');
-    if (milestonesContainer) {
-        milestonesContainer.addEventListener('click', (e) => {
-            if (e.target.closest('.js-remove-milestone')) {
-                removeMilestone(e.target.closest('.js-remove-milestone'));
-            }
-        });
-    }
+  const addScholBtn = document.querySelector('.js-add-scholarship-track');
+  if (addScholBtn) addScholBtn.addEventListener('click', addScholarshipTrack);
 
-    // Quick Actions
-    const saveQuickNoteBtn = document.querySelector('.js-save-quick-note');
-    if (saveQuickNoteBtn) saveQuickNoteBtn.addEventListener('click', saveQuickNote);
+  const addDeadlineBtn = document.querySelector('.js-add-deadline');
+  if (addDeadlineBtn) addDeadlineBtn.addEventListener('click', addDeadline);
 
-    const editFocusBtn = document.querySelector('.js-edit-focus');
-    if (editFocusBtn) editFocusBtn.addEventListener('click', editWeeklyFocus);
+  const newItemBtn = document.querySelector('.js-new-item');
+  if (newItemBtn) newItemBtn.addEventListener('click', createNewItem);
 
-    // Resource/Course/etc.
-    const addResBtn = document.querySelector('.js-add-resource');
-    if (addResBtn) addResBtn.addEventListener('click', addResource);
-
-    const addCourseBtn = document.querySelector('.js-add-course');
-    if (addCourseBtn) addCourseBtn.addEventListener('click', addCourse);
-
-    const addAppBtn = document.querySelector('.js-add-application');
-    if (addAppBtn) addAppBtn.addEventListener('click', addApplication);
-
-    const addScholBtn = document.querySelector('.js-add-scholarship-track');
-    if (addScholBtn) addScholBtn.addEventListener('click', addScholarshipTrack);
-
-    const addDeadlineBtn = document.querySelector('.js-add-deadline');
-    if (addDeadlineBtn) addDeadlineBtn.addEventListener('click', addDeadline);
-
-    const newItemBtn = document.querySelector('.js-new-item');
-    if (newItemBtn) newItemBtn.addEventListener('click', createNewItem);
-
-    const templateBtn = document.querySelector('.js-show-templates');
-    if (templateBtn) templateBtn.addEventListener('click', showTemplates);
+  const templateBtn = document.querySelector('.js-show-templates');
+  if (templateBtn) templateBtn.addEventListener('click', showTemplates);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Call setupEventListeners first to register all button handlers
-    setupEventListeners();
+  // Call setupEventListeners first to register all button handlers
+  setupEventListeners();
 
-    // Sidebar Links
-    document.querySelectorAll('.sidebar-link').forEach(l => {
-        l.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchSection(l.dataset.section);
-        });
+  // Sidebar Links
+  document.querySelectorAll('.sidebar-link').forEach((l) => {
+    l.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchSection(l.dataset.section);
+    });
+  });
+
+  // Sidebar Toggle
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
+
+  // Theme Toggle
+  const themeToggle = document.querySelector('.theme-toggle');
+  if (themeToggle)
+    themeToggle.addEventListener('click', () => {
+      if (typeof toggleTheme === 'function') toggleTheme();
     });
 
-    // Sidebar Toggle
-    const sidebarToggle = document.querySelector('.sidebar-toggle');
-    if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
-
-    // Theme Toggle
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) themeToggle.addEventListener('click', () => { if (typeof toggleTheme === 'function') toggleTheme(); });
-
-    // Overview Section
-    const weeklyFocusBox = document.getElementById('weeklyFocus');
-    if (weeklyFocusBox) {
-        weeklyFocusBox.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-remove-focus')) {
-                window.removeFocusItem(parseInt(e.target.dataset.index));
-            }
-        });
-    }
-    // Fixed: Edit focus button
-    const editFocusBtn = document.querySelector('.weekly-focus-card .btn-secondary');
-    if (editFocusBtn) {
-        editFocusBtn.removeAttribute('onclick'); // Safeguard
-        editFocusBtn.addEventListener('click', window.editWeeklyFocus);
-    }
-
-    // Goals Section Delegation
-    const goalsBox = document.getElementById('goalsContainer');
-    if (goalsBox) {
-        goalsBox.addEventListener('click', (e) => {
-            const card = e.target.closest('.goal-card');
-            if (!card) return;
-            const id = card.dataset.goalId;
-            if (e.target.classList.contains('edit-goal-btn')) openGoalModal(id);
-            else if (e.target.classList.contains('delete-goal-btn')) window.deleteGoal(id);
-        });
-        // Changed from 'change' to 'input' for real-time slider updates
-        goalsBox.addEventListener('input', (e) => {
-            if (e.target.classList.contains('progress-slider')) {
-                const id = e.target.closest('.goal-card').dataset.goalId;
-                window.updateProgressImmediate(id, e.target.value);
-            }
-        });
-    }
-    const addGoalBtn = document.querySelector('#goals .btn-primary');
-    if (addGoalBtn) addGoalBtn.addEventListener('click', () => openGoalModal());
-
-    const goalForm = document.getElementById('goalForm');
-    if (goalForm) {
-        goalForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = goalForm.closest('.modal').dataset.editingId;
-            const data = {
-                title: document.getElementById('goalTitle').value,
-                category: document.getElementById('goalCategory').value,
-                priority: document.getElementById('goalPriority').value,
-                endDate: document.getElementById('goalEndDate').value,
-                progress: id ? goals.find(g => g.id === parseInt(id)).progress : 0,
-                status: 'active'
-            };
-            if (id) {
-                const idx = goals.findIndex(g => g.id === parseInt(id));
-                goals[idx] = { ...goals[idx], ...data };
-            } else {
-                goals.push({ id: Date.now(), ...data });
-            }
-            localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-            window.closeGoalModal();
-            loadGoals();
-            updateDashboardStats();
-            showNotification(id ? 'Goal updated!' : 'Goal created!', 'success');
-        });
-    }
-
-    // Modal close buttons (X and Cancel)
-    document.querySelectorAll('.close-modal, .modal .btn-secondary').forEach(b => {
-        b.addEventListener('click', () => {
-            window.closeGoalModal();
-            window.closeNoteModal();
-        });
+  // Overview Section
+  const weeklyFocusBox = document.getElementById('weeklyFocus');
+  if (weeklyFocusBox) {
+    weeklyFocusBox.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-remove-focus')) {
+        window.removeFocusItem(parseInt(e.target.dataset.index));
+      }
     });
+  }
+  // Fixed: Edit focus button
+  const editFocusBtn = document.querySelector('.weekly-focus-card .btn-secondary');
+  if (editFocusBtn) {
+    editFocusBtn.removeAttribute('onclick'); // Safeguard
+    editFocusBtn.addEventListener('click', window.editWeeklyFocus);
+  }
 
-    // Notes Section Delegation
-    const notesBox = document.getElementById('notesGrid');
-    if (notesBox) {
-        notesBox.addEventListener('click', (e) => {
-            const card = e.target.closest('.note-card');
-            if (card) openNoteModal(card.dataset.id);
-        });
-    }
-    const createNoteBtn = document.getElementById('createNewNoteBtn');
-    if (createNoteBtn) createNoteBtn.addEventListener('click', () => openNoteModal());
-
-    const saveNoteBtn = document.getElementById('saveNoteBtn');
-    if (saveNoteBtn) saveNoteBtn.addEventListener('click', window.saveNote);
-
-    // Note Toolbar
-    const toolbar = document.querySelector('.note-toolbar');
-    if (toolbar) {
-        toolbar.addEventListener('click', (e) => {
-            const btn = e.target.closest('.toolbar-btn');
-            if (!btn) return;
-            const cmd = btn.dataset.cmd;
-            if (cmd === 'bold') document.execCommand('bold', false, null);
-            else if (cmd === 'italic') document.execCommand('italic', false, null);
-            else if (cmd === 'underline') document.execCommand('underline', false, null);
-            else if (cmd === 'list') document.execCommand('insertUnorderedList', false, null);
-            else if (cmd === 'link') {
-                const url = prompt('Enter URL:');
-                if (url) document.execCommand('createLink', false, url);
-            }
-        });
-    }
-
-    // Tasks Section Delegation
-    const tasksSection = document.getElementById('tasks');
-    if (tasksSection) {
-        tasksSection.addEventListener('click', (e) => {
-            if (e.target.classList.contains('task-move-btn')) {
-                window.moveTask(e.target.dataset.id, e.target.dataset.status);
-            } else if (e.target.classList.contains('task-delete-btn')) {
-                window.deleteTask(e.target.dataset.id);
-            }
-        });
-    }
-    const addNewTaskBtn = document.getElementById('addNewTaskBtn');
-    if (addNewTaskBtn) addNewTaskBtn.addEventListener('click', window.addNewTask);
-
-    // Calendar Section Delegation
-    const calDays = document.getElementById('calendarDays');
-    if (calDays) {
-        calDays.addEventListener('click', (e) => {
-            const day = e.target.closest('.calendar-day');
-            if (day && !day.classList.contains('empty')) {
-                window.addCalendarEvent(parseInt(day.dataset.day));
-            }
-        });
-    }
-    const addCalBtn = document.getElementById('addCalendarEventBtn');
-    if (addCalBtn) addCalBtn.addEventListener('click', () => {
-        const d = prompt('Enter day of month (1-31):');
-        if (d) window.addCalendarEvent(d);
+  // Goals Section Delegation
+  const goalsBox = document.getElementById('goalsContainer');
+  if (goalsBox) {
+    goalsBox.addEventListener('click', (e) => {
+      const card = e.target.closest('.goal-card');
+      if (!card) return;
+      const id = card.dataset.goalId;
+      if (e.target.classList.contains('edit-goal-btn')) openGoalModal(id);
+      else if (e.target.classList.contains('delete-goal-btn')) window.deleteGoal(id);
     });
-    const prevM = document.getElementById('prevMonthBtn');
-    if (prevM) prevM.addEventListener('click', window.previousMonth);
-    const nextM = document.getElementById('nextMonthBtn');
-    if (nextM) nextM.addEventListener('click', window.nextMonth);
-
-    // Goal Filtering/Sorting
-    document.querySelectorAll('.filter-btn').forEach(b => {
-        b.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
-            b.classList.add('active');
-            loadGoals();
-        });
+    // Changed from 'change' to 'input' for real-time slider updates
+    goalsBox.addEventListener('input', (e) => {
+      if (e.target.classList.contains('progress-slider')) {
+        const id = e.target.closest('.goal-card').dataset.goalId;
+        window.updateProgressImmediate(id, e.target.value);
+      }
     });
-    const sortEl = document.getElementById('goalSort');
-    if (sortEl) sortEl.addEventListener('change', loadGoals);
+  }
+  const addGoalBtn = document.querySelector('#goals .btn-primary');
+  if (addGoalBtn) addGoalBtn.addEventListener('click', () => openGoalModal());
 
-    // Specialized Section Buttons
-    const addProjBtn = document.getElementById('addNewProjectBtn');
-    if (addProjBtn) addProjBtn.addEventListener('click', () => window.showTemplates());
+  const goalForm = document.getElementById('goalForm');
+  if (goalForm) {
+    goalForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = goalForm.closest('.modal').dataset.editingId;
+      const data = {
+        title: document.getElementById('goalTitle').value,
+        category: document.getElementById('goalCategory').value,
+        priority: document.getElementById('goalPriority').value,
+        endDate: document.getElementById('goalEndDate').value,
+        progress: id ? goals.find((g) => g.id === parseInt(id)).progress : 0,
+        status: 'active',
+      };
+      if (id) {
+        const idx = goals.findIndex((g) => g.id === parseInt(id));
+        goals[idx] = { ...goals[idx], ...data };
+      } else {
+        goals.push({ id: Date.now(), ...data });
+      }
+      localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+      window.closeGoalModal();
+      loadGoals();
+      updateDashboardStats();
+      showNotification(id ? 'Goal updated!' : 'Goal created!', 'success');
+    });
+  }
 
-    // Initial Load
-    loadDashboard();
+  // Modal close buttons (X and Cancel)
+  document.querySelectorAll('.close-modal, .modal .btn-secondary').forEach((b) => {
+    b.addEventListener('click', () => {
+      window.closeGoalModal();
+      window.closeNoteModal();
+    });
+  });
+
+  // Notes Section Delegation
+  const notesBox = document.getElementById('notesGrid');
+  if (notesBox) {
+    notesBox.addEventListener('click', (e) => {
+      const card = e.target.closest('.note-card');
+      if (card) openNoteModal(card.dataset.id);
+    });
+  }
+  const createNoteBtn = document.getElementById('createNewNoteBtn');
+  if (createNoteBtn) createNoteBtn.addEventListener('click', () => openNoteModal());
+
+  const saveNoteBtn = document.getElementById('saveNoteBtn');
+  if (saveNoteBtn) saveNoteBtn.addEventListener('click', window.saveNote);
+
+  // Note Toolbar
+  const toolbar = document.querySelector('.note-toolbar');
+  if (toolbar) {
+    toolbar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.toolbar-btn');
+      if (!btn) return;
+      const cmd = btn.dataset.cmd;
+      if (cmd === 'bold') document.execCommand('bold', false, null);
+      else if (cmd === 'italic') document.execCommand('italic', false, null);
+      else if (cmd === 'underline') document.execCommand('underline', false, null);
+      else if (cmd === 'list') document.execCommand('insertUnorderedList', false, null);
+      else if (cmd === 'link') {
+        const url = prompt('Enter URL:');
+        if (url) document.execCommand('createLink', false, url);
+      }
+    });
+  }
+
+  // Tasks Section Delegation
+  const tasksSection = document.getElementById('tasks');
+  if (tasksSection) {
+    tasksSection.addEventListener('click', (e) => {
+      if (e.target.classList.contains('task-move-btn')) {
+        window.moveTask(e.target.dataset.id, e.target.dataset.status);
+      } else if (e.target.classList.contains('task-delete-btn')) {
+        window.deleteTask(e.target.dataset.id);
+      }
+    });
+  }
+  const addNewTaskBtn = document.getElementById('addNewTaskBtn');
+  if (addNewTaskBtn) addNewTaskBtn.addEventListener('click', window.addNewTask);
+
+  // Calendar Section Delegation
+  const calDays = document.getElementById('calendarDays');
+  if (calDays) {
+    calDays.addEventListener('click', (e) => {
+      const day = e.target.closest('.calendar-day');
+      if (day && !day.classList.contains('empty')) {
+        window.addCalendarEvent(parseInt(day.dataset.day));
+      }
+    });
+  }
+  const addCalBtn = document.getElementById('addCalendarEventBtn');
+  if (addCalBtn)
+    addCalBtn.addEventListener('click', () => {
+      const d = prompt('Enter day of month (1-31):');
+      if (d) window.addCalendarEvent(d);
+    });
+  const prevM = document.getElementById('prevMonthBtn');
+  if (prevM) prevM.addEventListener('click', window.previousMonth);
+  const nextM = document.getElementById('nextMonthBtn');
+  if (nextM) nextM.addEventListener('click', window.nextMonth);
+
+  // Goal Filtering/Sorting
+  document.querySelectorAll('.filter-btn').forEach((b) => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach((x) => x.classList.remove('active'));
+      b.classList.add('active');
+      loadGoals();
+    });
+  });
+  const sortEl = document.getElementById('goalSort');
+  if (sortEl) sortEl.addEventListener('change', loadGoals);
+
+  // Specialized Section Buttons
+  const addProjBtn = document.getElementById('addNewProjectBtn');
+  if (addProjBtn) addProjBtn.addEventListener('click', () => window.showTemplates());
+
+  // Initial Load
+  loadDashboard();
 });
 
 function showNotification(msg, type) {
-    const n = document.createElement('div');
-    n.className = `notification ${type}`;
-    n.style.cssText = 'position:fixed;top:20px;right:20px;background:#667eea;color:white;padding:12px 24px;border-radius:12px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.3);font-weight:500;animation: slideIn 0.3s ease-out;';
-    n.textContent = msg;
-    document.body.appendChild(n);
-    setTimeout(() => {
-        n.style.animation = 'slideOut 0.3s ease-in forwards';
-        setTimeout(() => n.remove(), 300);
-    }, 3000);
+  const n = document.createElement('div');
+  n.className = `notification ${type}`;
+  n.style.cssText =
+    'position:fixed;top:20px;right:20px;background:#667eea;color:white;padding:12px 24px;border-radius:12px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.3);font-weight:500;animation: slideIn 0.3s ease-out;';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => {
+    n.style.animation = 'slideOut 0.3s ease-in forwards';
+    setTimeout(() => n.remove(), 300);
+  }, 3000);
 }
 
 // Stubs for specialized loaders - NOW FUNCTIONAL
 function loadProjects() {
-    const grid = document.getElementById('projectsGrid');
-    if (!grid) return;
+  const grid = document.getElementById('projectsGrid');
+  if (!grid) return;
 
-    const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
-    if (projects.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><h3>📁 Projects Workspace</h3><p>Click "+ New Project" to start planning your next big project.</p></div>';
-    } else {
-        grid.innerHTML = projects.map(p => `
+  const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+  if (projects.length === 0) {
+    grid.innerHTML =
+      '<div class="empty-state"><h3>📁 Projects Workspace</h3><p>Click "+ New Project" to start planning your next big project.</p></div>';
+  } else {
+    grid.innerHTML = projects
+      .map(
+        (p) => `
             <div class="project-card" data-id="${p.id}">
                 <h4>${p.title}</h4>
                 <p>${p.description || 'No description'}</p>
@@ -778,32 +891,37 @@ function loadProjects() {
                 </div>
                 <button class="btn-delete-project" data-id="${p.id}">🗑️</button>
             </div>
-        `).join('');
+        `
+      )
+      .join('');
 
-        // Add delete listeners
-        grid.querySelectorAll('.btn-delete-project').forEach(btn => {
-            btn.addEventListener('click', () => deleteProject(btn.dataset.id));
-        });
-    }
+    // Add delete listeners
+    grid.querySelectorAll('.btn-delete-project').forEach((btn) => {
+      btn.addEventListener('click', () => deleteProject(btn.dataset.id));
+    });
+  }
 }
 
 function deleteProject(id) {
-    let projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
-    projects = projects.filter(p => p.id != id);
-    localStorage.setItem('edugateway_projects', JSON.stringify(projects));
-    loadProjects();
-    showNotification('Project deleted', 'success');
+  let projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+  projects = projects.filter((p) => p.id != id);
+  localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+  loadProjects();
+  showNotification('Project deleted', 'success');
 }
 
 function loadResources() {
-    const grid = document.getElementById('resourcesGrid');
-    if (!grid) return;
+  const grid = document.getElementById('resourcesGrid');
+  if (!grid) return;
 
-    const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
-    if (resources.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><h3>🔗 Resource Library</h3><p>Click "+ Add Resource" to save articles, links, and useful materials.</p></div>';
-    } else {
-        grid.innerHTML = resources.map(r => `
+  const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+  if (resources.length === 0) {
+    grid.innerHTML =
+      '<div class="empty-state"><h3>🔗 Resource Library</h3><p>Click "+ Add Resource" to save articles, links, and useful materials.</p></div>';
+  } else {
+    grid.innerHTML = resources
+      .map(
+        (r) => `
             <div class="resource-card" data-id="${r.id}">
                 <h4>🔗 ${r.title}</h4>
                 <p>${r.url}</p>
@@ -813,62 +931,72 @@ function loadResources() {
                     <button class="btn-delete-resource" data-id="${r.id}">🗑️</button>
                 </div>
             </div>
-        `).join('');
+        `
+      )
+      .join('');
 
-        grid.querySelectorAll('.btn-delete-resource').forEach(btn => {
-            btn.addEventListener('click', () => deleteResource(btn.dataset.id));
-        });
-    }
+    grid.querySelectorAll('.btn-delete-resource').forEach((btn) => {
+      btn.addEventListener('click', () => deleteResource(btn.dataset.id));
+    });
+  }
 }
 
 function deleteResource(id) {
-    let resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
-    resources = resources.filter(r => r.id != id);
-    localStorage.setItem('edugateway_resources', JSON.stringify(resources));
-    loadResources();
-    showNotification('Resource deleted', 'success');
+  let resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+  resources = resources.filter((r) => r.id != id);
+  localStorage.setItem('edugateway_resources', JSON.stringify(resources));
+  loadResources();
+  showNotification('Resource deleted', 'success');
 }
 
 function loadCourses() {
-    const grid = document.getElementById('coursesGrid');
-    if (!grid) return;
+  const grid = document.getElementById('coursesGrid');
+  if (!grid) return;
 
-    const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
-    if (courses.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><h3>📚 Course Load</h3><p>Click "+ Add Course" to manage your modules and track grades.</p></div>';
-    } else {
-        grid.innerHTML = courses.map(c => `
+  const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+  if (courses.length === 0) {
+    grid.innerHTML =
+      '<div class="empty-state"><h3>📚 Course Load</h3><p>Click "+ Add Course" to manage your modules and track grades.</p></div>';
+  } else {
+    grid.innerHTML = courses
+      .map(
+        (c) => `
             <div class="course-card" data-id="${c.id}">
                 <h4>${c.name}</h4>
                 <p>Instructor: ${c.instructor || 'N/A'}</p>
                 <p>Credits: ${c.credits || 'N/A'} | Grade: ${c.grade || 'In Progress'}</p>
                 <button class="btn-delete-course" data-id="${c.id}">🗑️</button>
             </div>
-        `).join('');
+        `
+      )
+      .join('');
 
-        grid.querySelectorAll('.btn-delete-course').forEach(btn => {
-            btn.addEventListener('click', () => deleteCourse(btn.dataset.id));
-        });
-    }
+    grid.querySelectorAll('.btn-delete-course').forEach((btn) => {
+      btn.addEventListener('click', () => deleteCourse(btn.dataset.id));
+    });
+  }
 }
 
 function deleteCourse(id) {
-    let courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
-    courses = courses.filter(c => c.id != id);
-    localStorage.setItem('edugateway_courses', JSON.stringify(courses));
-    loadCourses();
-    showNotification('Course deleted', 'success');
+  let courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+  courses = courses.filter((c) => c.id != id);
+  localStorage.setItem('edugateway_courses', JSON.stringify(courses));
+  loadCourses();
+  showNotification('Course deleted', 'success');
 }
 
 function loadApplications() {
-    const list = document.getElementById('applicationsList');
-    if (!list) return;
+  const list = document.getElementById('applicationsList');
+  if (!list) return;
 
-    const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
-    if (applications.length === 0) {
-        list.innerHTML = '<div class="empty-state"><h3>📄 Applications</h3><p>Click "+ New Application" to track your university and job applications.</p></div>';
-    } else {
-        list.innerHTML = applications.map(a => `
+  const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+  if (applications.length === 0) {
+    list.innerHTML =
+      '<div class="empty-state"><h3>📄 Applications</h3><p>Click "+ New Application" to track your university and job applications.</p></div>';
+  } else {
+    list.innerHTML = applications
+      .map(
+        (a) => `
             <div class="application-item" data-id="${a.id}">
                 <div class="application-header">
                     <h4>${a.position || 'Position'} at ${a.organization || 'Organization'}</h4>
@@ -877,31 +1005,36 @@ function loadApplications() {
                 <p>Deadline: ${a.deadline || 'Not set'}</p>
                 <button class="btn-delete-application" data-id="${a.id}">🗑️</button>
             </div>
-        `).join('');
+        `
+      )
+      .join('');
 
-        list.querySelectorAll('.btn-delete-application').forEach(btn => {
-            btn.addEventListener('click', () => deleteApplication(btn.dataset.id));
-        });
-    }
+    list.querySelectorAll('.btn-delete-application').forEach((btn) => {
+      btn.addEventListener('click', () => deleteApplication(btn.dataset.id));
+    });
+  }
 }
 
 function deleteApplication(id) {
-    let applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
-    applications = applications.filter(a => a.id != id);
-    localStorage.setItem('edugateway_applications', JSON.stringify(applications));
-    loadApplications();
-    showNotification('Application deleted', 'success');
+  let applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+  applications = applications.filter((a) => a.id != id);
+  localStorage.setItem('edugateway_applications', JSON.stringify(applications));
+  loadApplications();
+  showNotification('Application deleted', 'success');
 }
 
 function loadScholarshipTracker() {
-    const list = document.getElementById('scholarshipTrackerList');
-    if (!list) return;
+  const list = document.getElementById('scholarshipTrackerList');
+  if (!list) return;
 
-    const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
-    if (scholarships.length === 0) {
-        list.innerHTML = '<div class="empty-state"><h3>💰 Scholarships</h3><p>Click "+ Add Scholarship" to monitor your funding applications.</p></div>';
-    } else {
-        list.innerHTML = scholarships.map(s => `
+  const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+  if (scholarships.length === 0) {
+    list.innerHTML =
+      '<div class="empty-state"><h3>💰 Scholarships</h3><p>Click "+ Add Scholarship" to monitor your funding applications.</p></div>';
+  } else {
+    list.innerHTML = scholarships
+      .map(
+        (s) => `
             <div class="scholarship-tracker-item" data-id="${s.id}">
                 <div class="scholarship-header">
                     <h4>${s.name || 'Scholarship'}</h4>
@@ -910,37 +1043,46 @@ function loadScholarshipTracker() {
                 <p>Amount: ${s.amount || 'N/A'} | Deadline: ${s.deadline || 'N/A'}</p>
                 <button class="btn-delete-scholarship-track" data-id="${s.id}">🗑️</button>
             </div>
-        `).join('');
+        `
+      )
+      .join('');
 
-        list.querySelectorAll('.btn-delete-scholarship-track').forEach(btn => {
-            btn.addEventListener('click', () => deleteScholarshipTrack(btn.dataset.id));
-        });
-    }
+    list.querySelectorAll('.btn-delete-scholarship-track').forEach((btn) => {
+      btn.addEventListener('click', () => deleteScholarshipTrack(btn.dataset.id));
+    });
+  }
 }
 
 function deleteScholarshipTrack(id) {
-    let scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
-    scholarships = scholarships.filter(s => s.id != id);
-    localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
-    loadScholarshipTracker();
-    showNotification('Scholarship removed from tracker', 'success');
+  let scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+  scholarships = scholarships.filter((s) => s.id != id);
+  localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
+  loadScholarshipTracker();
+  showNotification('Scholarship removed from tracker', 'success');
 }
 
 function loadDeadlines() {
-    const list = document.getElementById('allDeadlinesList');
-    if (!list) return;
+  const list = document.getElementById('allDeadlinesList');
+  if (!list) return;
 
-    const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
-    const allDeadlines = [...deadlines, ...goals.filter(g => g.endDate).map(g => ({ id: 'goal-' + g.id, title: g.title, date: g.endDate, source: 'Goals' }))];
+  const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+  const allDeadlines = [
+    ...deadlines,
+    ...goals
+      .filter((g) => g.endDate)
+      .map((g) => ({ id: 'goal-' + g.id, title: g.title, date: g.endDate, source: 'Goals' })),
+  ];
 
-    if (allDeadlines.length === 0) {
-        list.innerHTML = '<div class="empty-state"><h3>⏰ Deadlines</h3><p>Click "+ Add Deadline" to track important dates.</p></div>';
-    } else {
-        const sorted = allDeadlines.sort((a, b) => new Date(a.date) - new Date(b.date));
-        list.innerHTML = sorted.map(d => {
-            const daysLeft = Math.ceil((new Date(d.date) - new Date()) / 86400000);
-            const isPast = daysLeft < 0;
-            return `
+  if (allDeadlines.length === 0) {
+    list.innerHTML =
+      '<div class="empty-state"><h3>⏰ Deadlines</h3><p>Click "+ Add Deadline" to track important dates.</p></div>';
+  } else {
+    const sorted = allDeadlines.sort((a, b) => new Date(a.date) - new Date(b.date));
+    list.innerHTML = sorted
+      .map((d) => {
+        const daysLeft = Math.ceil((new Date(d.date) - new Date()) / 86400000);
+        const isPast = daysLeft < 0;
+        return `
                 <div class="deadline-item ${isPast ? 'past' : ''}" data-id="${d.id}">
                     <div class="deadline-content">
                         <h4>${d.title}</h4>
@@ -952,406 +1094,470 @@ function loadDeadlines() {
                     ${!d.id.toString().startsWith('goal-') ? `<button class="btn-delete-deadline" data-id="${d.id}">🗑️</button>` : ''}
                 </div>
             `;
-        }).join('');
+      })
+      .join('');
 
-        list.querySelectorAll('.btn-delete-deadline').forEach(btn => {
-            btn.addEventListener('click', () => deleteDeadline(btn.dataset.id));
-        });
-    }
+    list.querySelectorAll('.btn-delete-deadline').forEach((btn) => {
+      btn.addEventListener('click', () => deleteDeadline(btn.dataset.id));
+    });
+  }
 }
 
 function deleteDeadline(id) {
-    let deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
-    deadlines = deadlines.filter(d => d.id != id);
-    localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
-    loadDeadlines();
-    showNotification('Deadline deleted', 'success');
+  let deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+  deadlines = deadlines.filter((d) => d.id != id);
+  localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
+  loadDeadlines();
+  showNotification('Deadline deleted', 'success');
 }
 
 // Add button handlers with Modal Support
 let currentAddType = null;
 
 function openAddModal(type, title, fields) {
-    currentAddType = type;
-    const modal = document.getElementById('universalAddModal');
-    const titleEl = document.getElementById('addModalTitle');
-    const fieldsContainer = document.getElementById('addModalFields');
+  currentAddType = type;
+  const modal = document.getElementById('universalAddModal');
+  const titleEl = document.getElementById('addModalTitle');
+  const fieldsContainer = document.getElementById('addModalFields');
 
-    if (!modal || !titleEl || !fieldsContainer) {
-        // Fallback to prompt if modal doesn't exist
-        return false;
-    }
+  if (!modal || !titleEl || !fieldsContainer) {
+    // Fallback to prompt if modal doesn't exist
+    return false;
+  }
 
-    titleEl.textContent = title;
-    fieldsContainer.innerHTML = fields.map(f => `
+  titleEl.textContent = title;
+  fieldsContainer.innerHTML = fields
+    .map(
+      (f) => `
         <div class="add-form-group">
             <label class="${f.required ? 'required' : ''}">${f.label}</label>
-            ${f.type === 'textarea'
-            ? `<textarea id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`
-            : f.type === 'select'
-                ? `<select id="add_${f.name}" ${f.required ? 'required' : ''}>${f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`
-                : `<input type="${f.type || 'text'}" id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`
-        }
+            ${
+              f.type === 'textarea'
+                ? `<textarea id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`
+                : f.type === 'select'
+                  ? `<select id="add_${f.name}" ${f.required ? 'required' : ''}>${f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`
+                  : `<input type="${f.type || 'text'}" id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`
+            }
             ${f.helper ? `<div class="form-helper">${f.helper}</div>` : ''}
         </div>
-    `).join('');
+    `
+    )
+    .join('');
 
-    modal.classList.add('show');
-    return true;
+  modal.classList.add('show');
+  return true;
 }
 
 window.closeAddModal = function () {
-    const modal = document.getElementById('universalAddModal');
-    if (modal) modal.classList.remove('show');
-    currentAddType = null;
+  const modal = document.getElementById('universalAddModal');
+  if (modal) modal.classList.remove('show');
+  currentAddType = null;
 };
 
 // Initialize universal form submission
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('universalAddForm');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            handleAddSubmit();
-        });
-    }
+  const form = document.getElementById('universalAddForm');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleAddSubmit();
+    });
+  }
 
-    // Close modal on backdrop click
-    const modal = document.getElementById('universalAddModal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeAddModal();
-        });
-    }
+  // Close modal on backdrop click
+  const modal = document.getElementById('universalAddModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeAddModal();
+    });
+  }
 });
 
 function handleAddSubmit() {
-    switch (currentAddType) {
-        case 'project': submitProject(); break;
-        case 'resource': submitResource(); break;
-        case 'course': submitCourse(); break;
-        case 'application': submitApplication(); break;
-        case 'scholarship': submitScholarshipTrack(); break;
-        case 'deadline': submitDeadline(); break;
-        case 'newpage': submitNewPage(); break;
-    }
-    closeAddModal();
+  switch (currentAddType) {
+    case 'project':
+      submitProject();
+      break;
+    case 'resource':
+      submitResource();
+      break;
+    case 'course':
+      submitCourse();
+      break;
+    case 'application':
+      submitApplication();
+      break;
+    case 'scholarship':
+      submitScholarshipTrack();
+      break;
+    case 'deadline':
+      submitDeadline();
+      break;
+    case 'newpage':
+      submitNewPage();
+      break;
+  }
+  closeAddModal();
 }
 
 // Project
 function addResource() {
-    const opened = openAddModal('resource', '🔗 Add Resource', [
-        { name: 'title', label: 'Resource Title', required: true, placeholder: 'Enter resource name' },
-        { name: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://example.com' },
-        { name: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Optional notes about this resource' }
-    ]);
-    if (!opened) {
-        const title = prompt('Resource title:');
-        if (!title) return;
-        const url = prompt('Resource URL:');
-        if (!url) return;
-        const notes = prompt('Notes (optional):');
-        const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
-        resources.push({ id: Date.now(), title, url, notes, addedAt: new Date().toISOString() });
-        localStorage.setItem('edugateway_resources', JSON.stringify(resources));
-        loadResources();
-        showNotification('Resource added!', 'success');
-    }
-}
-
-function submitResource() {
-    const title = document.getElementById('add_title')?.value;
-    const url = document.getElementById('add_url')?.value;
-    const notes = document.getElementById('add_notes')?.value;
-    if (!title || !url) return;
+  const opened = openAddModal('resource', '🔗 Add Resource', [
+    { name: 'title', label: 'Resource Title', required: true, placeholder: 'Enter resource name' },
+    { name: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://example.com' },
+    {
+      name: 'notes',
+      label: 'Notes',
+      type: 'textarea',
+      placeholder: 'Optional notes about this resource',
+    },
+  ]);
+  if (!opened) {
+    const title = prompt('Resource title:');
+    if (!title) return;
+    const url = prompt('Resource URL:');
+    if (!url) return;
+    const notes = prompt('Notes (optional):');
     const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
     resources.push({ id: Date.now(), title, url, notes, addedAt: new Date().toISOString() });
     localStorage.setItem('edugateway_resources', JSON.stringify(resources));
     loadResources();
     showNotification('Resource added!', 'success');
+  }
+}
+
+function submitResource() {
+  const title = document.getElementById('add_title')?.value;
+  const url = document.getElementById('add_url')?.value;
+  const notes = document.getElementById('add_notes')?.value;
+  if (!title || !url) return;
+  const resources = JSON.parse(localStorage.getItem('edugateway_resources')) || [];
+  resources.push({ id: Date.now(), title, url, notes, addedAt: new Date().toISOString() });
+  localStorage.setItem('edugateway_resources', JSON.stringify(resources));
+  loadResources();
+  showNotification('Resource added!', 'success');
 }
 
 function addCourse() {
-    const opened = openAddModal('course', '📚 Add Course', [
-        { name: 'name', label: 'Course Name', required: true, placeholder: 'e.g., Introduction to Computer Science' },
-        { name: 'instructor', label: 'Instructor', placeholder: 'Professor name' },
-        { name: 'credits', label: 'Credits', type: 'number', placeholder: '3' }
-    ]);
-    if (!opened) {
-        const name = prompt('Course name:');
-        if (!name) return;
-        const instructor = prompt('Instructor name:');
-        const credits = prompt('Credits:');
-        const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
-        courses.push({ id: Date.now(), name, instructor, credits, grade: 'In Progress' });
-        localStorage.setItem('edugateway_courses', JSON.stringify(courses));
-        loadCourses();
-        showNotification('Course added!', 'success');
-    }
-}
-
-function submitCourse() {
-    const name = document.getElementById('add_name')?.value;
-    const instructor = document.getElementById('add_instructor')?.value;
-    const credits = document.getElementById('add_credits')?.value;
+  const opened = openAddModal('course', '📚 Add Course', [
+    {
+      name: 'name',
+      label: 'Course Name',
+      required: true,
+      placeholder: 'e.g., Introduction to Computer Science',
+    },
+    { name: 'instructor', label: 'Instructor', placeholder: 'Professor name' },
+    { name: 'credits', label: 'Credits', type: 'number', placeholder: '3' },
+  ]);
+  if (!opened) {
+    const name = prompt('Course name:');
     if (!name) return;
+    const instructor = prompt('Instructor name:');
+    const credits = prompt('Credits:');
     const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
     courses.push({ id: Date.now(), name, instructor, credits, grade: 'In Progress' });
     localStorage.setItem('edugateway_courses', JSON.stringify(courses));
     loadCourses();
     showNotification('Course added!', 'success');
+  }
+}
+
+function submitCourse() {
+  const name = document.getElementById('add_name')?.value;
+  const instructor = document.getElementById('add_instructor')?.value;
+  const credits = document.getElementById('add_credits')?.value;
+  if (!name) return;
+  const courses = JSON.parse(localStorage.getItem('edugateway_courses')) || [];
+  courses.push({ id: Date.now(), name, instructor, credits, grade: 'In Progress' });
+  localStorage.setItem('edugateway_courses', JSON.stringify(courses));
+  loadCourses();
+  showNotification('Course added!', 'success');
 }
 
 function addApplication() {
-    const opened = openAddModal('application', '📄 Add Application', [
-        { name: 'position', label: 'Position/Program', required: true, placeholder: 'e.g., Software Engineer Intern' },
-        { name: 'organization', label: 'Organization/University', required: true, placeholder: 'Company or school name' },
-        { name: 'deadline', label: 'Deadline', type: 'date' }
-    ]);
-    if (!opened) {
-        const position = prompt('Position/Program:');
-        if (!position) return;
-        const organization = prompt('Organization/University:');
-        const deadline = prompt('Deadline (YYYY-MM-DD):');
-        const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
-        applications.push({ id: Date.now(), position, organization, deadline, status: 'pending' });
-        localStorage.setItem('edugateway_applications', JSON.stringify(applications));
-        loadApplications();
-        showNotification('Application added!', 'success');
-    }
-}
-
-function submitApplication() {
-    const position = document.getElementById('add_position')?.value;
-    const organization = document.getElementById('add_organization')?.value;
-    const deadline = document.getElementById('add_deadline')?.value;
+  const opened = openAddModal('application', '📄 Add Application', [
+    {
+      name: 'position',
+      label: 'Position/Program',
+      required: true,
+      placeholder: 'e.g., Software Engineer Intern',
+    },
+    {
+      name: 'organization',
+      label: 'Organization/University',
+      required: true,
+      placeholder: 'Company or school name',
+    },
+    { name: 'deadline', label: 'Deadline', type: 'date' },
+  ]);
+  if (!opened) {
+    const position = prompt('Position/Program:');
     if (!position) return;
+    const organization = prompt('Organization/University:');
+    const deadline = prompt('Deadline (YYYY-MM-DD):');
     const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
     applications.push({ id: Date.now(), position, organization, deadline, status: 'pending' });
     localStorage.setItem('edugateway_applications', JSON.stringify(applications));
     loadApplications();
     showNotification('Application added!', 'success');
+  }
+}
+
+function submitApplication() {
+  const position = document.getElementById('add_position')?.value;
+  const organization = document.getElementById('add_organization')?.value;
+  const deadline = document.getElementById('add_deadline')?.value;
+  if (!position) return;
+  const applications = JSON.parse(localStorage.getItem('edugateway_applications')) || [];
+  applications.push({ id: Date.now(), position, organization, deadline, status: 'pending' });
+  localStorage.setItem('edugateway_applications', JSON.stringify(applications));
+  loadApplications();
+  showNotification('Application added!', 'success');
 }
 
 function addScholarshipTrack() {
-    const opened = openAddModal('scholarship', '💰 Track Scholarship', [
-        { name: 'name', label: 'Scholarship Name', required: true, placeholder: 'e.g., Gates Cambridge' },
-        { name: 'amount', label: 'Amount', placeholder: 'e.g., $50,000' },
-        { name: 'deadline', label: 'Application Deadline', type: 'date' }
-    ]);
-    if (!opened) {
-        const name = prompt('Scholarship name:');
-        if (!name) return;
-        const amount = prompt('Amount:');
-        const deadline = prompt('Deadline (YYYY-MM-DD):');
-        const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
-        scholarships.push({ id: Date.now(), name, amount, deadline, status: 'pending' });
-        localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
-        loadScholarshipTracker();
-        showNotification('Scholarship added to tracker!', 'success');
-    }
-}
-
-function submitScholarshipTrack() {
-    const name = document.getElementById('add_name')?.value;
-    const amount = document.getElementById('add_amount')?.value;
-    const deadline = document.getElementById('add_deadline')?.value;
+  const opened = openAddModal('scholarship', '💰 Track Scholarship', [
+    {
+      name: 'name',
+      label: 'Scholarship Name',
+      required: true,
+      placeholder: 'e.g., Gates Cambridge',
+    },
+    { name: 'amount', label: 'Amount', placeholder: 'e.g., $50,000' },
+    { name: 'deadline', label: 'Application Deadline', type: 'date' },
+  ]);
+  if (!opened) {
+    const name = prompt('Scholarship name:');
     if (!name) return;
+    const amount = prompt('Amount:');
+    const deadline = prompt('Deadline (YYYY-MM-DD):');
     const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
     scholarships.push({ id: Date.now(), name, amount, deadline, status: 'pending' });
     localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
     loadScholarshipTracker();
     showNotification('Scholarship added to tracker!', 'success');
+  }
+}
+
+function submitScholarshipTrack() {
+  const name = document.getElementById('add_name')?.value;
+  const amount = document.getElementById('add_amount')?.value;
+  const deadline = document.getElementById('add_deadline')?.value;
+  if (!name) return;
+  const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker')) || [];
+  scholarships.push({ id: Date.now(), name, amount, deadline, status: 'pending' });
+  localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
+  loadScholarshipTracker();
+  showNotification('Scholarship added to tracker!', 'success');
 }
 
 function addDeadline() {
-    const opened = openAddModal('deadline', '⏰ Add Deadline', [
-        { name: 'title', label: 'Deadline Title', required: true, placeholder: 'What is due?' },
-        { name: 'date', label: 'Due Date', type: 'date', required: true }
-    ]);
-    if (!opened) {
-        const title = prompt('Deadline title:');
-        if (!title) return;
-        const date = prompt('Date (YYYY-MM-DD):');
-        if (!date) return;
-        const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
-        deadlines.push({ id: Date.now(), title, date });
-        localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
-        loadDeadlines();
-        showNotification('Deadline added!', 'success');
-    }
-}
-
-function submitDeadline() {
-    const title = document.getElementById('add_title')?.value;
-    const date = document.getElementById('add_date')?.value;
-    if (!title || !date) return;
+  const opened = openAddModal('deadline', '⏰ Add Deadline', [
+    { name: 'title', label: 'Deadline Title', required: true, placeholder: 'What is due?' },
+    { name: 'date', label: 'Due Date', type: 'date', required: true },
+  ]);
+  if (!opened) {
+    const title = prompt('Deadline title:');
+    if (!title) return;
+    const date = prompt('Date (YYYY-MM-DD):');
+    if (!date) return;
     const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
     deadlines.push({ id: Date.now(), title, date });
     localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
     loadDeadlines();
     showNotification('Deadline added!', 'success');
+  }
+}
+
+function submitDeadline() {
+  const title = document.getElementById('add_title')?.value;
+  const date = document.getElementById('add_date')?.value;
+  if (!title || !date) return;
+  const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines')) || [];
+  deadlines.push({ id: Date.now(), title, date });
+  localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
+  loadDeadlines();
+  showNotification('Deadline added!', 'success');
 }
 
 function saveQuickNote() {
-    const noteText = document.getElementById('quickNote')?.value;
-    if (!noteText) {
-        showNotification('Please enter a note first', 'warning');
-        return;
-    }
-    notes.unshift({ id: Date.now(), title: 'Quick Note', content: noteText, updatedAt: new Date().toISOString() });
-    localStorage.setItem('edugateway_notes', JSON.stringify(notes));
-    document.getElementById('quickNote').value = '';
-    showNotification('Quick note saved!', 'success');
+  const noteText = document.getElementById('quickNote')?.value;
+  if (!noteText) {
+    showNotification('Please enter a note first', 'warning');
+    return;
+  }
+  notes.unshift({
+    id: Date.now(),
+    title: 'Quick Note',
+    content: noteText,
+    updatedAt: new Date().toISOString(),
+  });
+  localStorage.setItem('edugateway_notes', JSON.stringify(notes));
+  document.getElementById('quickNote').value = '';
+  showNotification('Quick note saved!', 'success');
 }
 
 function addMilestone() {
-    const container = document.getElementById('milestonesContainer');
-    if (!container) return;
-    const newMilestone = document.createElement('div');
-    newMilestone.className = 'milestone-item';
-    newMilestone.innerHTML = `
+  const container = document.getElementById('milestonesContainer');
+  if (!container) return;
+  const newMilestone = document.createElement('div');
+  newMilestone.className = 'milestone-item';
+  newMilestone.innerHTML = `
         <input type="text" placeholder="Add a milestone...">
         <button type="button" class="js-remove-milestone">×</button>
     `;
-    container.appendChild(newMilestone);
+  container.appendChild(newMilestone);
 }
 
 function removeMilestone(btn) {
-    btn.closest('.milestone-item').remove();
+  btn.closest('.milestone-item').remove();
 }
 
 function createNewItem() {
-    const opened = openAddModal('newpage', '➕ Create New', [
-        {
-            name: 'type', label: 'What would you like to create?', type: 'select', required: true, options: [
-                { value: '1', label: '🎯 Goal' },
-                { value: '2', label: '📝 Note' },
-                { value: '3', label: '✅ Task' },
-                { value: '4', label: '📁 Project' }
-            ]
-        },
-        { name: 'title', label: 'Title (for Project)', placeholder: 'Enter title' }
-    ]);
-    if (!opened) {
-        const choice = prompt('Create: 1. Goal 2. Note 3. Task 4. Project');
-        if (choice === '1') openGoalModal();
-        else if (choice === '2') openNoteModal();
-        else if (choice === '3') window.addNewTask();
-        else if (choice === '4') {
-            const title = prompt('Project title:');
-            if (!title) return;
-            const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
-            projects.push({ id: Date.now(), title, description: '', progress: 0 });
-            localStorage.setItem('edugateway_projects', JSON.stringify(projects));
-            switchSection('projects');
-            showNotification('Project created!', 'success');
-        }
+  const opened = openAddModal('newpage', '➕ Create New', [
+    {
+      name: 'type',
+      label: 'What would you like to create?',
+      type: 'select',
+      required: true,
+      options: [
+        { value: '1', label: '🎯 Goal' },
+        { value: '2', label: '📝 Note' },
+        { value: '3', label: '✅ Task' },
+        { value: '4', label: '📁 Project' },
+      ],
+    },
+    { name: 'title', label: 'Title (for Project)', placeholder: 'Enter title' },
+  ]);
+  if (!opened) {
+    const choice = prompt('Create: 1. Goal 2. Note 3. Task 4. Project');
+    if (choice === '1') openGoalModal();
+    else if (choice === '2') openNoteModal();
+    else if (choice === '3') window.addNewTask();
+    else if (choice === '4') {
+      const title = prompt('Project title:');
+      if (!title) return;
+      const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+      projects.push({ id: Date.now(), title, description: '', progress: 0 });
+      localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+      switchSection('projects');
+      showNotification('Project created!', 'success');
     }
+  }
 }
 
 function submitNewPage() {
-    const type = document.getElementById('add_type')?.value;
-    const title = document.getElementById('add_title')?.value;
+  const type = document.getElementById('add_type')?.value;
+  const title = document.getElementById('add_title')?.value;
 
-    if (type === '1') {
-        closeAddModal();
-        setTimeout(() => openGoalModal(), 100);
-    } else if (type === '2') {
-        closeAddModal();
-        setTimeout(() => openNoteModal(), 100);
-    } else if (type === '3') {
-        window.addNewTask();
-    } else if (type === '4') {
-        if (!title) {
-            showNotification('Please enter a project title', 'warning');
-            return;
-        }
-        const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
-        projects.push({ id: Date.now(), title, description: '', progress: 0 });
-        localStorage.setItem('edugateway_projects', JSON.stringify(projects));
-        switchSection('projects');
-        showNotification('Project created!', 'success');
+  if (type === '1') {
+    closeAddModal();
+    setTimeout(() => openGoalModal(), 100);
+  } else if (type === '2') {
+    closeAddModal();
+    setTimeout(() => openNoteModal(), 100);
+  } else if (type === '3') {
+    window.addNewTask();
+  } else if (type === '4') {
+    if (!title) {
+      showNotification('Please enter a project title', 'warning');
+      return;
     }
+    const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+    projects.push({ id: Date.now(), title, description: '', progress: 0 });
+    localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+    switchSection('projects');
+    showNotification('Project created!', 'success');
+  }
 }
 
 function showTemplates() {
-    const opened = openAddModal('template', '📋 Choose Template', [
-        {
-            name: 'template', label: 'Select a Template', type: 'select', required: true, options: [
-                { value: 'study', label: '📚 Study Plan - Weekly schedule with subjects' },
-                { value: 'project', label: '🚀 Project Manager - Tasks, milestones, timeline' },
-                { value: 'blank', label: '📄 Blank Page - Start from scratch' }
-            ]
-        }
-    ]);
-    if (!opened) {
-        const choice = prompt('Template: 1. Study Plan 2. Project Manager 3. Blank');
-        applyTemplate(choice);
-    }
+  const opened = openAddModal('template', '📋 Choose Template', [
+    {
+      name: 'template',
+      label: 'Select a Template',
+      type: 'select',
+      required: true,
+      options: [
+        { value: 'study', label: '📚 Study Plan - Weekly schedule with subjects' },
+        { value: 'project', label: '🚀 Project Manager - Tasks, milestones, timeline' },
+        { value: 'blank', label: '📄 Blank Page - Start from scratch' },
+      ],
+    },
+  ]);
+  if (!opened) {
+    const choice = prompt('Template: 1. Study Plan 2. Project Manager 3. Blank');
+    applyTemplate(choice);
+  }
 }
 
 function applyTemplate(choice) {
-    if (choice === '1' || choice === 'study') {
-        // Create a study plan goal
-        goals.push({
-            id: Date.now(),
-            title: 'Weekly Study Plan',
-            category: 'academic',
-            priority: 'medium',
-            progress: 0,
-            status: 'active',
-            milestones: ['Monday: Math', 'Tuesday: Science', 'Wednesday: English', 'Thursday: History', 'Friday: Review']
-        });
-        localStorage.setItem('edugateway_goals', JSON.stringify(goals));
-        switchSection('goals');
-        showNotification('Study Plan template created!', 'success');
-    } else if (choice === '2' || choice === 'project') {
-        // Create a project
-        const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
-        projects.push({
-            id: Date.now(),
-            title: 'New Project',
-            description: 'Project created from template',
-            progress: 0,
-            tasks: ['Planning', 'Development', 'Testing', 'Launch']
-        });
-        localStorage.setItem('edugateway_projects', JSON.stringify(projects));
-        switchSection('projects');
-        showNotification('Project Manager template created!', 'success');
-    } else if (choice === '3' || choice === 'blank') {
-        // Create a blank note
-        notes.push({
-            id: Date.now(),
-            title: 'Untitled',
-            content: '',
-            updatedAt: new Date().toISOString()
-        });
-        localStorage.setItem('edugateway_notes', JSON.stringify(notes));
-        switchSection('notes');
-        showNotification('Blank page created!', 'success');
-    }
+  if (choice === '1' || choice === 'study') {
+    // Create a study plan goal
+    goals.push({
+      id: Date.now(),
+      title: 'Weekly Study Plan',
+      category: 'academic',
+      priority: 'medium',
+      progress: 0,
+      status: 'active',
+      milestones: [
+        'Monday: Math',
+        'Tuesday: Science',
+        'Wednesday: English',
+        'Thursday: History',
+        'Friday: Review',
+      ],
+    });
+    localStorage.setItem('edugateway_goals', JSON.stringify(goals));
+    switchSection('goals');
+    showNotification('Study Plan template created!', 'success');
+  } else if (choice === '2' || choice === 'project') {
+    // Create a project
+    const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+    projects.push({
+      id: Date.now(),
+      title: 'New Project',
+      description: 'Project created from template',
+      progress: 0,
+      tasks: ['Planning', 'Development', 'Testing', 'Launch'],
+    });
+    localStorage.setItem('edugateway_projects', JSON.stringify(projects));
+    switchSection('projects');
+    showNotification('Project Manager template created!', 'success');
+  } else if (choice === '3' || choice === 'blank') {
+    // Create a blank note
+    notes.push({
+      id: Date.now(),
+      title: 'Untitled',
+      content: '',
+      updatedAt: new Date().toISOString(),
+    });
+    localStorage.setItem('edugateway_notes', JSON.stringify(notes));
+    switchSection('notes');
+    showNotification('Blank page created!', 'success');
+  }
 }
 
 // Handle template submission from modal
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('universalAddForm');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            if (currentAddType === 'template') {
-                e.preventDefault();
-                const template = document.getElementById('add_template')?.value;
-                applyTemplate(template);
-                closeAddModal();
-            }
-        });
-    }
+  const form = document.getElementById('universalAddForm');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      if (currentAddType === 'template') {
+        e.preventDefault();
+        const template = document.getElementById('add_template')?.value;
+        applyTemplate(template);
+        closeAddModal();
+      }
+    });
+  }
 });
 
 // Global exposure for things that might need it
 window.switchSection = switchSection;
-window.setupNotionListeners = () => { };
-window.initializeNotionSection = () => { };
+window.setupNotionListeners = () => {};
+window.initializeNotionSection = () => {};
 window.addResource = addResource;
 window.addCourse = addCourse;
 window.addApplication = addApplication;

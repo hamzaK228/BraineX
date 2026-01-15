@@ -5,61 +5,61 @@
 
 // Initialize auth API on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Check authentication status
-    if (window.authAPI && window.authAPI.isAuthenticated()) {
-        updateUIForAuthenticatedUser();
-    }
+  // Check authentication status
+  if (window.authAPI && window.authAPI.isAuthenticated()) {
+    updateUIForAuthenticatedUser();
+  }
 });
 
 /**
  * Update UI elements for authenticated users
  */
 function updateUIForAuthenticatedUser() {
-    const authButtons = document.querySelector('.auth-buttons');
-    const user = window.authAPI.user;
+  const authButtons = document.querySelector('.auth-buttons');
+  const user = window.authAPI.user;
 
-    if (authButtons && user) {
-        authButtons.innerHTML = `
+  if (authButtons && user) {
+    authButtons.innerHTML = `
       <span style="color: white; margin-right: 1rem;">
         Welcome, ${user.firstName || user.name}!
       </span>
       ${user.role === 'admin' ? '<a href="/admin" class="btn btn-outline">Admin</a>' : ''}
       <button class="btn btn-primary" onclick="handleLogout()">Logout</button>
     `;
-    }
+  }
 }
 
 /**
  * Handle logout
  */
 async function handleLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        try {
-            await window.authAPI.logout();
-        } catch (error) {
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.error('Logout failed:', error);
-            }
-            // Clear local state anyway
-            window.authAPI.clearAuthState();
-            window.location.href = '/';
-        }
+  if (confirm('Are you sure you want to logout?')) {
+    try {
+      await window.authAPI.logout();
+    } catch (error) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.error('Logout failed:', error);
+      }
+      // Clear local state anyway
+      window.authAPI.clearAuthState();
+      window.location.href = '/';
     }
+  }
 }
 
 /**
  * Show notification
  */
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
-    const existing = document.querySelector('.notification');
-    if (existing) {
-        existing.remove();
-    }
+  // Remove existing notifications
+  const existing = document.querySelector('.notification');
+  if (existing) {
+    existing.remove();
+  }
 
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.style.cssText = `
     position: fixed;
     top: 20px;
     right: 20px;
@@ -71,67 +71,67 @@ function showNotification(message, type = 'info') {
     z-index: 10000;
     animation: slideIn 0.3s ease-out;
   `;
-    notification.textContent = message;
+  notification.textContent = message;
 
-    document.body.appendChild(notification);
+  document.body.appendChild(notification);
 
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease-out';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease-out';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
 }
 
 /**
  * Format date for display
  */
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+  const date = new Date(dateString);
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
 }
 
 /**
  * Format currency
  */
 function formatCurrency(amount) {
-    if (typeof amount === 'string') return amount;
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(amount);
+  if (typeof amount === 'string') return amount;
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount);
 }
 
 /**
  * Debounce function
  */
 function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
     };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 /**
  * Handle API errors
  */
 function handleAPIError(error) {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.error('API Error:', error);
-    }
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    console.error('API Error:', error);
+  }
 
-    if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-        showNotification('Session expired. Please login again.', 'error');
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 2000);
-    } else {
-        showNotification(error.message || 'An error occurred', 'error');
-    }
+  if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+    showNotification('Session expired. Please login again.', 'error');
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 2000);
+  } else {
+    showNotification(error.message || 'An error occurred', 'error');
+  }
 }
 
 // Add CSS animations
@@ -170,40 +170,40 @@ window.handleLogout = handleLogout;
 
 // Namespace for specific page calls
 window.BraineX = {
-    showNotification,
-    formatDate,
-    formatCurrency,
-    handleAPIError,
-    handleLogout,
-    // Add modal helpers that pages might expect
-    closeModal: function () {
-        document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
-        // Also support plain style display
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    },
-    openModal: function (id) {
-        const m = document.getElementById(id);
-        if (m) {
-            m.classList.add('show');
-            m.style.display = 'block'; // Fallback
-        }
-    },
-    togglePassword: function (id) {
-        const input = document.getElementById(id);
-        if (input) {
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-    },
-    switchToSignup: function () {
-        this.closeModal();
-        this.openModal('signupModal');
-    },
-    forgotPassword: function () {
-        alert('Forgot password flow not implemented in this demo.');
-    },
-    socialLogin: function (provider) {
-        alert(`Login with ${provider} is not configured.`);
+  showNotification,
+  formatDate,
+  formatCurrency,
+  handleAPIError,
+  handleLogout,
+  // Add modal helpers that pages might expect
+  closeModal: function () {
+    document.querySelectorAll('.modal').forEach((m) => m.classList.remove('show'));
+    // Also support plain style display
+    document.querySelectorAll('.modal').forEach((m) => (m.style.display = 'none'));
+  },
+  openModal: function (id) {
+    const m = document.getElementById(id);
+    if (m) {
+      m.classList.add('show');
+      m.style.display = 'block'; // Fallback
     }
+  },
+  togglePassword: function (id) {
+    const input = document.getElementById(id);
+    if (input) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+  },
+  switchToSignup: function () {
+    this.closeModal();
+    this.openModal('signupModal');
+  },
+  forgotPassword: function () {
+    alert('Forgot password flow not implemented in this demo.');
+  },
+  socialLogin: function (provider) {
+    alert(`Login with ${provider} is not configured.`);
+  },
 };
 
 // Global shorthand for closing modals if used directly

@@ -1,8 +1,5 @@
 import express from 'express';
-import {
-    getUniversities,
-    getUniversityById,
-} from '../controllers/universityController.js';
+import { getUniversities, getUniversityById } from '../controllers/universityController.js';
 import { validateId } from '../utils/validation.js';
 
 const router = express.Router();

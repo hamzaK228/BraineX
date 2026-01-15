@@ -11,7 +11,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Import middleware
-import { securityHeaders, rateLimiter, authLimiter, corsOptions, sanitize } from './backend/middleware/security.js';
+import {
+  securityHeaders,
+  rateLimiter,
+  authLimiter,
+  corsOptions,
+  sanitize,
+} from './backend/middleware/security.js';
 import { errorHandler, notFoundHandler } from './backend/middleware/errorHandler.js';
 import { authenticate, authorize } from './backend/middleware/auth.js';
 
@@ -45,10 +51,10 @@ dotenv.config();
 // Validate required environment variables
 import { validateEnvironment } from './backend/utils/envValidator.js';
 try {
-    validateEnvironment();
+  validateEnvironment();
 } catch (error) {
-    logger.warn('Environment validation failed, but proceeding for fallback mode:', error);
-    // process.exit(1); 
+  logger.warn('Environment validation failed, but proceeding for fallback mode:', error);
+  // process.exit(1);
 }
 
 const app = express();
@@ -63,11 +69,13 @@ app.use(cors(corsOptions));
 app.use(compression());
 
 // Logging middleware
-app.use(morgan('combined', {
+app.use(
+  morgan('combined', {
     stream: {
-        write: (message) => logger.info(message.trim()),
+      write: (message) => logger.info(message.trim()),
     },
-}));
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -78,56 +86,64 @@ app.use(cookieParser());
 app.use(sanitize);
 
 // Serve static files with caching
-app.use(express.static(path.join(__dirname, 'frontend'), {
+app.use(
+  express.static(path.join(__dirname, 'frontend'), {
     maxAge: '1d',
     etag: true,
     setHeaders: (res, filePath) => {
-        // Long cache for assets
-        if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
-            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        }
-        // Short cache for HTML
-        if (filePath.endsWith('.html')) {
-            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-        }
-    }
-}));
-app.use('/assets', express.static(path.join(__dirname, 'frontend/assets'), {
+      // Long cache for assets
+      if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+      // Short cache for HTML
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      }
+    },
+  })
+);
+app.use(
+  '/assets',
+  express.static(path.join(__dirname, 'frontend/assets'), {
     maxAge: '1y',
-    immutable: true
-}));
-app.use('/data', express.static(path.join(__dirname, 'backend/data'), {
-    maxAge: '1h'
-}));
+    immutable: true,
+  })
+);
+app.use(
+  '/data',
+  express.static(path.join(__dirname, 'backend/data'), {
+    maxAge: '1h',
+  })
+);
 
 // Service Worker - must be at root with correct scope
 app.get('/sw.js', (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendFile(path.join(__dirname, 'frontend/sw.js'));
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'frontend/sw.js'));
 });
 
 // Offline page
 app.get('/offline.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/offline.html'));
+  res.sendFile(path.join(__dirname, 'frontend/offline.html'));
 });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({
-        success: true,
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-    });
+  res.json({
+    success: true,
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 });
 
 // CSRF token endpoint
 app.get('/api/csrf-token', (req, res) => {
-    res.json({
-        success: true,
-        csrfToken: 'csrf-token-placeholder',
-    });
+  res.json({
+    success: true,
+    csrfToken: 'csrf-token-placeholder',
+  });
 });
 
 // API routes with rate limiting
@@ -146,51 +162,55 @@ app.use('/api/programs', rateLimiter, programRoutes);
 
 // Frontend routes - serve HTML files
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/main.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/main.html'));
 });
 
 app.get('/fields', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/fields.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/fields.html'));
 });
 
 app.get('/universities', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/universities.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/universities/index.html'));
 });
 
 app.get('/programs', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/programs.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/programs/index.html'));
 });
 
 app.get('/scholarships', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/scholarships.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/scholarships.html'));
 });
 
 app.get('/mentors', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/mentors.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/mentors.html'));
 });
 
 app.get('/projects', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/projects.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/projects.html'));
 });
 
 app.get('/roadmaps', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/roadmaps.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/roadmaps.html'));
 });
 
 app.get('/events', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/events.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/events.html'));
 });
 
 app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/about.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/about.html'));
 });
 
 app.get('/notion', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/notion.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/notion.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend/pages/dashboard.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/pages/admin.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/admin.html'));
 });
 
 // 404 handler
@@ -201,50 +221,49 @@ app.use(errorHandler);
 
 // Start server
 async function startServer() {
-    try {
-        // Test database connection
-        const dbConnected = await testConnection();
+  try {
+    // Test database connection
+    const dbConnected = await testConnection();
 
-        if (!dbConnected) {
-            logger.warn('Failed to connect to database. API endpoints will use JSON fallback mode.');
-            // Do not exit, allow server to verify JSON fallbacks
-        }
-
-        // Start listening
-        const server = app.listen(PORT, () => {
-            logger.info(`🚀 BraineX server running on http://localhost:${PORT}`);
-            logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-            logger.info(`🔒 Security: Helmet, CORS, Rate Limiting, XSS Protection enabled`);
-        });
-
-        // Graceful shutdown
-        const gracefulShutdown = async (signal) => {
-            logger.info(`${signal} received. Starting graceful shutdown...`);
-
-            server.close(async () => {
-                logger.info('HTTP server closed');
-
-                await closePool();
-                // await closeQueues(); // Disabled for verification
-
-                logger.info('Graceful shutdown complete');
-                process.exit(0);
-            });
-
-            // Force shutdown after 10 seconds
-            setTimeout(() => {
-                logger.error('Forced shutdown after timeout');
-                process.exit(1);
-            }, 10000);
-        };
-
-        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
-    } catch (error) {
-        logger.error('Failed to start server:', error);
-        process.exit(1);
+    if (!dbConnected) {
+      logger.warn('Failed to connect to database. API endpoints will use JSON fallback mode.');
+      // Do not exit, allow server to verify JSON fallbacks
     }
+
+    // Start listening
+    const server = app.listen(PORT, () => {
+      logger.info(`🚀 BraineX server running on http://localhost:${PORT}`);
+      logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info(`🔒 Security: Helmet, CORS, Rate Limiting, XSS Protection enabled`);
+    });
+
+    // Graceful shutdown
+    const gracefulShutdown = async (signal) => {
+      logger.info(`${signal} received. Starting graceful shutdown...`);
+
+      server.close(async () => {
+        logger.info('HTTP server closed');
+
+        await closePool();
+        // await closeQueues(); // Disabled for verification
+
+        logger.info('Graceful shutdown complete');
+        process.exit(0);
+      });
+
+      // Force shutdown after 10 seconds
+      setTimeout(() => {
+        logger.error('Forced shutdown after timeout');
+        process.exit(1);
+      }, 10000);
+    };
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
 startServer();

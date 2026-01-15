@@ -1,8 +1,5 @@
 import express from 'express';
-import {
-    getPrograms,
-    getProgramById,
-} from '../controllers/programController.js';
+import { getPrograms, getProgramById } from '../controllers/programController.js';
 import { validateId } from '../utils/validation.js';
 
 const router = express.Router();

@@ -1,59 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summer Programs | BraineX</title>
-    <link rel="stylesheet" href="../../assets/css/design-system.css">
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/programs/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="../../assets/js/theme.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Summer Programs | BraineX</title>
+  <link rel="stylesheet" href="../../assets/css/design-system.css" />
+  <link rel="stylesheet" href="../../assets/css/main.css" />
+  <link rel="stylesheet" href="../../assets/css/programs/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="../../assets/js/theme.js"></script>
 </head>
 
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <div class="logo">
-                    <img src="../../assets/images/logo.png" alt="BraineX" class="logo-img" style="height:40px;">
-                    <span>BraineX</span>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/universities">Universities</a></li>
-                    <li><a href="/programs" class="active">Summer Programs</a></li>
-                    <li><a href="/scholarships">Scholarships</a></li>
-                </ul>
-                <button class="theme-toggle">🌙</button>
-            </nav>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <img src="../../assets/images/logo.png" alt="BraineX" class="logo-img" style="height: 40px" />
+          <span>BraineX</span>
         </div>
-    </header>
+        <ul class="nav-menu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/universities" class="active">Universities</a></li>
+          <li><a href="/programs">Summer Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+        </ul>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
 
-    <main class="container" style="margin-top: 100px;">
-        <div class="page-header" style="margin-bottom:2rem; text-align:center;">
-            <h1>Elite Summer Programs</h1>
-            <p>Discover life-changing opportunities to boost your profile.</p>
+  <main class="container" style="margin-top: 100px">
+    <div class="page-header" style="margin-bottom: 2rem; text-align: center">
+      <h1>Elite Summer Programs</h1>
+      <p>Discover life-changing opportunities to boost your profile.</p>
 
-            <div style="margin-top:1.5rem;">
-                <select id="programCategory" class="ds-input" style="max-width:300px; display:inline-block;">
-                    <option value="">All Categories</option>
-                    <option value="STEM">STEM & Research</option>
-                    <option value="Arts">Humanities & Arts</option>
-                    <option value="Leadership">Leadership & Policy</option>
-                    <option value="Business">Business & Entrepreneurship</option>
-                </select>
-            </div>
-        </div>
+      <div style="margin-top: 1.5rem">
+        <select id="programCategory" class="ds-input" style="max-width: 300px; display: inline-block">
+          <option value="">All Categories</option>
+          <option value="STEM">STEM & Research</option>
+          <option value="Arts">Humanities & Arts</option>
+          <option value="Leadership">Leadership & Policy</option>
+          <option value="Business">Business & Entrepreneurship</option>
+        </select>
+      </div>
+    </div>
 
-        <div id="programsGrid" class="programs-grid"
-            style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
-            <!-- Rendered JS -->
-        </div>
-    </main>
+    <div id="programsGrid" class="programs-grid" style="
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 2rem;
+        ">
+      <!-- Rendered JS -->
+    </div>
+  </main>
 
-    <script src="../../assets/js/programs/engine.js"></script>
+  <script src="../../assets/js/programs/engine.js?v=build1"></script>
 </body>
 
 </html>

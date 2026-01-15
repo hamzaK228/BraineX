@@ -3,49 +3,48 @@
  * Handles listings, countdowns, and application wizard.
  */
 class ProgramsEngine {
-    constructor() {
-        this.data = [];
-        this.container = document.getElementById('programsGrid');
+  constructor() {
+    this.data = [];
+    this.container = document.getElementById('programsGrid');
 
-        this.init();
+    this.init();
+  }
+
+  async init() {
+    try {
+      const response = await fetch('/data/programs.json');
+      this.data = await response.json();
+
+      this.render(this.data);
+      this.startTimers();
+      this.setupCategoryFilter();
+    } catch (error) {
+      console.error(error);
     }
+  }
 
-    async init() {
-        try {
-            const response = await fetch('/frontend/data/programs.json');
-            this.data = await response.json();
+  setupCategoryFilter() {
+    const filter = document.getElementById('programCategory');
+    if (!filter) return;
 
-            this.render(this.data);
-            this.startTimers();
-            this.setupCategoryFilter();
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    filter.addEventListener('change', (e) => {
+      const cat = e.target.value;
+      const filtered = cat ? this.data.filter((p) => p.category === cat) : this.data;
+      this.render(filtered);
+    });
+  }
 
-    setupCategoryFilter() {
-        const filter = document.getElementById('programCategory');
-        if (!filter) return;
+  render(programs) {
+    if (!this.container) return;
 
-        filter.addEventListener('change', (e) => {
-            const cat = e.target.value;
-            const filtered = cat
-                ? this.data.filter(p => p.category === cat)
-                : this.data;
-            this.render(filtered);
-        });
-    }
+    const now = new Date();
 
-    render(programs) {
-        if (!this.container) return;
+    this.container.innerHTML = programs
+      .map((p) => {
+        const deadline = new Date(p.deadline);
+        const isExpired = now > deadline;
 
-        const now = new Date();
-
-        this.container.innerHTML = programs.map(p => {
-            const deadline = new Date(p.deadline);
-            const isExpired = now > deadline;
-
-            return `
+        return `
             <div class="program-card">
                 <span class="prog-badge ${p.cost === 0 ? 'badge-free' : 'badge-paid'}">
                     ${p.cost === 0 ? 'Full Scholarship' : '$' + p.cost}
@@ -74,96 +73,97 @@ class ProgramsEngine {
                 </a>
             </div>
             `;
-        }).join('');
-    }
+      })
+      .join('');
+  }
 
-    startTimers() {
-        setInterval(() => {
-            document.querySelectorAll('.timer-val').forEach(el => {
-                const deadlineStr = el.dataset.deadline;
-                if (!deadlineStr) return;
+  startTimers() {
+    setInterval(() => {
+      document.querySelectorAll('.timer-val').forEach((el) => {
+        const deadlineStr = el.dataset.deadline;
+        if (!deadlineStr) return;
 
-                const deadline = new Date(deadlineStr);
-                const now = new Date();
-                const diff = deadline - now;
+        const deadline = new Date(deadlineStr);
+        const now = new Date();
+        const diff = deadline - now;
 
-                if (diff <= 0) {
-                    el.textContent = "CLOSED";
-                    el.style.color = "#94a3b8";
-                    return;
-                }
+        if (diff <= 0) {
+          el.textContent = 'CLOSED';
+          el.style.color = '#94a3b8';
+          return;
+        }
 
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-                el.textContent = `${days}d ${hours}h remaining`;
-            });
-        }, 1000);
-    }
+        el.textContent = `${days}d ${hours}h remaining`;
+      });
+    }, 1000);
+  }
 }
 
 // Application Wizard Logic
 class ApplicationWizard {
-    constructor() {
-        this.step = 1;
-        this.totalSteps = 4;
-        this.progress = document.querySelector('.progress-fill');
+  constructor() {
+    this.step = 1;
+    this.totalSteps = 4;
+    this.progress = document.querySelector('.progress-fill');
 
-        this.init();
+    this.init();
+  }
+
+  init() {
+    this.setupButtons();
+    this.updateUI();
+  }
+
+  setupButtons() {
+    document.querySelectorAll('.js-next').forEach((btn) => {
+      btn.addEventListener('click', () => this.nextStep());
+    });
+    document.querySelectorAll('.js-prev').forEach((btn) => {
+      btn.addEventListener('click', () => this.prevStep());
+    });
+  }
+
+  nextStep() {
+    if (this.step < this.totalSteps) {
+      this.step++;
+      this.updateUI();
     }
+  }
 
-    init() {
-        this.setupButtons();
-        this.updateUI();
+  prevStep() {
+    if (this.step > 1) {
+      this.step--;
+      this.updateUI();
     }
+  }
 
-    setupButtons() {
-        document.querySelectorAll('.js-next').forEach(btn => {
-            btn.addEventListener('click', () => this.nextStep());
-        });
-        document.querySelectorAll('.js-prev').forEach(btn => {
-            btn.addEventListener('click', () => this.prevStep());
-        });
+  updateUI() {
+    // Hide all steps
+    document.querySelectorAll('.guide-step').forEach((el) => {
+      el.classList.remove('active');
+    });
+
+    // Show current
+    const current = document.getElementById(`step${this.step}`);
+    if (current) current.classList.add('active');
+
+    // Update bar
+    if (this.progress) {
+      const pct = ((this.step - 1) / (this.totalSteps - 1)) * 100;
+      this.progress.style.width = `${pct}%`;
     }
-
-    nextStep() {
-        if (this.step < this.totalSteps) {
-            this.step++;
-            this.updateUI();
-        }
-    }
-
-    prevStep() {
-        if (this.step > 1) {
-            this.step--;
-            this.updateUI();
-        }
-    }
-
-    updateUI() {
-        // Hide all steps
-        document.querySelectorAll('.guide-step').forEach(el => {
-            el.classList.remove('active');
-        });
-
-        // Show current
-        const current = document.getElementById(`step${this.step}`);
-        if (current) current.classList.add('active');
-
-        // Update bar
-        if (this.progress) {
-            const pct = ((this.step - 1) / (this.totalSteps - 1)) * 100;
-            this.progress.style.width = `${pct}%`;
-        }
-    }
+  }
 }
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('programsGrid')) {
-        new ProgramsEngine();
-    }
-    if (document.querySelector('.guide-container')) {
-        new ApplicationWizard();
-    }
+  if (document.getElementById('programsGrid')) {
+    new ProgramsEngine();
+  }
+  if (document.querySelector('.guide-container')) {
+    new ApplicationWizard();
+  }
 });

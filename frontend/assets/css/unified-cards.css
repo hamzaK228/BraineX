@@ -18,14 +18,14 @@
 .mentor-featured-card,
 .project-featured-card,
 .event-featured-card {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    padding: 2rem !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-    border: 1px solid #f0f0f0 !important;
-    transition: all 0.3s ease !important;
-    position: relative;
-    overflow: hidden;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 2rem !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #f0f0f0 !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Add subtle gradient overlay on cards */
@@ -45,15 +45,15 @@
 .mentor-featured-card::before,
 .project-featured-card::before,
 .event-featured-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .card:hover::before,
@@ -72,7 +72,7 @@
 .mentor-featured-card:hover::before,
 .project-featured-card:hover::before,
 .event-featured-card:hover::before {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Hover States */
@@ -92,8 +92,8 @@
 .mentor-featured-card:hover,
 .project-featured-card:hover,
 .event-featured-card:hover {
-    transform: translateY(-8px) !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-8px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Dark Mode - Keep dark theme consistent */
@@ -113,9 +113,9 @@ html[data-theme='dark'] .story-card,
 html[data-theme='dark'] .mentor-featured-card,
 html[data-theme='dark'] .project-featured-card,
 html[data-theme='dark'] .event-featured-card {
-    background: #1e293b !important;
-    border-color: #334155 !important;
-    color: #e2e8f0 !important;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
 }
 
 html[data-theme='dark'] .card:hover,
@@ -134,9 +134,9 @@ html[data-theme='dark'] .story-card:hover,
 html[data-theme='dark'] .mentor-featured-card:hover,
 html[data-theme='dark'] .project-featured-card:hover,
 html[data-theme='dark'] .event-featured-card:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    border-color: #667eea !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-color: #667eea !important;
 }
 
 /* ===== ENHANCED STAT CARDS ===== */
@@ -146,71 +146,71 @@ html[data-theme='dark'] .event-featured-card:hover {
 .mentor-stats .stat,
 .event-stats .stat,
 .roadmap-stats .stat {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px);
-    border-radius: 20px !important;
-    padding: 2rem 1.5rem !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    position: relative;
-    overflow: hidden;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 20px !important;
+  padding: 2rem 1.5rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Stat card gradient background */
 .stat-item::before,
 .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: 0;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
 }
 
 .stat-item:hover::before,
 .stat-card:hover::before {
-    opacity: 1;
+  opacity: 1;
 }
 
 .stat-item:hover,
 .stat-card:hover {
-    transform: translateY(-8px) scale(1.02) !important;
-    box-shadow: 0 16px 48px rgba(102, 126, 234, 0.25) !important;
-    border-color: rgba(102, 126, 234, 0.4) !important;
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.25) !important;
+  border-color: rgba(102, 126, 234, 0.4) !important;
 }
 
 /* Stat numbers enhanced */
 .stat-number,
 .stat-item .stat-number,
 .stat-card h3 {
-    font-size: 3rem !important;
-    font-weight: 800 !important;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem !important;
-    position: relative;
-    z-index: 1;
-    text-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+  font-size: 3rem !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem !important;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
 }
 
 /* Stat labels enhanced */
 .stat-label,
 .stat-item .stat-label,
 .stat-card p {
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-    color: #64748b !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    position: relative;
-    z-index: 1;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Removed sparkle decoration from stat cards */
@@ -222,9 +222,9 @@ html[data-theme='dark'] .quick-stats .stat-item,
 html[data-theme='dark'] .mentor-stats .stat,
 html[data-theme='dark'] .event-stats .stat,
 html[data-theme='dark'] .roadmap-stats .stat {
-    background: rgba(30, 41, 59, 0.95) !important;
-    border-color: rgba(102, 126, 234, 0.3) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-color: rgba(102, 126, 234, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
 }
 
 html[data-theme='dark'] .stat-item:hover,
@@ -233,165 +233,169 @@ html[data-theme='dark'] .quick-stats .stat-item:hover,
 html[data-theme='dark'] .mentor-stats .stat:hover,
 html[data-theme='dark'] .event-stats .stat:hover,
 html[data-theme='dark'] .roadmap-stats .stat:hover {
-    background: rgba(30, 41, 59, 1) !important;
-    border-color: rgba(102, 126, 234, 0.6) !important;
-    box-shadow: 0 16px 48px rgba(102, 126, 234, 0.2) !important;
+  background: rgba(30, 41, 59, 1) !important;
+  border-color: rgba(102, 126, 234, 0.6) !important;
+  box-shadow: 0 16px 48px rgba(102, 126, 234, 0.2) !important;
 }
 
 html[data-theme='dark'] .stat-number,
 html[data-theme='dark'] .stat-item .stat-number,
 html[data-theme='dark'] .stat-card h3 {
-    background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 html[data-theme='dark'] .stat-label,
 html[data-theme='dark'] .stat-item .stat-label,
 html[data-theme='dark'] .stat-card p {
-    color: #94a3b8 !important;
+  color: #94a3b8 !important;
 }
 
 /* ===== ENHANCED CATEGORY CARDS ===== */
 .category-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
-    backdrop-filter: blur(10px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(248, 250, 252, 0.95) 100%
+  ) !important;
+  backdrop-filter: blur(10px);
 }
 
 .category-card .category-icon {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
-    filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.2));
-    transition: all 0.4s ease;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.2));
+  transition: all 0.4s ease;
 }
 
 .category-card:hover .category-icon {
-    transform: scale(1.15) rotate(5deg);
-    filter: drop-shadow(0 8px 20px rgba(102, 126, 234, 0.3));
+  transform: scale(1.15) rotate(5deg);
+  filter: drop-shadow(0 8px 20px rgba(102, 126, 234, 0.3));
 }
 
 .category-card h3 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #1e293b;
-    transition: color 0.3s ease;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e293b;
+  transition: color 0.3s ease;
 }
 
 .category-card:hover h3 {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ===== ENHANCED PATHWAY CARDS ===== */
 .pathway-card {
-    background: linear-gradient(to bottom right, #ffffff 0%, #f8fafc 100%) !important;
-    border-left: 4px solid transparent !important;
-    border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1 !important;
+  background: linear-gradient(to bottom right, #ffffff 0%, #f8fafc 100%) !important;
+  border-left: 4px solid transparent !important;
+  border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1 !important;
 }
 
 .pathway-card:hover {
-    border-left-width: 6px !important;
-    background: linear-gradient(to bottom right, #ffffff 0%, #faf5ff 100%) !important;
+  border-left-width: 6px !important;
+  background: linear-gradient(to bottom right, #ffffff 0%, #faf5ff 100%) !important;
 }
 
 .pathway-icon {
-    font-size: 3rem;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
-    transition: all 0.4s ease;
+  font-size: 3rem;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+  transition: all 0.4s ease;
 }
 
 .pathway-card:hover .pathway-icon {
-    transform: translateY(-5px) rotate(-5deg);
-    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.35);
+  transform: translateY(-5px) rotate(-5deg);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.35);
 }
 
 /* ===== ENHANCED RESOURCE CARDS ===== */
 .resource-card {
-    background: #ffffff !important;
-    position: relative;
-    overflow: visible !important;
+  background: #ffffff !important;
+  position: relative;
+  overflow: visible !important;
 }
 
 .resource-card::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #4facfe);
-    border-radius: 18px;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    background-size: 200% 200%;
-    animation: gradientShift 3s ease infinite;
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #4facfe);
+  border-radius: 18px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
 }
 
 .resource-card:hover::after {
-    opacity: 0.3;
+  opacity: 0.3;
 }
 
 @keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
+  0% {
+    background-position: 0% 50%;
+  }
 
-    50% {
-        background-position: 100% 50%;
-    }
+  50% {
+    background-position: 100% 50%;
+  }
 
-    100% {
-        background-position: 0% 50%;
-    }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .resource-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    transition: all 0.4s ease;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.4s ease;
 }
 
 .resource-card:hover .resource-icon {
-    transform: scale(1.2) translateY(-5px);
+  transform: scale(1.2) translateY(-5px);
 }
 
 /* ===== ENHANCED PROJECT/EVENT FEATURED CARDS ===== */
 .project-featured-card,
 .event-featured-card,
 .mentor-featured-card {
-    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%) !important;
-    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.12) !important;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%) !important;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.12) !important;
 }
 
 .project-featured-card:hover,
 .event-featured-card:hover,
 .mentor-featured-card:hover {
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2) !important;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2) !important;
 }
 
 /* Remove shimmer effect that causes issues */
 .project-featured-card .project-content,
 .event-featured-card .event-content,
 .mentor-featured-card .mentor-content {
-    position: relative;
-    z-index: 2;
+  position: relative;
+  z-index: 2;
 }
 
 /* ===== ENHANCED TAGS AND BADGES ===== */
@@ -402,15 +406,19 @@ html[data-theme='dark'] .stat-card p {
 .field-tag,
 .expertise-tag,
 .skill {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
-    color: #667eea !important;
-    border: 1px solid rgba(102, 126, 234, 0.2) !important;
-    padding: 0.4rem 1rem !important;
-    border-radius: 20px !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-    display: inline-block;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  ) !important;
+  color: #667eea !important;
+  border: 1px solid rgba(102, 126, 234, 0.2) !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  display: inline-block;
 }
 
 .tag:hover,
@@ -420,10 +428,10 @@ html[data-theme='dark'] .stat-card p {
 .field-tag:hover,
 .expertise-tag:hover,
 .skill:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
 }
 
 /* ===== ENHANCED BUTTONS IN CARDS ===== */
@@ -436,20 +444,20 @@ html[data-theme='dark'] .stat-card p {
 .btn-event-primary,
 .btn-project-primary,
 .btn-connect-featured {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-    border: none !important;
-    padding: 0.9rem 2rem !important;
-    border-radius: 12px !important;
-    font-weight: 600 !important;
-    font-size: 1rem !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3) !important;
-    position: relative;
-    overflow: hidden;
-    text-decoration: none !important;
-    cursor: pointer;
-    display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.9rem 2rem !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3) !important;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none !important;
+  cursor: pointer;
+  display: inline-block;
 }
 
 .btn-primary::before,
@@ -461,14 +469,14 @@ html[data-theme='dark'] .stat-card p {
 .btn-event-primary::before,
 .btn-project-primary::before,
 .btn-connect-featured::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: left 0.5s ease;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: left 0.5s ease;
 }
 
 .btn-primary:hover::before,
@@ -480,7 +488,7 @@ html[data-theme='dark'] .stat-card p {
 .btn-event-primary:hover::before,
 .btn-project-primary:hover::before,
 .btn-connect-featured:hover::before {
-    left: 100%;
+  left: 100%;
 }
 
 .btn-primary:hover,
@@ -492,60 +500,59 @@ html[data-theme='dark'] .stat-card p {
 .btn-event-primary:hover,
 .btn-project-primary:hover,
 .btn-connect-featured:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
 }
 
 /* ===== ENHANCED ROADMAP AND PLAN CARDS ===== */
 .roadmap-card,
 .plan-card {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-    border-top: 3px solid transparent !important;
-    border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) 1 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-top: 3px solid transparent !important;
+  border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%) 1 !important;
 }
 
 .roadmap-card:hover,
 .plan-card:hover {
-    border-top-width: 5px !important;
+  border-top-width: 5px !important;
 }
 
 .roadmap-icon {
-    font-size: 2.5rem;
-    width: 70px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    border-radius: 16px;
-    margin-bottom: 1rem;
-    transition: all 0.4s ease;
+  font-size: 2.5rem;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  transition: all 0.4s ease;
 }
 
 .roadmap-card:hover .roadmap-icon,
 .plan-card:hover .roadmap-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    transform: scale(1.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scale(1.1);
 }
 
 /* ===== RESPONSIVE IMPROVEMENTS ===== */
 @media (max-width: 768px) {
+  .stat-number,
+  .stat-item .stat-number,
+  .stat-card h3 {
+    font-size: 2.5rem !important;
+  }
 
-    .stat-number,
-    .stat-item .stat-number,
-    .stat-card h3 {
-        font-size: 2.5rem !important;
-    }
+  .category-card .category-icon {
+    font-size: 3rem;
+  }
 
-    .category-card .category-icon {
-        font-size: 3rem;
-    }
-
-    .pathway-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 2.5rem;
-    }
+  .pathway-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2.5rem;
+  }
 }
 
 /* ===== UNIFIED CARD INTERNAL ELEMENTS (MATCHING FIELDS PAGE) ===== */
@@ -556,17 +563,17 @@ html[data-theme='dark'] .stat-card p {
 .mentor-header,
 .event-header,
 .roadmap-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
 }
 
 .card-title-wrapper,
 .field-title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Icons */
@@ -577,7 +584,7 @@ html[data-theme='dark'] .stat-card p {
 .roadmap-icon,
 .pathway-icon,
 .category-icon {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 
 /* Category/Status Badges */
@@ -586,13 +593,13 @@ html[data-theme='dark'] .stat-card p {
 .mentor-badge,
 .event-badge,
 .roadmap-badge {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 /* Card Descriptions */
@@ -601,14 +608,14 @@ html[data-theme='dark'] .stat-card p {
 .mentor-description,
 .event-description,
 .roadmap-description {
-    color: #4a5568;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    font-size: 14px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 html[data-theme='dark'] .card-description,
@@ -616,7 +623,7 @@ html[data-theme='dark'] .field-description,
 html[data-theme='dark'] .mentor-description,
 html[data-theme='dark'] .event-description,
 html[data-theme='dark'] .roadmap-description {
-    color: #cbd5e1 !important;
+  color: #cbd5e1 !important;
 }
 
 /* Stats Sections - Matching Fields Page */
@@ -625,13 +632,13 @@ html[data-theme='dark'] .roadmap-description {
 .mentor-stats-inline,
 .event-stats-inline,
 .roadmap-stats-inline {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
-    background: #f7fafc;
-    padding: 15px;
-    border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 10px;
 }
 
 html[data-theme='dark'] .card-stats,
@@ -639,28 +646,28 @@ html[data-theme='dark'] .field-stats,
 html[data-theme='dark'] .mentor-stats-inline,
 html[data-theme='dark'] .event-stats-inline,
 html[data-theme='dark'] .roadmap-stats-inline {
-    background: #0f172a !important;
+  background: #0f172a !important;
 }
 
 .card-stat,
 .field-stat {
-    text-align: center;
+  text-align: center;
 }
 
 .stat-label {
-    display: block;
-    font-size: 12px;
-    color: #64748b;
-    margin-bottom: 4px;
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 4px;
 }
 
 html[data-theme='dark'] .stat-label {
-    color: #94a3b8 !important;
+  color: #94a3b8 !important;
 }
 
 .stat-value {
-    font-weight: bold;
-    font-size: 14px;
+  font-weight: bold;
+  font-size: 14px;
 }
 
 /* Tag Lists - Careers, Skills, Topics */
@@ -669,7 +676,7 @@ html[data-theme='dark'] .stat-label {
 .mentor-specialties,
 .event-topics,
 .roadmap-topics {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .card-tags h5,
@@ -677,10 +684,10 @@ html[data-theme='dark'] .stat-label {
 .mentor-specialties h5,
 .event-topics h5,
 .roadmap-topics h5 {
-    margin: 0 0 8px 0;
-    color: #2d3748;
-    font-size: 13px;
-    font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #2d3748;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 html[data-theme='dark'] .card-tags h5,
@@ -688,16 +695,16 @@ html[data-theme='dark'] .field-careers h5,
 html[data-theme='dark'] .mentor-specialties h5,
 html[data-theme='dark'] .event-topics h5,
 html[data-theme='dark'] .roadmap-topics h5 {
-    color: #e2e8f0 !important;
+  color: #e2e8f0 !important;
 }
 
 .tags-list,
 .careers-list,
 .specialties-list,
 .topics-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .tag,
@@ -705,12 +712,12 @@ html[data-theme='dark'] .roadmap-topics h5 {
 .specialty-tag,
 .topic-tag,
 .skill-tag {
-    background: #e2e8f0;
-    color: #2d3748;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 500;
+  background: #e2e8f0;
+  color: #2d3748;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 html[data-theme='dark'] .tag,
@@ -718,8 +725,8 @@ html[data-theme='dark'] .career-tag,
 html[data-theme='dark'] .specialty-tag,
 html[data-theme='dark'] .topic-tag,
 html[data-theme='dark'] .skill-tag {
-    background: #312e81 !important;
-    color: #e0e7ff !important;
+  background: #312e81 !important;
+  color: #e0e7ff !important;
 }
 
 /* Card Action Buttons */
@@ -728,10 +735,10 @@ html[data-theme='dark'] .skill-tag {
 .mentor-actions,
 .event-actions,
 .roadmap-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
 }
 
 .btn-card-primary,
@@ -739,15 +746,15 @@ html[data-theme='dark'] .skill-tag {
 .btn-mentor-primary,
 .btn-event-primary,
 .btn-roadmap-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 13px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
 }
 
 .btn-card-primary:hover,
@@ -755,44 +762,44 @@ html[data-theme='dark'] .skill-tag {
 .btn-mentor-primary:hover,
 .btn-event-primary:hover,
 .btn-roadmap-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .btn-card-secondary,
 .btn-mentor-secondary,
 .btn-event-secondary,
 .btn-roadmap-secondary {
-    background: #e2e8f0;
-    color: #2d3748;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 13px;
+  background: #e2e8f0;
+  color: #2d3748;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
 }
 
 .btn-card-secondary:hover,
 .btn-mentor-secondary:hover,
 .btn-event-secondary:hover,
 .btn-roadmap-secondary:hover {
-    background: #cbd5e1;
-    transform: translateY(-2px);
+  background: #cbd5e1;
+  transform: translateY(-2px);
 }
 
 html[data-theme='dark'] .btn-card-secondary,
 html[data-theme='dark'] .btn-mentor-secondary,
 html[data-theme='dark'] .btn-event-secondary,
 html[data-theme='dark'] .btn-roadmap-secondary {
-    background: #334155 !important;
-    color: #e2e8f0 !important;
+  background: #334155 !important;
+  color: #e2e8f0 !important;
 }
 
 html[data-theme='dark'] .btn-card-secondary:hover,
 html[data-theme='dark'] .btn-mentor-secondary:hover,
 html[data-theme='dark'] .btn-event-secondary:hover,
 html[data-theme='dark'] .btn-roadmap-secondary:hover {
-    background: #475569 !important;
+  background: #475569 !important;
 }

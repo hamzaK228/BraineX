@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Universities | BraineX</title>
-    <link rel="stylesheet" href="../../assets/css/design-system.css">
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/universities/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/design-system.css" />
+    <link rel="stylesheet" href="../../assets/css/main.css" />
+    <link rel="stylesheet" href="../../assets/css/universities/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script src="../../assets/js/theme.js"></script>
 </head>
 
@@ -17,7 +17,7 @@
         <div class="container">
             <nav>
                 <div class="logo">
-                    <img src="../../assets/images/logo.png" alt="BraineX" class="logo-img" style="height:40px;">
+                    <img src="../../assets/images/logo.png" alt="BraineX" class="logo-img" style="height: 40px" />
                     <span>BraineX</span>
                 </div>
                 <ul class="nav-menu">
@@ -31,20 +31,20 @@
         </div>
     </header>
 
-    <main class="container" style="margin-top: 100px;">
+    <main class="container" style="margin-top: 100px">
         <div class="page-header">
             <h1>Global Universities</h1>
             <p>Explore world-class institutions and find your dream campus.</p>
         </div>
 
         <div class="universities-layout"
-            style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-top: 2rem;">
+            style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-top: 2rem">
             <!-- Sidebar -->
             <aside class="filters-sidebar">
                 <h3>Filters</h3>
                 <div class="filter-group">
                     <label>Search</label>
-                    <input type="text" id="uniSearch" class="ds-input" placeholder="Name, program...">
+                    <input type="text" id="uniSearch" class="ds-input" placeholder="Name, program..." />
                 </div>
 
                 <div class="filter-group">
@@ -66,7 +66,7 @@
                 <div class="filter-group">
                     <label>Max Tuition: <span id="tuitionDisplay">$100,000</span></label>
                     <input type="range" id="filterTuition" min="0" max="100000" step="1000" value="100000"
-                        style="width:100%">
+                        style="width: 100%" />
                 </div>
             </aside>
 
@@ -80,16 +80,16 @@
         <div id="comparisonBar" class="comparison-bar">
             <div class="compare-info">
                 <span id="compareCount">0 selected</span>
-                <span style="font-size:0.875rem; color:#64748b; margin-left:0.5rem">(Max 4)</span>
+                <span style="font-size: 0.875rem; color: #64748b; margin-left: 0.5rem">(Max 4)</span>
             </div>
-            <div class="compare-actions" style="display:flex; gap:1rem;">
+            <div class="compare-actions" style="display: flex; gap: 1rem">
                 <button id="clearCompare" class="btn btn-sm btn-outline">Clear</button>
                 <button id="viewCompare" class="btn btn-sm btn-primary">Make Comparison</button>
             </div>
         </div>
     </main>
 
-    <script src="../../assets/js/universities/engine.js"></script>
+    <script src="../../assets/js/universities/engine.js?v=build1"></script>
 </body>
 
 </html>

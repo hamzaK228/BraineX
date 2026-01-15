@@ -6,12 +6,8 @@ const router = express.Router();
 
 router.use(authenticate);
 
-router.route('/')
-    .get(getItems)
-    .post(createItem);
+router.route('/').get(getItems).post(createItem);
 
-router.route('/:id')
-    .put(updateItem)
-    .delete(deleteItem);
+router.route('/:id').put(updateItem).delete(deleteItem);
 
 export default router;

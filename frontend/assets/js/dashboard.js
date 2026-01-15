@@ -3,38 +3,40 @@
  * Manages saved items and application tracking.
  */
 class DashboardEngine {
-    constructor() {
-        this.init();
-    }
+  constructor() {
+    this.init();
+  }
 
-    init() {
-        this.renderUniversities();
-        this.renderPrograms();
-        this.updateStats();
-    }
+  init() {
+    this.renderUniversities();
+    this.renderPrograms();
+    this.updateStats();
+  }
 
-    getSavedUniversities() {
-        // Simulating data from localStorage or "database"
-        // In a real app, this would be an API call
-        // For demo, we default to empty or mock
-        return JSON.parse(localStorage.getItem('saved_universities') || '[]');
-    }
+  getSavedUniversities() {
+    // Simulating data from localStorage or "database"
+    // In a real app, this would be an API call
+    // For demo, we default to empty or mock
+    return JSON.parse(localStorage.getItem('saved_universities') || '[]');
+  }
 
-    getSavedPrograms() {
-        return JSON.parse(localStorage.getItem('saved_programs') || '[]');
-    }
+  getSavedPrograms() {
+    return JSON.parse(localStorage.getItem('saved_programs') || '[]');
+  }
 
-    renderUniversities() {
-        const container = document.getElementById('savedUnis');
-        if (!container) return;
+  renderUniversities() {
+    const container = document.getElementById('savedUnis');
+    if (!container) return;
 
-        // Mock data for demonstration if empty
-        const saved = [
-            { id: 'mit', name: 'MIT', location: 'Cambridge, MA' },
-            { id: 'stanford', name: 'Stanford', location: 'Stanford, CA' }
-        ];
+    // Mock data for demonstration if empty
+    const saved = [
+      { id: 'mit', name: 'MIT', location: 'Cambridge, MA' },
+      { id: 'stanford', name: 'Stanford', location: 'Stanford, CA' },
+    ];
 
-        container.innerHTML = saved.map(u => `
+    container.innerHTML = saved
+      .map(
+        (u) => `
             <div class="dash-card">
                 <div class="dash-card-header">
                     <h4>${u.name}</h4>
@@ -46,19 +48,23 @@ class DashboardEngine {
                     <button class="btn btn-sm btn-text text-danger">Remove</button>
                 </div>
             </div>
-        `).join('');
-    }
+        `
+      )
+      .join('');
+  }
 
-    renderPrograms() {
-        const container = document.getElementById('savedProgs');
-        if (!container) return;
+  renderPrograms() {
+    const container = document.getElementById('savedProgs');
+    if (!container) return;
 
-        const saved = [
-            { name: 'RSI', deadline: 'Jan 15', status: 'In Progress' },
-            { name: 'TASP', deadline: 'Jan 04', status: 'Submitted' }
-        ];
+    const saved = [
+      { name: 'RSI', deadline: 'Jan 15', status: 'In Progress' },
+      { name: 'TASP', deadline: 'Jan 04', status: 'Submitted' },
+    ];
 
-        container.innerHTML = saved.map(p => `
+    container.innerHTML = saved
+      .map(
+        (p) => `
             <div class="dash-card">
                 <div class="dash-card-header">
                     <h4>${p.name}</h4>
@@ -69,16 +75,18 @@ class DashboardEngine {
                     <div class="fill" style="width: ${p.status === 'Submitted' ? '100%' : '40%'}"></div>
                 </div>
             </div>
-        `).join('');
-    }
+        `
+      )
+      .join('');
+  }
 
-    updateStats() {
-        document.getElementById('stat-applications').textContent = '2';
-        document.getElementById('stat-saved').textContent = '4';
-        document.getElementById('stat-days').textContent = '14';
-    }
+  updateStats() {
+    document.getElementById('stat-applications').textContent = '2';
+    document.getElementById('stat-saved').textContent = '4';
+    document.getElementById('stat-days').textContent = '14';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new DashboardEngine();
+  new DashboardEngine();
 });
