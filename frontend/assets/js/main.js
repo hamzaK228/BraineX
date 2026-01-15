@@ -170,7 +170,7 @@ function setupUI() {
     setupFormValidation();
     setupTracksSlider();
     setupFAQ();
-    setupTheme();
+    // setupTheme(); // Removed: Handled by theme.js
     animateStatsInit();
 
     // Global Modal Delegation & CSP Comp
@@ -440,23 +440,23 @@ function setupFormValidation() {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = loginForm.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Authenticating...';
+            const btnEngine = ButtonStateManager.getEngine(btn);
+
+            btnEngine.setLoading('Authenticating...');
 
             try {
                 const res = await window.authAPI.login({ email: loginForm.email.value, password: loginForm.password.value });
                 if (res.success) {
-                    window.closeModal();
-                    updateUIForUser(res.data);
-                    showNotification('Login successful!', 'success');
+                    btnEngine.setSuccess('Login Successful!');
+                    setTimeout(() => {
+                        window.closeModal();
+                        updateUIForUser(res.data);
+                    }, 1500);
                 } else {
-                    showNotification(res.error || 'Invalid credentials', 'error');
+                    btnEngine.setError(res.error || 'Invalid credentials');
                 }
             } catch (err) {
-                showNotification('Connection error', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
+                btnEngine.setError('Connection error');
             }
         });
     }
@@ -466,8 +466,9 @@ function setupFormValidation() {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = signupForm.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Creating account...';
+            const btnEngine = ButtonStateManager.getEngine(btn);
+
+            btnEngine.setLoading('Creating account...');
 
             const data = {
                 firstName: signupForm.firstName.value,
@@ -480,17 +481,16 @@ function setupFormValidation() {
             try {
                 const res = await window.authAPI.register(data);
                 if (res.success) {
-                    window.closeModal();
-                    updateUIForUser(res.data);
-                    showNotification('Welcome to BraineX!', 'success');
+                    btnEngine.setSuccess('Account Created!');
+                    setTimeout(() => {
+                        window.closeModal();
+                        updateUIForUser(res.data);
+                    }, 1500);
                 } else {
-                    showNotification(res.error || 'Registration failed', 'error');
+                    btnEngine.setError(res.error || 'Registration failed');
                 }
             } catch (err) {
-                showNotification('Connection error', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
+                btnEngine.setError('Connection error');
             }
         });
     }
@@ -574,22 +574,7 @@ function setupFAQ() {
     // Delegation is handled in setupGlobalDelegation
 }
 
-function setupTheme() {
-    const getTheme = () => localStorage.getItem('brainex_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    const setTheme = (t) => {
-        document.documentElement.setAttribute('data-theme', t);
-        localStorage.setItem('brainex_theme', t);
-        const btn = document.querySelector('.theme-toggle');
-        if (btn) btn.innerHTML = t === 'dark' ? '☀️ Light' : '🌙 Dark';
-    };
-
-    setTheme(getTheme());
-
-    window.toggleTheme = () => {
-        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        setTheme(next);
-    };
-}
+// setupTheme removed - handled by theme.js
 
 // --- Modals ---
 
