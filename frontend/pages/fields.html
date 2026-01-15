@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academic Fields & Disciplines - BraineX</title>
     <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="stylesheet" href="../assets/css/skeleton.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
     <script src="../assets/js/theme.js"></script>
     <style id="critical-css">
         * {
@@ -131,6 +133,8 @@
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="/">Home</a></li>
                     <li><a href="/fields" class="active">Fields</a></li>
+                    <li><a href="/universities">Universities</a></li>
+                    <li><a href="/programs">Programs</a></li>
                     <li><a href="/scholarships">Scholarships</a></li>
                     <li><a href="/projects">Projects</a></li>
                     <li><a href="/roadmaps">Roadmaps</a></li>
@@ -295,8 +299,9 @@
                             <div class="stat"><strong>Avg Salary:</strong> $110k</div>
                             <div class="stat"><strong>Growth:</strong> 15%</div>
                         </div>
-                        <a href="./scholarships.html?field=cs" class="btn btn-primary btn-explore-field"
-                            style="text-decoration: none; display: inline-block; text-align: center;">Explore Field</a>
+                        <a href="/scholarships?field=cs" class="btn btn-primary btn-explore-field"
+                            style="width: 100%; text-align: center; margin-top: 1rem; text-decoration: none;">Explore CS
+                            Scholarships</a>
                     </div>
                     <div class="field-card" data-category="business">
                         <div class="field-icon">📊</div>
@@ -332,7 +337,7 @@
                             <span class="skill">Statistics</span>
                             <span class="skill">Deep Learning</span>
                         </div>
-                        <a href="./roadmaps.html?pathway=ai" class="btn-pathway" style="text-decoration: none;">View
+                        <a href="/roadmaps?pathway=ai" class="btn-pathway" style="text-decoration: none;">View
                             Pathway</a>
                     </div>
 
@@ -640,6 +645,8 @@
     <script defer src="../assets/js/auth-api.js"></script>
     <script defer src="../assets/js/global.js"></script>
     <script defer src="../assets/js/main.js"></script>
+    <script defer src="../assets/js/performance.js"></script>
+    <script defer src="../assets/js/interactions.js"></script>
     <script defer src="../assets/js/fields.js"></script>
 </body>
 

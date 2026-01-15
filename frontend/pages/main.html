@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BraineX</title>
     <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="stylesheet" href="../assets/css/skeleton.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
     <script src="../assets/js/theme.js"></script>
     <style id="critical-css">
         * {
@@ -120,8 +122,9 @@
     <meta name="twitter:description" content="Discover scholarships, mentors, projects, and roadmaps.">
     <meta name="twitter:image" content="https://BraineX.example/og-image.png">
     <link rel="preload" as="style" href="../assets/css/main.css">
-    <link rel="prefetch" href="./scholarships.html">
-    <link rel="prefetch" href="./mentors.html">
+    <link rel="prefetch" href="/scholarships">
+    <link rel="prefetch" href="/mentors">
+    <link rel="prefetch" href="/programs">
 
 </head>
 
@@ -138,6 +141,8 @@
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="/" class="active">Home</a></li>
                     <li><a href="/fields">Fields</a></li>
+                    <li><a href="/universities">Universities</a></li>
+                    <li><a href="/programs">Programs</a></li>
                     <li><a href="/scholarships">Scholarships</a></li>
                     <li><a href="/projects">Projects</a></li>
                     <li><a href="/roadmaps">Roadmaps</a></li>
@@ -202,26 +207,23 @@
             <div class="container">
                 <h2>Why Choose Our Platform</h2>
                 <div class="benefits-grid">
-                    <div class="benefit-card">
-                        <div class="benefit-icon">📡</div>
-                        <h3>Live Scholarship Feed</h3>
-                        <p>Pulled directly from university APIs, ensuring you never miss an opportunity with real-time
-                            updates and notifications</p>
-                        <a href="./scholarships.html">Learn more →</a>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎓</div>
+                        <h3>Scholarships</h3>
+                        <p>Find financial aid tailored to your profile.</p>
+                        <a href="/scholarships">Learn more →</a>
                     </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">📋</div>
-                        <h3>Step-by-Step Roadmaps</h3>
-                        <p>Ready-made project guides and instructions to help you navigate your educational journey with
-                            confidence</p>
-                        <a href="./roadmaps.html">Learn more →</a>
+                    <div class="feature-card">
+                        <div class="feature-icon">🗺️</div>
+                        <h3>Roadmaps</h3>
+                        <p>Step-by-step guides for high school success.</p>
+                        <a href="/roadmaps">Learn more →</a>
                     </div>
-                    <div class="benefit-card">
-                        <div class="benefit-icon">👨‍🏫</div>
-                        <h3>Mentor Matching</h3>
-                        <p>Browse expert-level advisors who can guide you through challenges and accelerate your success
-                        </p>
-                        <a href="./mentors.html">Learn more →</a>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3>Mentorship</h3>
+                        <p>Connect with peers and experienced mentors.</p>
+                        <a href="/mentors">Learn more →</a>
                     </div>
                 </div>
             </div>
@@ -273,8 +275,8 @@
                                 <div class="stat"><span>Roadmaps:</span><strong>18</strong></div>
                                 <div class="stat"><span>Mentors:</span><strong>6</strong></div>
                             </div>
-                            <a href="./fields.html?track=ai" class="btn-explore" style="text-decoration: none;">Explore
-                                Track</a>
+                            <a href="/scholarships?id=gates-cambridge" class="btn-explore"
+                                style="text-decoration: none;">Apply Now</a>
                         </div>
                         <div class="track-card">
                             <h3>🧬 Biotech & Health Sciences</h3>
@@ -656,7 +658,7 @@
                             <div><strong>50+</strong> Mentees</div>
                             <div><strong>4.9★</strong> Rating</div>
                         </div>
-                        <a href="./mentors.html" class="btn-connect" style="text-decoration: none;">Connect</a>
+                        <a href="/mentors" class="btn-connect" style="text-decoration: none;">Connect</a>
                     </div>
 
                     <div class="mentor-card" style="background: var(--card-bg); color: var(--text-primary);">
@@ -678,7 +680,7 @@
                             <div><strong>75+</strong> Mentees</div>
                             <div><strong>4.8★</strong> Rating</div>
                         </div>
-                        <a href="./mentors.html" class="btn-connect" style="text-decoration: none;">Connect</a>
+                        <a href="/mentors" class="btn-connect" style="text-decoration: none;">Connect</a>
                     </div>
 
                     <div class="mentor-card" style="background: var(--card-bg); color: var(--text-primary);">
@@ -700,7 +702,7 @@
                             <div><strong>60+</strong> Mentees</div>
                             <div><strong>5.0★</strong> Rating</div>
                         </div>
-                        <a href="./mentors.html" class="btn-connect" style="text-decoration: none;">Connect</a>
+                        <a href="/mentors" class="btn-connect" style="text-decoration: none;">Connect</a>
                     </div>
 
                     <div class="mentor-card" style="background: var(--card-bg); color: var(--text-primary);">
@@ -722,7 +724,7 @@
                             <div><strong>40+</strong> Mentees</div>
                             <div><strong>4.9★</strong> Rating</div>
                         </div>
-                        <a href="./mentors.html" class="btn-connect" style="text-decoration: none;">Connect</a>
+                        <a href="/mentors" class="btn-connect" style="text-decoration: none;">Connect</a>
                     </div>
                 </div>
             </div>
@@ -1075,6 +1077,8 @@
     <script defer src="../assets/js/auth-api.js"></script>
     <script defer src="../assets/js/global.js"></script>
     <script defer src="../assets/js/main.js"></script>
+    <script defer src="../assets/js/performance.js"></script>
+    <script defer src="../assets/js/interactions.js"></script>
 </body>
 
 </html>

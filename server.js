@@ -25,6 +25,8 @@ import goalRoutes from './backend/routes/goals.js';
 import notionRoutes from './backend/routes/notion.js';
 import roadmapRoutes from './backend/routes/roadmaps.js';
 import adminRoutes from './backend/routes/admin.js';
+import universityRoutes from './backend/routes/universities.js';
+import programRoutes from './backend/routes/programs.js';
 
 // Import database and logger
 import { testConnection, closePool } from './backend/config/database.js';
@@ -74,9 +76,40 @@ app.use(cookieParser());
 // Input sanitization
 app.use(sanitize);
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'frontend')));
-app.use('/assets', express.static(path.join(__dirname, 'frontend/assets')));
+// Serve static files with caching
+app.use(express.static(path.join(__dirname, 'frontend'), {
+    maxAge: '1d',
+    etag: true,
+    setHeaders: (res, filePath) => {
+        // Long cache for assets
+        if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+        // Short cache for HTML
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        }
+    }
+}));
+app.use('/assets', express.static(path.join(__dirname, 'frontend/assets'), {
+    maxAge: '1y',
+    immutable: true
+}));
+app.use('/data', express.static(path.join(__dirname, 'backend/data'), {
+    maxAge: '1h'
+}));
+
+// Service Worker - must be at root with correct scope
+app.get('/sw.js', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(path.join(__dirname, 'frontend/sw.js'));
+});
+
+// Offline page
+app.get('/offline.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/offline.html'));
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -107,6 +140,8 @@ app.use('/api/goals', rateLimiter, goalRoutes);
 app.use('/api/notion', rateLimiter, notionRoutes);
 app.use('/api/roadmaps', rateLimiter, roadmapRoutes);
 app.use('/api/admin', rateLimiter, adminRoutes);
+app.use('/api/universities', rateLimiter, universityRoutes);
+app.use('/api/programs', rateLimiter, programRoutes);
 
 // Frontend routes - serve HTML files
 app.get('/', (req, res) => {
@@ -115,6 +150,14 @@ app.get('/', (req, res) => {
 
 app.get('/fields', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend/pages/fields.html'));
+});
+
+app.get('/universities', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/pages/universities.html'));
+});
+
+app.get('/programs', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/pages/programs.html'));
 });
 
 app.get('/scholarships', (req, res) => {
