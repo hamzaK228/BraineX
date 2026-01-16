@@ -152,9 +152,9 @@ class UniversitiesEngine {
                     <p class="uni-desc">${uni.description.substring(0, 100)}...</p>
                     <div class="uni-tags">
                         ${uni.programs
-            .slice(0, 3)
-            .map((p) => `<span class="uni-tag">${p}</span>`)
-            .join('')}
+                          .slice(0, 3)
+                          .map((p) => `<span class="uni-tag">${p}</span>`)
+                          .join('')}
                     </div>
                 </div>
                 <div class="uni-footer">

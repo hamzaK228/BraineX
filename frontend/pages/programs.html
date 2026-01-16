@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Summer Programs - BraineX</title>
-    <link rel="stylesheet" href="../assets/css/design-system.css" />
-    <link rel="stylesheet" href="../assets/css/skeleton.css" />
-    <link rel="stylesheet" href="../assets/css/animations.css" />
-    <script src="../assets/js/theme.js"></script>
+    <link rel="stylesheet" href="/assets/css/design-system.css" />
+    <link rel="stylesheet" href="/assets/css/skeleton.css" />
+    <link rel="stylesheet" href="/assets/css/animations.css" />
+    <script src="/assets/js/theme.js"></script>
     <style id="critical-css">
       * {
         box-sizing: border-box;
@@ -56,7 +56,7 @@
       }
 
       .logo-icon {
-        display: none !important;
+        /* display: none !important; Removed to allow visibility */
       }
 
       .nav-menu {
@@ -96,42 +96,10 @@
         margin-top: 80px;
       }
     </style>
-    <link
-      rel="stylesheet"
-      href="../assets/css/main.css"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="../assets/css/main.css" />
-    </noscript>
-    <link
-      rel="stylesheet"
-      href="../assets/css/fields.css"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="../assets/css/fields.css" />
-    </noscript>
-    <link
-      rel="stylesheet"
-      href="../assets/css/programs-page.css"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="../assets/css/programs-page.css" />
-    </noscript>
-    <link
-      rel="stylesheet"
-      href="../assets/css/unified-cards.css"
-      media="print"
-      onload="this.media = 'all'"
-    />
-    <noscript>
-      <link rel="stylesheet" href="../assets/css/unified-cards.css" />
-    </noscript>
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/fields.css" />
+    <link rel="stylesheet" href="/assets/css/programs-page.css" />
+    <link rel="stylesheet" href="/assets/css/unified-cards.css" />
     <meta
       name="description"
       content="Discover top summer programs for high school students. MIT MOSTEC, Stanford SIMR, Harvard SSP and more."
@@ -155,7 +123,7 @@
       content="Discover elite summer programs for high school students."
     />
     <meta name="twitter:image" content="https://BraineX.example/og-image.png" />
-    <link rel="preload" as="style" href="../assets/css/main.css" />
+    <link rel="preload" as="style" href="/assets/css/main.css" />
   </head>
 
   <body>
@@ -163,7 +131,7 @@
       <div class="container">
         <nav role="navigation" aria-label="Primary navigation">
           <div class="logo" style="display: flex; align-items: center; gap: 0.5rem">
-            <img src="../assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+            <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
             <span>BraineX</span>
           </div>
           <button
@@ -181,9 +149,11 @@
             <li><a href="/universities">Universities</a></li>
             <li><a href="/programs" class="active">Programs</a></li>
             <li><a href="/scholarships">Scholarships</a></li>
+            <li><a href="/projects">Projects</a></li>
             <li><a href="/roadmaps">Roadmaps</a></li>
             <li><a href="/mentors">Mentors</a></li>
             <li><a href="/events">Events</a></li>
+            <li><a href="/notion">My Goals</a></li>
             <li><a href="/about">About</a></li>
           </ul>
           <div class="auth-buttons">
@@ -601,11 +571,11 @@
       </div>
     </div>
 
-    <script defer src="../assets/js/auth-api.js"></script>
-    <script defer src="../assets/js/global.js"></script>
-    <script defer src="../assets/js/main.js"></script>
-    <script defer src="../assets/js/performance.js"></script>
-    <script defer src="../assets/js/interactions.js"></script>
-    <script defer src="../assets/js/programs-page.js"></script>
+    <script defer src="/assets/js/auth-api.js"></script>
+    <script defer src="/assets/js/global.js"></script>
+    <script defer src="/assets/js/main.js"></script>
+    <script defer src="/assets/js/performance.js"></script>
+    <script defer src="/assets/js/interactions.js"></script>
+    <script defer src="/assets/js/programs-page.js"></script>
   </body>
 </html>

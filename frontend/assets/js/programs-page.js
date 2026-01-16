@@ -51,18 +51,20 @@
     try {
       let response;
       try {
+        // Try API first
         response = await fetch('/api/programs');
         if (!response.ok) throw new Error('API not available');
         programs = await response.json();
       } catch {
-        response = await fetch('/data/programs.json');
-        if (!response.ok) {
-          response = await fetch('../data/programs.json');
+        try {
+          // Fallback to static JSON
+          response = await fetch('/data/programs.json');
+          if (!response.ok) throw new Error('Static data not found');
+          programs = await response.json();
+        } catch (e) {
+          console.error('All fetch attempts failed:', e);
+          programs = [];
         }
-        if (!response.ok) {
-          response = await fetch('../../backend/data/programs.json');
-        }
-        programs = await response.json();
       }
       console.log(`Loaded ${programs.length} programs`);
     } catch (error) {

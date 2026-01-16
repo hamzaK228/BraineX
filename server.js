@@ -170,11 +170,11 @@ app.get('/fields', (req, res) => {
 });
 
 app.get('/universities', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/pages/universities/index.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/universities.html'));
 });
 
 app.get('/programs', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/pages/programs/index.html'));
+  res.sendFile(path.join(__dirname, 'frontend/pages/programs.html'));
 });
 
 app.get('/scholarships', (req, res) => {
@@ -203,10 +203,6 @@ app.get('/about', (req, res) => {
 
 app.get('/notion', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend/pages/notion.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/pages/dashboard.html'));
 });
 
 app.get('/admin', (req, res) => {

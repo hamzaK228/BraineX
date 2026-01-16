@@ -127,8 +127,91 @@ function loadSectionData(sectionId) {
     case 'deadlines':
       loadDeadlines();
       break;
+    case 'my-universities':
+      loadMyUniversities();
+      break;
+    case 'my-programs':
+      loadMyPrograms();
+      break;
   }
 }
+
+// My Universities Logic
+function loadMyUniversities() {
+  const container = document.getElementById('myUniversitiesGrid');
+  if (!container) return;
+
+  if (myUniversities.length === 0) {
+    container.innerHTML = '<p class="empty-state">No universities added yet.</p>';
+    return;
+  }
+
+  container.innerHTML = myUniversities
+    .map(
+      (uni) => `
+      <div class="goal-card">
+          <div class="goal-header">
+              <h3>${uni.name}</h3>
+              <span class="goal-priority ${uni.chance === 'reach' ? 'high' : uni.chance === 'target' ? 'medium' : 'low'}">${uni.chance.toUpperCase()}</span>
+          </div>
+          <p>📍 ${uni.location}</p>
+          <p>Status: <strong>${uni.status}</strong></p>
+          <div class="goal-actions" style="margin-top: 1rem;">
+              <button class="btn-action text-danger" onclick="deleteUniversity(${uni.id})">🗑️ Remove</button>
+          </div>
+      </div>
+  `
+    )
+    .join('');
+}
+
+window.deleteUniversity = function (id) {
+  if (confirm('Remove this university?')) {
+    myUniversities = myUniversities.filter((u) => u.id !== id);
+    localStorage.setItem('my_universities', JSON.stringify(myUniversities));
+    loadMyUniversities();
+  }
+};
+
+// My Programs Logic
+function loadMyPrograms() {
+  const container = document.getElementById('myProgramsGrid');
+  if (!container) return;
+
+  if (myPrograms.length === 0) {
+    container.innerHTML = '<p class="empty-state">No programs added yet.</p>';
+    return;
+  }
+
+  container.innerHTML = myPrograms
+    .map(
+      (prog) => `
+      <div class="goal-card">
+          <div class="goal-header">
+              <h3>${prog.name}</h3>
+              <span class="goal-priority ${prog.status === 'submitted' ? 'low' : 'medium'}">${prog.status.toUpperCase()}</span>
+          </div>
+          <p>🏢 ${prog.org}</p>
+          <p>📅 Deadline: ${prog.deadline || 'N/A'}</p>
+          <div class="goal-actions" style="margin-top: 1rem;">
+              <button class="btn-action text-danger" onclick="deleteProgram(${prog.id})">🗑️ Remove</button>
+          </div>
+      </div>
+  `
+    )
+    .join('');
+}
+
+window.deleteProgram = function (id) {
+  if (confirm('Remove this program?')) {
+    myPrograms = myPrograms.filter((p) => p.id !== id);
+    localStorage.setItem('my_programs', JSON.stringify(myPrograms));
+    loadMyPrograms();
+  }
+};
+
+// Modal Handlers
+// ... [will be added in listeners]
 
 // Dashboard functionality
 function loadDashboard() {
@@ -671,8 +754,120 @@ function setupEventListeners() {
   const newItemBtn = document.querySelector('.js-new-item');
   if (newItemBtn) newItemBtn.addEventListener('click', createNewItem);
 
+  // Templates
   const templateBtn = document.querySelector('.js-show-templates');
   if (templateBtn) templateBtn.addEventListener('click', showTemplates);
+
+  // University Modals
+  const addUniBtn = document.querySelector('.js-add-university');
+  if (addUniBtn)
+    addUniBtn.addEventListener('click', () => {
+      document.getElementById('universityForm').reset();
+      document.getElementById('universityModal').classList.add('show');
+    });
+
+  document
+    .querySelectorAll('.js-close-university-modal')
+    .forEach((btn) =>
+      btn.addEventListener('click', () =>
+        document.getElementById('universityModal').classList.remove('show')
+      )
+    );
+
+  document.getElementById('universityForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newUni = {
+      id: Date.now(),
+      name: document.getElementById('uniName').value,
+      location: document.getElementById('uniLocation').value,
+      status: document.getElementById('uniStatus').value,
+      chance: document.getElementById('uniChance').value,
+    };
+    myUniversities.push(newUni);
+    localStorage.setItem('my_universities', JSON.stringify(myUniversities));
+    document.getElementById('universityModal').classList.remove('show');
+    loadMyUniversities();
+    showNotification('University added!', 'success');
+  });
+
+  // Program Modals
+  const addProgBtn = document.querySelector('.js-add-program');
+  if (addProgBtn)
+    addProgBtn.addEventListener('click', () => {
+      document.getElementById('programForm').reset();
+      document.getElementById('programModal').classList.add('show');
+    });
+
+  document
+    .querySelectorAll('.js-close-program-modal')
+    .forEach((btn) =>
+      btn.addEventListener('click', () =>
+        document.getElementById('programModal').classList.remove('show')
+      )
+    );
+
+  document.getElementById('programForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newProg = {
+      id: Date.now(),
+      name: document.getElementById('progName').value,
+      org: document.getElementById('progOrg').value,
+      deadline: document.getElementById('progDeadline').value,
+      status: document.getElementById('progStatus').value,
+    };
+    myPrograms.push(newProg);
+    localStorage.setItem('my_programs', JSON.stringify(myPrograms));
+    document.getElementById('programModal').classList.remove('show');
+    loadMyPrograms();
+    showNotification('Program added!', 'success');
+  });
+
+  // Project Modals
+  const addProjBtn =
+    document.querySelector('.js-close-project-modal-opener') ||
+    document.getElementById('addNewProjectBtn');
+  // Note: HTML has id="addNewProjectBtn" for the button in #projects section
+  if (addProjBtn) {
+    // Remove old listener if any (by cloning? No, just add new one, old one was for template)
+    // Actually, better to use the specific ID
+  }
+
+  const actualAddProjBtn = document.getElementById('addNewProjectBtn');
+  if (actualAddProjBtn) {
+    // Cloning to remove old event listeners (like the template one)
+    const newBtn = actualAddProjBtn.cloneNode(true);
+    actualAddProjBtn.parentNode.replaceChild(newBtn, actualAddProjBtn);
+
+    newBtn.addEventListener('click', () => {
+      document.getElementById('projectForm').reset();
+      document.getElementById('projectModal').classList.add('show');
+    });
+  }
+
+  document
+    .querySelectorAll('.js-close-project-modal')
+    .forEach((btn) =>
+      btn.addEventListener('click', () =>
+        document.getElementById('projectModal').classList.remove('show')
+      )
+    );
+
+  document.getElementById('projectForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newProj = {
+      id: Date.now(),
+      name: document.getElementById('projName').value,
+      description: document.getElementById('projDesc').value,
+      deadline: document.getElementById('projDeadline').value,
+      status: document.getElementById('projStatus').value,
+    };
+    let myProjects = JSON.parse(localStorage.getItem('my_projects')) || [];
+    myProjects.push(newProj);
+    localStorage.setItem('my_projects', JSON.stringify(myProjects));
+    document.getElementById('projectModal').classList.remove('show');
+    loadProjects();
+    showNotification('Project added!', 'success');
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -874,7 +1069,9 @@ function loadProjects() {
   const grid = document.getElementById('projectsGrid');
   if (!grid) return;
 
-  const projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
+  // Use new key 'my_projects' to match new modal
+  const projects = JSON.parse(localStorage.getItem('my_projects')) || [];
+
   if (projects.length === 0) {
     grid.innerHTML =
       '<div class="empty-state"><h3>📁 Projects Workspace</h3><p>Click "+ New Project" to start planning your next big project.</p></div>';
@@ -883,13 +1080,15 @@ function loadProjects() {
       .map(
         (p) => `
             <div class="project-card" data-id="${p.id}">
-                <h4>${p.title}</h4>
-                <p>${p.description || 'No description'}</p>
-                <div class="project-progress">
-                    <div class="progress-bar"><div class="progress-fill" style="width:${p.progress || 0}%"></div></div>
-                    <span>${p.progress || 0}%</span>
+                <div class="project-header">
+                    <h4>${p.name}</h4>
+                    <span class="badge ${p.status === 'completed' ? 'badge-success' : 'badge-warning'}">${p.status}</span>
                 </div>
-                <button class="btn-delete-project" data-id="${p.id}">🗑️</button>
+                <p>${p.description || 'No description'}</p>
+                <div class="project-meta" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                    <span>📅 Due: ${p.deadline || 'No date'}</span>
+                </div>
+                <button class="btn-delete-project" data-id="${p.id}" style="margin-top: 1rem;">🗑️ Remove</button>
             </div>
         `
       )
@@ -903,11 +1102,13 @@ function loadProjects() {
 }
 
 function deleteProject(id) {
-  let projects = JSON.parse(localStorage.getItem('edugateway_projects')) || [];
-  projects = projects.filter((p) => p.id != id);
-  localStorage.setItem('edugateway_projects', JSON.stringify(projects));
-  loadProjects();
-  showNotification('Project deleted', 'success');
+  if (confirm('Delete project?')) {
+    let projects = JSON.parse(localStorage.getItem('my_projects')) || [];
+    projects = projects.filter((p) => p.id != id);
+    localStorage.setItem('my_projects', JSON.stringify(projects));
+    loadProjects();
+    showNotification('Project deleted', 'success');
+  }
 }
 
 function loadResources() {

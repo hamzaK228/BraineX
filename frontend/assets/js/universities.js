@@ -44,23 +44,22 @@
   // Load universities data
   async function loadUniversities() {
     try {
-      // Try API first
       let response;
       try {
+        // Try API first
         response = await fetch('/api/universities');
         if (!response.ok) throw new Error('API not available');
         universities = await response.json();
       } catch {
-        // Fallback to static JSON
-        response = await fetch('/data/universities.json');
-        if (!response.ok) {
-          // Try another path
-          response = await fetch('../data/universities.json');
+        try {
+          // Fallback to static JSON
+          response = await fetch('/data/universities.json');
+          if (!response.ok) throw new Error('Static data not found');
+          universities = await response.json();
+        } catch (e) {
+          console.error('All fetch attempts failed:', e);
+          universities = [];
         }
-        if (!response.ok) {
-          response = await fetch('../../backend/data/universities.json');
-        }
-        universities = await response.json();
       }
       console.log(`Loaded ${universities.length} universities`);
     } catch (error) {
