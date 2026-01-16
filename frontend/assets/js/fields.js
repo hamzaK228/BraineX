@@ -25,8 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.addEventListener('click', (e) => {
       if (e.target.classList.contains('btn-explore-field')) {
         const btn = e.target;
-        // Find ID - in renderFields we use exploreField('${field.id}')
-        // I should update renderFields to use data-id
+        // Find ID
+        const id = btn.getAttribute('data-id');
+        if (id) {
+          window.exploreField(id);
+        }
       }
     });
   }
@@ -240,10 +243,7 @@ window.exploreField = function (fieldId) {
  * Show Pathway Details (Mock Modal)
  */
 window.showPathwayDetails = function (pathwayName) {
-  alert(
-    `Showing detailed pathway roadmap for: ${pathwayName}\n\n(This feature would open a detailed modal or page in production)`
-  );
-  // Ideally, navigate to a roadmap page with query param
+  // Navigate to roadmaps page with pathway filter
   window.location.href = `/roadmaps?pathway=${encodeURIComponent(pathwayName)}`;
 };
 

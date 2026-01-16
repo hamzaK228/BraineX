@@ -206,24 +206,32 @@
         <section class="benefits">
             <div class="container">
                 <h2>Why Choose Our Platform</h2>
-                <div class="benefits-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🎓</div>
+                <div class="features-grid">
+                    <div class="interactive-card">
+                        <div class="card-icon-wrapper">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
                         <h3>Scholarships</h3>
-                        <p>Find financial aid tailored to your profile.</p>
-                        <a href="/scholarships">Learn more →</a>
+                        <p>Find financial aid tailored to your profile. Access thousands of opportunities from global
+                            institutions.</p>
+                        <a href="/scholarships" class="card-link">Learn more <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🗺️</div>
+                    <div class="interactive-card">
+                        <div class="card-icon-wrapper">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
                         <h3>Roadmaps</h3>
-                        <p>Step-by-step guides for high school success.</p>
-                        <a href="/roadmaps">Learn more →</a>
+                        <p>Step-by-step guides for high school success. Navigate your academic journey with clarity.</p>
+                        <a href="/roadmaps" class="card-link">Learn more <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">👥</div>
+                    <div class="interactive-card">
+                        <div class="card-icon-wrapper">
+                            <i class="fas fa-users"></i>
+                        </div>
                         <h3>Mentorship</h3>
-                        <p>Connect with peers and experienced mentors.</p>
-                        <a href="/mentors">Learn more →</a>
+                        <p>Connect with peers and experienced mentors. Get guidance from those who have walked the path.
+                        </p>
+                        <a href="/mentors" class="card-link">Learn more <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -232,31 +240,70 @@
         <!-- Search Bar -->
         <section class="search-section">
             <div class="container">
-                <h2>Find Your Perfect Opportunity</h2>
-                <div class="search-bar">
-                    <div class="search-grid">
-                        <select class="search-input">
-                            <option value="">Select Field/Discipline</option>
-                            <option value="ai">Artificial Intelligence</option>
-                            <option value="biotech">Biotech & Health Sciences</option>
-                            <option value="climate">Climate Tech</option>
-                            <option value="engineering">Engineering</option>
-                            <option value="entrepreneurship">Entrepreneurship</option>
-                            <option value="social">Social Impact</option>
-                            <option value="media">Digital Media</option>
-                            <option value="economics">Economics & Finance</option>
-                        </select>
-                        <select class="search-input">
-                            <option value="">Program Type</option>
-                            <option value="scholarship">Scholarship</option>
-                            <option value="fellowship">Fellowship</option>
-                            <option value="summer">Summer School</option>
-                            <option value="internship">Internship</option>
-                            <option value="grant">Research Grant</option>
-                        </select>
-                        <input type="date" class="search-input" placeholder="Deadline">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Find Your Perfect Opportunity</h2>
+
+                <div class="search-container">
+                    <div class="search-form-grid">
+                        <!-- Multi-select Field -->
+                        <div class="form-group">
+                            <label>Field/Discipline</label>
+                            <div class="multi-select-container" id="fieldMultiSelect">
+                                <div class="multi-select-trigger">
+                                    <span class="placeholder">Select fields...</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="multi-select-dropdown">
+                                    <div class="dropdown-search">
+                                        <input type="text" placeholder="Search fields...">
+                                    </div>
+                                    <div class="dropdown-options">
+                                        <!-- Options injected by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="selected-chips" id="fieldChips"></div>
+                        </div>
+
+                        <!-- Program Type Toggle -->
+                        <div class="form-group">
+                            <label>Program Type</label>
+                            <div class="toggle-group" id="programTypeToggle">
+                                <button type="button" class="toggle-btn active" data-value="all">All</button>
+                                <button type="button" class="toggle-btn" data-value="scholarship">Scholarship</button>
+                                <button type="button" class="toggle-btn" data-value="internship">Internship</button>
+                                <button type="button" class="toggle-btn" data-value="project">Project</button>
+                            </div>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="form-group">
+                            <label>Date Range</label>
+                            <div class="date-range-wrapper">
+                                <input type="date" class="date-input" id="startDate" placeholder="Start">
+                                <span class="date-separator">to</span>
+                                <input type="date" class="date-input" id="endDate" placeholder="End">
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-search">Find Opportunities</button>
+
+                    <div class="btn-find-opps-container">
+                        <button class="btn-find-opps" id="btnFindOpps">
+                            <i class="fas fa-search"></i> Find Opportunities
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Results Section -->
+        <section class="latest-opportunities" id="latestOpportunities" style="display:none; padding: 4rem 0;">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Latest Opportunities</h2>
+                    <span id="resultsCount" style="color: var(--text-secondary);"></span>
+                </div>
+                <div id="opportunitiesGrid" class="features-grid">
+                    <!-- Results injected here -->
                 </div>
             </div>
         </section>

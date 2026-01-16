@@ -294,7 +294,9 @@
     // Attach guide button listeners
     elements.grid.querySelectorAll('.btn-guide').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const id = parseInt(e.target.dataset.id);
+        const btnEl = e.target.closest('.btn-guide');
+        if (!btnEl) return;
+        const id = btnEl.dataset.id; // Removed parseInt since IDs are strings
         openApplicationGuide(id);
       });
     });
@@ -436,14 +438,26 @@
                     ${renderCountdownTimer(prog.deadline)}
                 </div>
                 <div class="card-stats">
-                    <span class="stat-badge ${prog.cost === 0 ? 'free' : ''}">${prog.costLabel}</span>
-                    <span class="stat-badge">${prog.acceptanceRate}% rate</span>
+                    <span class="stat-badge ${prog.cost === 0 ? 'free' : ''}">${prog.costLabel || '$' + prog.cost}</span>
+                    <span class="stat-badge">${prog.acceptanceRate ? prog.acceptanceRate + '%' : 'N/A'} rate</span>
                 </div>
-                <a href="${prog.website}" target="_blank" class="btn-apply" style="margin-top: 12px; display: block;">Apply Now</a>
+                <div class="card-actions" style="margin-top: 12px; display: flex; gap: 10px;">
+                    <a href="${prog.website}" target="_blank" class="btn-apply" style="flex: 1; text-align: center;">Apply Now</a>
+                    <button class="btn-guide btn-secondary" data-id="${prog.id}" style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer;">View Detail</button>
+                </div>
             </div>
         `
       )
       .join('');
+
+    // Attach listeners to carousel buttons
+    elements.carouselTrack.querySelectorAll('.btn-guide').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const btnEl = e.target.closest('.btn-guide');
+        if (!btnEl) return;
+        openApplicationGuide(btnEl.dataset.id);
+      });
+    });
 
     // Render dots
     if (elements.carouselDots) {

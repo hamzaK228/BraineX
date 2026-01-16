@@ -177,6 +177,10 @@ app.get('/programs', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend/pages/programs.html'));
 });
 
+app.get('/pathways/:field', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend/pages/pathway.html'));
+});
+
 app.get('/scholarships', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend/pages/scholarships.html'));
 });

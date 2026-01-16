@@ -1,6 +1,6 @@
 /**
  * Universities Page JavaScript
- * Features: Filter, Search, Comparison Tool, PDF Export
+ * Features: Filter, Search, View Details
  */
 
 (function () {
@@ -9,7 +9,6 @@
   // State
   let universities = [];
   let filteredUniversities = [];
-  let selectedForComparison = [];
 
   // DOM Elements
   const elements = {
@@ -21,15 +20,14 @@
     sortSelect: document.getElementById('sortSelect'),
     clearFilters: document.getElementById('clearFilters'),
     resetFilters: document.getElementById('resetFilters'),
-    comparisonBar: document.getElementById('comparisonBar'),
-    compareCount: document.getElementById('compareCount'),
-    compareBtn: document.getElementById('compareBtn'),
-    clearCompare: document.getElementById('clearCompare'),
-    comparisonModal: document.getElementById('comparisonModal'),
-    comparisonTableWrapper: document.getElementById('comparisonTableWrapper'),
-    closeComparison: document.getElementById('closeComparison'),
-    closeComparisonBtn: document.getElementById('closeComparisonBtn'),
-    exportPdfBtn: document.getElementById('exportPdfBtn'),
+
+    // Detail Modal Elements
+    detailModal: document.getElementById('detailModal'),
+    modalTitle: document.getElementById('modalTitle'),
+    detailContentWrapper: document.getElementById('detailContentWrapper'),
+    closeDetail: document.getElementById('closeDetail'),
+    closeDetailBtn: document.getElementById('closeDetailBtn'),
+
     filterSidebar: document.getElementById('filterSidebar'),
     toggleFilter: document.getElementById('toggleFilter'),
   };
@@ -73,9 +71,16 @@
     // Search
     if (elements.searchInput) {
       elements.searchInput.addEventListener('input', debounce(applyFilters, 300));
+      // Start search on Enter
+      elements.searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') applyFilters();
+      });
     }
     if (elements.searchBtn) {
-      elements.searchBtn.addEventListener('click', applyFilters);
+      elements.searchBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent any form submission or navigation
+        applyFilters();
+      });
     }
 
     // Sort
@@ -107,28 +112,19 @@
       });
     });
 
-    // Comparison
-    if (elements.clearCompare) {
-      elements.clearCompare.addEventListener('click', clearComparison);
+    // Modal close
+    if (elements.closeDetail) {
+      elements.closeDetail.addEventListener('click', hideDetail);
     }
-    if (elements.compareBtn) {
-      elements.compareBtn.addEventListener('click', showComparison);
-    }
-    if (elements.closeComparison) {
-      elements.closeComparison.addEventListener('click', hideComparison);
-    }
-    if (elements.closeComparisonBtn) {
-      elements.closeComparisonBtn.addEventListener('click', hideComparison);
-    }
-    if (elements.exportPdfBtn) {
-      elements.exportPdfBtn.addEventListener('click', exportToPDF);
+    if (elements.closeDetailBtn) {
+      elements.closeDetailBtn.addEventListener('click', hideDetail);
     }
 
     // Modal close on backdrop click
-    if (elements.comparisonModal) {
-      elements.comparisonModal.addEventListener('click', (e) => {
-        if (e.target === elements.comparisonModal) {
-          hideComparison();
+    if (elements.detailModal) {
+      elements.detailModal.addEventListener('click', (e) => {
+        if (e.target === elements.detailModal) {
+          hideDetail();
         }
       });
     }
@@ -138,10 +134,10 @@
       elements.toggleFilter.addEventListener('click', toggleFilterSidebar);
     }
 
-    // Close filter on escape
+    // Close filter/modal on escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        hideComparison();
+        hideDetail();
         if (elements.filterSidebar) {
           elements.filterSidebar.classList.remove('active');
         }
@@ -298,23 +294,22 @@
     elements.grid.innerHTML = filteredUniversities.map((uni) => createUniversityCard(uni)).join('');
 
     // Attach card event listeners
-    elements.grid.querySelectorAll('.btn-select').forEach((btn) => {
+    elements.grid.querySelectorAll('.btn-detail').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const id = parseInt(e.target.dataset.id);
-        toggleCompareSelection(id);
+        showUniversityDetail(id);
       });
     });
   }
 
   // Create university card HTML
   function createUniversityCard(uni) {
-    const isSelected = selectedForComparison.includes(uni.id);
     const isTop10 = uni.ranking <= 10;
     const displayedMajors = uni.majors.slice(0, 4);
     const formatTuition = uni.tuition === 0 ? 'Free' : `$${uni.tuition.toLocaleString()}`;
 
     return `
-            <article class="university-card ${isSelected ? 'selected' : ''}" data-id="${uni.id}">
+            <article class="university-card" data-id="${uni.id}">
                 <div class="ranking-badge ${isTop10 ? 'top-10' : ''}">#${uni.ranking}</div>
                 <div class="card-header">
                     <img src="${uni.logo}" alt="${uni.shortName} logo" class="university-logo" 
@@ -344,8 +339,8 @@
                 </div>
                 <div class="card-actions">
                     <a href="${uni.website}" target="_blank" rel="noopener" class="btn-view">Visit Website</a>
-                    <button class="btn-select ${isSelected ? 'selected' : ''}" data-id="${uni.id}">
-                        ${isSelected ? '✓ Selected' : 'Compare'}
+                    <button class="btn-detail btn-primary" data-id="${uni.id}" style="padding: 0.5rem 1rem; border-radius: 6px; border: none; cursor: pointer; background: var(--primary-color, #667eea); color: white;">
+                        View Detail
                     </button>
                 </div>
             </article>
@@ -359,240 +354,79 @@
     }
   }
 
-  // Toggle compare selection
-  function toggleCompareSelection(id) {
-    const index = selectedForComparison.indexOf(id);
+  // Show Detail modal
+  function showUniversityDetail(id) {
+    const uni = universities.find((u) => u.id === id);
+    if (!uni) return;
 
-    if (index === -1) {
-      if (selectedForComparison.length >= 4) {
-        alert('You can compare up to 4 universities at a time.');
-        return;
-      }
-      selectedForComparison.push(id);
-    } else {
-      selectedForComparison.splice(index, 1);
+    // Populate Modal
+    if (elements.modalTitle) elements.modalTitle.textContent = uni.name;
+
+    if (elements.detailContentWrapper) {
+      const formatTuition = uni.tuition === 0 ? 'Free' : `$${uni.tuition.toLocaleString()}`;
+
+      elements.detailContentWrapper.innerHTML = `
+            <div class="university-detail-view" style="padding: 2rem;">
+                <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                    <img src="${uni.logo}" alt="${uni.shortName}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 12px; background: #f8f9fa; padding: 1rem;"
+                        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23667eea%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2230%22>${uni.shortName.charAt(0)}</text></svg>'">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.5rem; color: #2d3748;">${uni.name}</h3>
+                        <p style="margin: 0.5rem 0 0; color: #718096;">📍 ${uni.city}, ${uni.country}</p>
+                        <a href="${uni.website}" target="_blank" style="display: inline-block; margin-top: 0.5rem; color: #667eea; text-decoration: none;">🌐 ${uni.website}</a>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                     <div style="background: #ebf4ff; padding: 1rem; border-radius: 8px;">
+                        <strong style="display: block; color: #4a5568; font-size: 0.9rem;">Ranking</strong>
+                        <span style="font-size: 1.25rem; font-weight: bold; color: #2b6cb0;">#${uni.ranking}</span>
+                     </div>
+                     <div style="background: #f0fff4; padding: 1rem; border-radius: 8px;">
+                        <strong style="display: block; color: #4a5568; font-size: 0.9rem;">Acceptance Rate</strong>
+                        <span style="font-size: 1.25rem; font-weight: bold; color: #2f855a;">${uni.acceptanceRate}%</span>
+                     </div>
+                     <div style="background: #fff5f5; padding: 1rem; border-radius: 8px;">
+                        <strong style="display: block; color: #4a5568; font-size: 0.9rem;">Tuition</strong>
+                        <span style="font-size: 1.25rem; font-weight: bold; color: #c53030;">${formatTuition}</span>
+                     </div>
+                     <div style="background: #faf5ff; padding: 1rem; border-radius: 8px;">
+                        <strong style="display: block; color: #4a5568; font-size: 0.9rem;">Students</strong>
+                        <span style="font-size: 1.25rem; font-weight: bold; color: #805ad5;">${uni.studentCount ? uni.studentCount.toLocaleString() : 'N/A'}</span>
+                     </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem;">About</h4>
+                    <p style="color: #4a5568; line-height: 1.6;">
+                        ${uni.name} is a ${uni.type.toLowerCase()} research university located in ${uni.city}. 
+                        Founded in ${uni.foundedYear}, it is known for its strong programs in ${uni.majors.slice(0, 3).join(', ')}.
+                        ${uni.researchFunding ? `The university receives approximately ${uni.researchFunding} in research funding annually.` : ''}
+                    </p>
+                </div>
+
+                <div>
+                    <h4 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem;">Popular Majors</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        ${uni.majors.map((m) => `<span style="background: #edf2f7; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.9rem; color: #4a5568;">${m}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
-    updateComparisonUI();
-    renderUniversities();
-  }
-
-  // Update comparison UI
-  function updateComparisonUI() {
-    const count = selectedForComparison.length;
-
-    if (elements.comparisonBar) {
-      elements.comparisonBar.style.display = count > 0 ? 'flex' : 'none';
-    }
-    if (elements.compareCount) {
-      elements.compareCount.textContent = count;
-    }
-    if (elements.compareBtn) {
-      elements.compareBtn.disabled = count < 2;
-    }
-  }
-
-  // Clear comparison
-  function clearComparison() {
-    selectedForComparison = [];
-    updateComparisonUI();
-    renderUniversities();
-  }
-
-  // Show comparison modal
-  function showComparison() {
-    if (selectedForComparison.length < 2) return;
-
-    const selectedUnis = universities.filter((uni) => selectedForComparison.includes(uni.id));
-    renderComparisonTable(selectedUnis);
-
-    if (elements.comparisonModal) {
-      elements.comparisonModal.style.display = 'flex';
+    if (elements.detailModal) {
+      elements.detailModal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     }
   }
 
-  // Hide comparison modal
-  function hideComparison() {
-    if (elements.comparisonModal) {
-      elements.comparisonModal.style.display = 'none';
+  // Hide Detail modal
+  function hideDetail() {
+    if (elements.detailModal) {
+      elements.detailModal.style.display = 'none';
       document.body.style.overflow = '';
     }
-  }
-
-  // Render comparison table
-  function renderComparisonTable(selectedUnis) {
-    if (!elements.comparisonTableWrapper) return;
-
-    const rows = [
-      { label: 'Ranking', key: 'ranking', format: (v) => `#${v}` },
-      { label: 'Country', key: 'country' },
-      { label: 'City', key: 'city' },
-      { label: 'Type', key: 'type' },
-      { label: 'Acceptance Rate', key: 'acceptanceRate', format: (v) => `${v}%` },
-      {
-        label: 'Tuition (Annual)',
-        key: 'tuition',
-        format: (v) => (v === 0 ? 'Free' : `$${v.toLocaleString()}`),
-      },
-      { label: 'Students', key: 'studentCount', format: (v) => (v ? v.toLocaleString() : 'N/A') },
-      { label: 'Founded', key: 'foundedYear' },
-      { label: 'Research Funding', key: 'researchFunding' },
-      { label: 'Top Majors', key: 'majors', format: (v) => v.slice(0, 3).join(', ') },
-    ];
-
-    let html = `
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        ${selectedUnis
-                          .map(
-                            (uni) => `
-                            <td>
-                                <div class="compare-university-header">
-                                    <img src="${uni.logo}" alt="${uni.shortName}" class="compare-logo"
-                                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23667eea%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2230%22>${uni.shortName.charAt(0)}</text></svg>'">
-                                    <span class="compare-name">${uni.shortName}</span>
-                                </div>
-                            </td>
-                        `
-                          )
-                          .join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows
-                      .map(
-                        (row) => `
-                        <tr>
-                            <th>${row.label}</th>
-                            ${selectedUnis
-                              .map((uni) => {
-                                const value = uni[row.key];
-                                const displayValue = row.format ? row.format(value) : value;
-                                return `<td>${displayValue}</td>`;
-                              })
-                              .join('')}
-                        </tr>
-                    `
-                      )
-                      .join('')}
-                </tbody>
-            </table>
-        `;
-
-    elements.comparisonTableWrapper.innerHTML = html;
-  }
-
-  // Export to PDF
-  function exportToPDF() {
-    if (selectedForComparison.length < 2) return;
-
-    const selectedUnis = universities.filter((uni) => selectedForComparison.includes(uni.id));
-
-    // Check if jsPDF is available
-    if (typeof window.jspdf === 'undefined') {
-      alert('PDF export library not loaded. Please try again.');
-      return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('landscape');
-
-    // Title
-    doc.setFontSize(20);
-    doc.setTextColor(102, 126, 234);
-    doc.text('University Comparison - BraineX', 14, 20);
-
-    // Subtitle
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 28);
-
-    // Table data
-    const headers = ['Attribute', ...selectedUnis.map((u) => u.shortName)];
-    const data = [
-      ['Ranking', ...selectedUnis.map((u) => `#${u.ranking}`)],
-      ['Country', ...selectedUnis.map((u) => u.country)],
-      ['City', ...selectedUnis.map((u) => u.city)],
-      ['Type', ...selectedUnis.map((u) => u.type)],
-      ['Acceptance Rate', ...selectedUnis.map((u) => `${u.acceptanceRate}%`)],
-      [
-        'Tuition',
-        ...selectedUnis.map((u) => (u.tuition === 0 ? 'Free' : `$${u.tuition.toLocaleString()}`)),
-      ],
-      [
-        'Students',
-        ...selectedUnis.map((u) => (u.studentCount ? u.studentCount.toLocaleString() : 'N/A')),
-      ],
-      ['Founded', ...selectedUnis.map((u) => u.foundedYear)],
-      ['Research Funding', ...selectedUnis.map((u) => u.researchFunding)],
-      ['Top Majors', ...selectedUnis.map((u) => u.majors.slice(0, 3).join(', '))],
-    ];
-
-    doc.autoTable({
-      head: [headers],
-      body: data,
-      startY: 35,
-      styles: {
-        fontSize: 9,
-        cellPadding: 4,
-      },
-      headStyles: {
-        fillColor: [102, 126, 234],
-        textColor: 255,
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [245, 247, 250],
-      },
-      columnStyles: {
-        0: { fontStyle: 'bold', fillColor: [245, 247, 250] },
-      },
-    });
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text(
-        'BraineX - Your Guide to Higher Education | brainex.example',
-        doc.internal.pageSize.getWidth() / 2,
-        doc.internal.pageSize.getHeight() - 10,
-        { align: 'center' }
-      );
-    }
-
-    // Save
-    const filename = `university-comparison-${selectedUnis
-      .map((u) => u.shortName)
-      .join('-')
-      .toLowerCase()}.pdf`;
-    doc.save(filename);
-  }
-
-  // Reset all filters
-  function resetAllFilters() {
-    // Reset search
-    if (elements.searchInput) elements.searchInput.value = '';
-
-    // Check all checkboxes
-    document.querySelectorAll('.filter-checkbox input').forEach((input) => {
-      input.checked = true;
-    });
-
-    // Reset radio to "all"
-    document.querySelectorAll('.filter-radio input[value="all"]').forEach((input) => {
-      input.checked = true;
-    });
-
-    // Reset sort
-    if (elements.sortSelect) elements.sortSelect.value = 'ranking';
-
-    applyFilters();
   }
 
   // Toggle filter sidebar (mobile)
