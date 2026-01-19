@@ -22,6 +22,85 @@ function initializeProjectsPage() {
   updateProjectStats(projects);
 }
 
+// Function to view project details
+window.viewProjectDetails = function (id) {
+  const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
+  const project = projects.find(p => p.id === id);
+  if (!project) return;
+
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'modal show';
+  modal.id = 'projectDetailModal';
+
+  const progressColor = project.progress >= 80 ? '#28a745' : project.progress >= 50 ? '#ffc107' : '#dc3545';
+
+  modal.innerHTML = `
+      <div class="modal-content" style="max-width: 800px; padding: 0;">
+          <div class="modal-header" style="padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                  <h2 style="margin: 0; font-size: 1.8rem; color: white;">${project.title}</h2>
+                  <p style="margin: 8px 0 0; opacity: 0.9;">Led by ${project.team}</p>
+              </div>
+              <button class="close-modal" onclick="this.closest('.modal').remove()" style="color: white; opacity: 0.8; font-size: 2rem; line-height: 1;">&times;</button>
+          </div>
+          
+          <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+              <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+                  <span class="project-badge ${project.status}" style="padding: 6px 12px; border-radius: 20px; font-weight: 600;">${project.status.toUpperCase()}</span>
+                  <span style="background: #ebf4ff; color: #4299e1; padding: 6px 12px; border-radius: 20px; font-weight: 600;">${project.category}</span>
+                  <span style="background: #f0fff4; color: #48bb78; padding: 6px 12px; border-radius: 20px; font-weight: 600;">$${project.funding.toLocaleString()} Funded</span>
+              </div>
+
+              <div style="margin-bottom: 30px;">
+                  <h3 style="border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-bottom: 16px;">About the Project</h3>
+                  <p style="line-height: 1.7; color: #4a5568; font-size: 1.1rem;">${project.description}</p>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 30px;">
+                  <div style="background: #f7fafc; padding: 20px; border-radius: 12px;">
+                      <h4 style="margin-top: 0; color: #2d3748;">⚡ Progress</h4>
+                      <div class="progress-bar" style="height: 10px; background: #e2e8f0; border-radius: 5px; margin: 10px 0;">
+                          <div style="width: ${project.progress}%; height: 100%; background: ${progressColor}; border-radius: 5px;"></div>
+                      </div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #718096;">
+                          <span>${project.progress}% Complete</span>
+                          <span>Deadline: ${new Date(project.deadline).toLocaleDateString()}</span>
+                      </div>
+                  </div>
+                  
+                  <div style="background: #f7fafc; padding: 20px; border-radius: 12px;">
+                       <h4 style="margin-top: 0; color: #2d3748;">🛠️ Tech Stack & Skills</h4>
+                       <div class="project-skills" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                          ${(project.skills || []).map(s => `<span class="skill-tag" style="background: white; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem;">${s}</span>`).join('')}
+                       </div>
+                  </div>
+              </div>
+
+              <div style="margin-bottom: 30px;">
+                  <h3 style="border-bottom: 2px solid #edf2f7; padding-bottom: 8px; margin-bottom: 16px;">Academic Collaboration</h3>
+                  <p><strong>Universities:</strong> ${(project.universities || []).join(', ')}</p>
+                  <p><strong>Mentor:</strong> ${project.mentor || 'N/A'}</p>
+              </div>
+
+              <div style="background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 16px;">
+                  <h4 style="margin-top: 0; color: #2c5282;">✨ Expected Outcomes</h4>
+                  <ul style="margin: 0; padding-left: 20px; color: #2b6cb0;">
+                      ${(project.outcomes || []).map(o => `<li>${o}</li>`).join('')}
+                  </ul>
+              </div>
+          </div>
+          
+          <div class="modal-footer" style="padding: 20px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+              <button class="btn-outline" onclick="this.closest('.modal').remove()">Close</button>
+              <button class="btn-project-primary" onclick="alert('Applications opening soon!')">Apply to Join Team</button>
+          </div>
+      </div>
+  `;
+
+  document.body.appendChild(modal);
+};
+
 function getSampleProjects() {
   return [
     {
@@ -404,15 +483,14 @@ function createProjectCard(project) {
   return `
         <div class=\"project-card enhanced\" data-project-id=\"${project.id}\" data-category=\"${project.category}\" data-status=\"${project.status}\">
             <div class="project-badge ${project.status}">
-                ${
-                  project.status === 'recruiting'
-                    ? '🔍 Recruiting'
-                    : project.status === 'active'
-                      ? '⚡ Active'
-                      : project.status === 'completed'
-                        ? '✅ Completed'
-                        : '📋 Planning'
-                }
+                ${project.status === 'recruiting'
+      ? '🔍 Recruiting'
+      : project.status === 'active'
+        ? '⚡ Active'
+        : project.status === 'completed'
+          ? '✅ Completed'
+          : '📋 Planning'
+    }
             </div>
             
             <div class="project-header">
@@ -459,9 +537,9 @@ function createProjectCard(project) {
                 
                 <div class="project-skills">
                     ${project.skills
-                      .slice(0, 4)
-                      .map((skill) => `<span class="skill-tag">${skill}</span>`)
-                      .join('')}
+      .slice(0, 4)
+      .map((skill) => `<span class="skill-tag">${skill}</span>`)
+      .join('')}
                 </div>
                 
                 <div class="project-tags">
@@ -554,6 +632,10 @@ function applyAllFilters() {
   const statusFilter = document.getElementById('statusFilter')?.value;
   const sortFilter = document.getElementById('sortFilter')?.value;
 
+  // New filters
+  const skillLevelFilter = document.getElementById('skillLevelFilter')?.value;
+  const techFilter = document.getElementById('techFilter')?.value;
+
   const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
   let filtered = [...projects];
 
@@ -565,6 +647,22 @@ function applyAllFilters() {
   // Apply status filter
   if (statusFilter) {
     filtered = filtered.filter((p) => p.status === statusFilter);
+  }
+
+  // Apply Skill Level filter (Mocking data if missing)
+  if (skillLevelFilter) {
+    filtered = filtered.filter(p => {
+      const level = p.level || ['beginner', 'intermediate', 'advanced'][p.id % 3]; // Deterministic mock
+      return level === skillLevelFilter;
+    });
+  }
+
+  // Apply Tech Stack filter
+  if (techFilter) {
+    filtered = filtered.filter(p =>
+      (p.skills || []).some(s => s.toLowerCase().includes(techFilter.toLowerCase())) ||
+      (p.tags || []).some(t => t.toLowerCase().includes(techFilter.toLowerCase()))
+    );
   }
 
   // Apply sorting
@@ -1277,119 +1375,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Initialize project action buttons
-function initializeProjectActions() {
-  // Make all project buttons functional
-  document.querySelectorAll('.btn-start-project, .btn-new-project').forEach((btn) => {
-    btn.addEventListener('click', showStartProjectModal);
-  });
-
-  document.querySelectorAll('.btn-browse-projects, .btn-browse').forEach((btn) => {
-    btn.addEventListener('click', function () {
-      document
-        .querySelector('#projectsGrid, .projects-grid')
-        ?.scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-}
-
-function showStartProjectModal() {
-  const modal = document.createElement('div');
-  modal.className = 'modal show';
-  modal.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.8); display: flex; align-items: center;
-        justify-content: center; z-index: 10000;
-    `;
-
-  modal.innerHTML = `
-        <div class="modal-content" style="
-            background: white; border-radius: 20px; padding: 40px; max-width: 600px;
-            max-height: 90vh; overflow-y: auto; margin: 20px; position: relative;
-        ">
-            <button class="close-modal" style="
-                position: absolute; top: 15px; right: 20px; background: none;
-                border: none; font-size: 30px; cursor: pointer; color: #999;
-            ">&times;</button>
-            
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="font-size: 48px; margin-bottom: 15px;">🚀</div>
-                <h2 style="margin: 0; color: #2d3748;">Start Your New Project</h2>
-                <p style="color: #4a5568; margin: 10px 0 0 0;">Ready to bring your ideas to life!</p>
-            </div>
-            
-            <form id="startProjectForm" style="display: flex; flex-direction: column; gap: 20px;">
-                <input type="text" name="title" required placeholder="Project Title *" style="
-                    width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;
-                    font-size: 16px; box-sizing: border-box;
-                ">
-                <select name="category" required style="
-                    width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;
-                    font-size: 16px; box-sizing: border-box;
-                ">
-                    <option value="">Select Category *</option>
-                    <option value="research">Research Project</option>
-                    <option value="startup">Startup/Business</option>
-                    <option value="social">Social Impact</option>
-                    <option value="tech">Technology</option>
-                </select>
-                <textarea name="description" required rows="4" placeholder="Project Description *" style="
-                    width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;
-                    font-size: 16px; resize: vertical; box-sizing: border-box;
-                "></textarea>
-                
-                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                    <button type="button" class="btn-cancel" style="
-                        background: #e2e8f0; color: #2d3748; border: none; padding: 12px 24px;
-                        border-radius: 25px; font-weight: 600; cursor: pointer;
-                    ">Cancel</button>
-                    <button type="submit" style="
-                        background: linear-gradient(135deg, #667eea, #764ba2); color: white;
-                        border: none; padding: 12px 24px; border-radius: 25px;
-                        font-weight: 600; cursor: pointer;
-                    ">🚀 Launch Project</button>
-                </div>
-            </form>
-        </div>
-    `;
-
-  document.body.appendChild(modal);
-
-  modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
-  modal.querySelector('.btn-cancel').addEventListener('click', () => modal.remove());
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.remove();
-  });
-
-  modal.querySelector('#startProjectForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const projectData = {
-      id: Date.now(),
-      title: formData.get('title'),
-      category: formData.get('category'),
-      description: formData.get('description'),
-      creator: BraineX.getCurrentUser()?.name || 'User',
-      status: 'Active',
-      progress: 15,
-      created: new Date().toISOString().split('T')[0],
-      tags: ['New Project'],
-      teamSize: 1,
-      funding: 0,
-    };
-
-    const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
-    projects.unshift(projectData);
-    localStorage.setItem('projects', JSON.stringify(projects));
-
-    BraineX.showNotification('🎉 Project created successfully!', 'success');
-    modal.remove();
-
-    setTimeout(() => {
-      displayProjects(projects);
-      updateProjectStats(projects);
-    }, 1000);
-  });
-}
+// Duplicate functions removed. 
+// Logic consolidated in initializeProjectActions (delegation) and openCreateProjectModal (multi-step).
 
 function setupCategoryExplore() {
   document.querySelectorAll('.category-card, .research-category').forEach((card) => {

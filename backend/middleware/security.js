@@ -19,15 +19,16 @@ export const securityHeaders = helmet({
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
+        "'unsafe-eval'",
         'https://cdnjs.cloudflare.com',
         'https://cdn.jsdelivr.net',
       ],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
       imgSrc: ["'self'", 'data:', 'https:', 'https://cdn.jsdelivr.net'],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "ws:", "wss:"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+      // upgradeInsecureRequests: [],
     },
   },
   hsts: {
@@ -155,6 +156,7 @@ export const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'http://localhost:5173',
       'http://localhost:3000',
+      'http://localhost:3001',
     ];
 
     if (!origin || allowedOrigins.includes(origin)) {

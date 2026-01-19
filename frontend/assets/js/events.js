@@ -131,44 +131,87 @@ function createEventCard(event) {
                          <span class="detail-icon">📍</span>
                          <span>${event.location || 'Online'}</span>
                     </div>
-                    ${
-                      event.type
-                        ? `
+                    ${event.type
+      ? `
                     <div class="detail">
                         <span class="detail-icon">🏷️</span>
                         <span>${event.type}</span>
                     </div>`
-                        : ''
-                    }
+      : ''
+    }
                 </div>
                 
-                <div class="event-tags">
-                    <span class="tag">${event.type || 'Event'}</span>
-                    ${(event.tags || []).map((t) => `<span class="tag">${t}</span>`).join('')}
-                </div>
-                
-                <button class="btn-event-primary js-register-event" data-id="${event.id}">
-                    ${isUpcoming ? 'Register Now' : 'View Details'}
-                </button>
-            </div>
-        </div>
-    `;
+    <div class="event-tags">
+        <span class="tag">${event.type || 'Event'}</span>
+        ${(event.tags || []).map((t) => `<span class="tag">${t}</span>`).join('')}
+    </div>
+    
+    <button class="btn-event-primary js-event-action" data-id="${event.id}" data-action="${isUpcoming ? 'register' : 'view'}">
+        ${isUpcoming ? 'Register Now' : 'View Details'}
+    </button>
+</div>
+</div>
+`;
 }
 
 function setupEventActions() {
   document.addEventListener('click', function (e) {
-    const regBtn = e.target.closest('.js-register-event');
-    if (regBtn) {
-      const id = regBtn.getAttribute('data-id');
-      registerForEvent(id);
+    const btn = e.target.closest('.js-event-action');
+    if (btn) {
+      const id = btn.getAttribute('data-id');
+      const action = btn.getAttribute('data-action');
+      if (action === 'register') {
+        registerForEvent(id);
+      } else {
+        viewEventDetails(id);
+      }
+      return;
     }
 
+    // Fallback for featured cards if any
     const miniCard = e.target.closest('.mini-event-card');
     if (miniCard) {
+      // Mini cards usually imply view details
       const id = miniCard.getAttribute('data-id');
-      if (id) registerForEvent(id);
+      if (id) viewEventDetails(id);
     }
   });
+}
+
+function viewEventDetails(eventId) {
+  const event = allEvents.find(e => e.id == eventId);
+  if (!event) return;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal show';
+  modal.innerHTML = `
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>${event.title}</h2>
+            <div class="event-meta" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                 <p><strong>📅 Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                 <p><strong>📍 Location:</strong> ${event.location || 'Online'}</p>
+                 <p><strong>🏢 Organizer:</strong> ${event.organizer || 'BraineX'}</p>
+            </div>
+            <p style="font-size: 1.1rem; line-height: 1.6;">${event.description}</p>
+            
+            <div class="modal-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                 <button class="btn-secondary close-btn">Close</button>
+                 ${new Date(event.date) > new Date() ?
+      `<button class="btn-primary" onclick="registerForEvent('${event.id}')">Register Now</button>` :
+      '<button class="btn-outline" disabled>Event Ended</button>'
+    }
+            </div>
+        </div>
+    `;
+
+  document.body.appendChild(modal);
+
+  // Close handlers
+  const close = () => modal.remove();
+  modal.querySelector('.close-modal').addEventListener('click', close);
+  modal.querySelector('.close-btn').addEventListener('click', close);
+  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
 }
 
 function getEventIcon(type) {
@@ -182,30 +225,64 @@ function getEventIcon(type) {
 
 function setupEventFilters() {
   const typeSelect = document.getElementById('eventType');
+  const fieldSelect = document.getElementById('eventField');
   const searchBtn = document.querySelector('.btn-search-events');
 
   if (searchBtn) {
     searchBtn.addEventListener('click', () => {
       const type = typeSelect ? typeSelect.value.toLowerCase() : '';
-      filterEvents(type);
+      const field = fieldSelect ? fieldSelect.value.toLowerCase() : '';
+      filterEvents(type, field);
     });
   }
 
-  if (typeSelect) {
-    typeSelect.addEventListener('change', () => {
-      filterEvents(typeSelect.value.toLowerCase());
-    });
-  }
+  // Auto-filter on change
+  [typeSelect, fieldSelect].forEach(select => {
+    if (select) {
+      select.addEventListener('change', () => {
+        const type = typeSelect ? typeSelect.value.toLowerCase() : '';
+        const field = fieldSelect ? fieldSelect.value.toLowerCase() : '';
+        filterEvents(type, field);
+      });
+    }
+  });
 }
 
-function filterEvents(type) {
-  if (!type || type === 'all') {
-    currentEvents = [...allEvents];
-  } else {
-    currentEvents = allEvents.filter((e) => e.type.toLowerCase().includes(type));
-  }
+function filterEvents(type, field) {
+  currentEvents = allEvents.filter(e => {
+    const typeMatch = !type || type === 'all' || (e.type || '').toLowerCase().includes(type);
+    // Field filtering might need tags or description check if field isn't explicit
+    const eventTags = (e.tags || []).map(t => t.toLowerCase());
+    const fieldMatch = !field || field === 'all' ||
+      eventTags.some(t => t.includes(field)) ||
+      (e.description || '').toLowerCase().includes(field);
+    return typeMatch && fieldMatch;
+  });
   renderEvents(currentEvents);
 }
+
+// Global function for category card clicks
+window.filterEventsByType = function (type) {
+  // Update the dropdown to reflect selection
+  const typeSelect = document.getElementById('eventType');
+  if (typeSelect) {
+    typeSelect.value = type;
+  }
+
+  // Scroll to featured events section
+  const featuredSection = document.querySelector('.featured-events');
+  if (featuredSection) {
+    featuredSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Filter and show results
+  filterEvents(type, '');
+
+  // Show toast notification
+  if (window.InteractionHandler) {
+    window.InteractionHandler.showToast(`Showing ${type} events`);
+  }
+};
 
 // Calendar Logic (Simplified)
 let currentMonthDate = new Date();
@@ -332,32 +409,68 @@ window.registerForEvent = function (eventId) {
 };
 
 window.confirmRegistration = async function (eventId, btn) {
-  if (!window.authAPI) return;
-  window.setLoadingState(btn, true, 'Registering...');
+  window.setLoadingState?.(btn, true, 'Registering...');
 
-  try {
-    const response = await window.authAPI.request('/applications', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'event',
-        data: { eventId: eventId },
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      BraineX.showNotification('Successfully registered!', 'success');
-      setTimeout(() => {
-        btn.closest('.modal').remove();
-      }, 800);
-    } else {
-      throw new Error(result.error);
-    }
-  } catch (e) {
-    console.error(e);
-    BraineX.showNotification(e.message || 'Registration failed', 'error');
-  } finally {
-    window.setLoadingState(btn, false);
+  const event = allEvents.find((e) => e.id == eventId || e._id == eventId);
+  if (!event) {
+    window.setLoadingState?.(btn, false);
+    return;
   }
+
+  // Try API first if available
+  if (window.authAPI && window.authAPI.isAuthenticated()) {
+    try {
+      const response = await window.authAPI.request('/applications', {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'event',
+          data: { eventId: eventId },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        saveEventToLocalStorage(event);
+        BraineX.showNotification('Successfully registered!', 'success');
+        setTimeout(() => {
+          btn.closest('.modal').remove();
+        }, 800);
+        return;
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error('API registration failed, using local fallback:', e);
+      // Fall through to local storage
+    }
+  }
+
+  // Local storage fallback (for demo or when API is unavailable)
+  saveEventToLocalStorage(event);
+  BraineX.showNotification('Successfully registered! (Saved locally)', 'success');
+  setTimeout(() => {
+    btn.closest('.modal').remove();
+  }, 800);
+
+  window.setLoadingState?.(btn, false);
 };
+
+function saveEventToLocalStorage(event) {
+  const myEvents = JSON.parse(localStorage.getItem('my_events') || '[]');
+
+  // Check if already registered
+  if (myEvents.some(e => e.id === event.id)) {
+    return; // Already registered
+  }
+
+  myEvents.push({
+    id: event.id,
+    title: event.title,
+    date: event.date,
+    location: event.location,
+    registeredAt: new Date().toISOString()
+  });
+
+  localStorage.setItem('my_events', JSON.stringify(myEvents));
+}

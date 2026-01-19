@@ -146,4 +146,118 @@ document.addEventListener('DOMContentLoaded', function () {
       step.classList.add('active');
     });
   });
+
+  // 5. Roadmap Details Modal Logic
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-roadmap')) {
+      e.preventDefault();
+      const card = e.target.closest('.roadmap-card');
+      const title = card.querySelector('h3').textContent;
+      openRoadmapModal(title);
+    }
+  });
+
+  // Modal Close Logic
+  const modal = document.getElementById('roadmapModal');
+  if (modal) {
+    modal.querySelector('.close-modal').addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+  }
+
+  function openRoadmapModal(title) {
+    const modal = document.getElementById('roadmapModal');
+    const content = document.getElementById('roadmapModalContent');
+    if (!modal || !content) return;
+
+    // Find data (check both static list and dynamic list logic)
+    const roadmap = roadmaps.find(r => r.title === title) || {
+      title: title,
+      description: "A comprehensive guide to achieving your goals in " + title,
+      duration: "Flexible",
+      milestones: "Multiple Phases",
+      icon: "🎯"
+    };
+
+    // Check if already tracking
+    const myRoadmaps = JSON.parse(localStorage.getItem('my_roadmaps') || '[]');
+    const isTracking = myRoadmaps.some(r => r.title === roadmap.title);
+
+    content.innerHTML = `
+        <div class="roadmap-header" style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">${roadmap.icon || '🎓'}</div>
+            <h2>${roadmap.title}</h2>
+            <p>${roadmap.description}</p>
+        </div>
+
+        <div class="roadmap-phases" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="phase" style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #667eea;">
+                <h3>Phase 1: Foundations</h3>
+                <p>Build the essential knowledge and skills required for this path.</p>
+                <div style="margin-top: 10px; font-size: 0.9rem; color: #64748b;">⏱️ 1-3 Months</div>
+            </div>
+            <div class="phase" style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #764ba2;">
+                <h3>Phase 2: Advanced Concepts</h3>
+                <p>Deep dive into specialized topics and practical applications.</p>
+                <div style="margin-top: 10px; font-size: 0.9rem; color: #64748b;">⏱️ 3-6 Months</div>
+            </div>
+            <div class="phase" style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #48bb78;">
+                <h3>Phase 3: Mastery & Launch</h3>
+                <p>Finalize your portfolio, complete capstone projects, and achieve your goal.</p>
+                <div style="margin-top: 10px; font-size: 0.9rem; color: #64748b;">⏱️ 6+ Months</div>
+            </div>
+        </div>
+
+        <div class="roadmap-actions" style="margin-top: 2rem; text-align: center;">
+            <button class="btn-primary js-start-roadmap" data-title="${roadmap.title}" ${isTracking ? 'disabled style="background: #48bb78; cursor: default;"' : ''}>
+                ${isTracking ? '✓ Currently Tracking' : 'Start Tracking Now'}
+            </button>
+        </div>
+      `;
+
+    // Add event listener for the start button
+    const startBtn = content.querySelector('.js-start-roadmap');
+    if (startBtn && !isTracking) {
+      startBtn.addEventListener('click', function () {
+        startTrackingRoadmap(roadmap);
+        this.textContent = '✓ Currently Tracking';
+        this.disabled = true;
+        this.style.background = '#48bb78';
+        this.style.cursor = 'default';
+      });
+    }
+
+    modal.style.display = 'block';
+  }
+
+  // Function to save roadmap to localStorage
+  function startTrackingRoadmap(roadmap) {
+    const myRoadmaps = JSON.parse(localStorage.getItem('my_roadmaps') || '[]');
+
+    // Check if already exists
+    if (myRoadmaps.some(r => r.title === roadmap.title)) {
+      if (window.BraineX && window.BraineX.showNotification) {
+        BraineX.showNotification('You are already tracking this roadmap!', 'info');
+      }
+      return;
+    }
+
+    // Add to list
+    myRoadmaps.push({
+      title: roadmap.title,
+      icon: roadmap.icon,
+      description: roadmap.description,
+      startedAt: new Date().toISOString(),
+      progress: 0
+    });
+
+    localStorage.setItem('my_roadmaps', JSON.stringify(myRoadmaps));
+
+    if (window.BraineX && window.BraineX.showNotification) {
+      BraineX.showNotification(`Started tracking "${roadmap.title}"! Check My Goals for progress.`, 'success');
+    } else {
+      alert(`Started tracking "${roadmap.title}"!`);
+    }
+  }
 });

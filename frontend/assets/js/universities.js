@@ -43,23 +43,36 @@
   async function loadUniversities() {
     try {
       let response;
+      let data = [];
       try {
         // Try API first
-        response = await fetch('/api/universities');
-        if (!response.ok) throw new Error('API not available');
-        universities = await response.json();
-      } catch {
+        const apiController = new AbortController();
+        const apiTimeout = setTimeout(() => apiController.abort(), 3000); // 3s timeout
+
+        response = await fetch('/api/universities', { signal: apiController.signal });
+        clearTimeout(apiTimeout);
+
+        if (response.ok) {
+          data = await response.json();
+        } else {
+          throw new Error('API not available');
+        }
+      } catch (err) {
+        console.warn('API fetch failed, trying static data...', err);
         try {
-          // Fallback to static JSON
+          // Fallback to static JSON in assets
           response = await fetch('/data/universities.json');
           if (!response.ok) throw new Error('Static data not found');
-          universities = await response.json();
+          data = await response.json();
         } catch (e) {
           console.error('All fetch attempts failed:', e);
-          universities = [];
+          throw e;
         }
       }
+
+      universities = data || [];
       console.log(`Loaded ${universities.length} universities`);
+      applyFilters(); // This will clear the spinner by rendering
     } catch (error) {
       console.error('Error loading universities:', error);
       showError();
@@ -300,6 +313,14 @@
         showUniversityDetail(id);
       });
     });
+
+    // Attach Guide button event listeners
+    elements.grid.querySelectorAll('.btn-guide').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const id = parseInt(e.target.dataset.id);
+        showApplicationGuide(id);
+      });
+    });
   }
 
   // Create university card HTML
@@ -341,6 +362,9 @@
                     <a href="${uni.website}" target="_blank" rel="noopener" class="btn-view">Visit Website</a>
                     <button class="btn-detail btn-primary" data-id="${uni.id}" style="padding: 0.5rem 1rem; border-radius: 6px; border: none; cursor: pointer; background: var(--primary-color, #667eea); color: white;">
                         View Detail
+                    </button>
+                    <button class="btn-guide" data-id="${uni.id}" style="padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #667eea; cursor: pointer; background: transparent; color: #667eea; font-size: 0.9rem;">
+                        📋 Guide
                     </button>
                 </div>
             </article>
@@ -427,6 +451,131 @@
       elements.detailModal.style.display = 'none';
       document.body.style.overflow = '';
     }
+    // Also hide guide modal if it exists
+    const guideModal = document.getElementById('guideModal');
+    if (guideModal) {
+      guideModal.style.display = 'none';
+    }
+  }
+
+  // Show Application Guide modal
+  function showApplicationGuide(id) {
+    const uni = universities.find((u) => u.id === id);
+    if (!uni) return;
+
+    // Create or get guide modal
+    let guideModal = document.getElementById('guideModal');
+    if (!guideModal) {
+      guideModal = document.createElement('div');
+      guideModal.id = 'guideModal';
+      guideModal.className = 'modal';
+      guideModal.innerHTML = `
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+          <button class="close-modal" id="closeGuide" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+          <div id="guideContent"></div>
+        </div>
+      `;
+      document.body.appendChild(guideModal);
+
+      // Close handlers
+      guideModal.querySelector('#closeGuide').addEventListener('click', () => {
+        guideModal.style.display = 'none';
+        document.body.style.overflow = '';
+      });
+      guideModal.addEventListener('click', (e) => {
+        if (e.target === guideModal) {
+          guideModal.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      });
+    }
+
+    // Application steps based on university type
+    const applicationSteps = uni.type === 'Private' ? [
+      { step: 'Research Programs', desc: 'Explore available programs and requirements', icon: '🔍' },
+      { step: 'Prepare Standardized Tests', desc: 'Take SAT/ACT and subject tests if required', icon: '📝' },
+      { step: 'Gather Documents', desc: 'Transcripts, recommendations, and essays', icon: '📋' },
+      { step: 'Submit Application', desc: 'Complete Common App or university portal', icon: '📤' },
+      { step: 'Financial Aid', desc: 'Apply for scholarships and aid packages', icon: '💰' },
+      { step: 'Interview', desc: 'Prepare for alumni or admissions interviews', icon: '🎤' }
+    ] : [
+      { step: 'Check Eligibility', desc: 'Review admission requirements and deadlines', icon: '✅' },
+      { step: 'Prepare Documents', desc: 'Gather transcripts and test scores', icon: '📋' },
+      { step: 'Apply Online', desc: 'Complete the university application portal', icon: '💻' },
+      { step: 'Submit Requirements', desc: 'Send supporting documents and fees', icon: '📤' },
+      { step: 'Wait for Decision', desc: 'Track application status online', icon: '⏳' }
+    ];
+
+    const guideContent = document.getElementById('guideContent');
+    guideContent.innerHTML = `
+      <div style="padding: 1rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📋</div>
+          <h2 style="margin: 0; color: var(--text-primary);">Application Guide</h2>
+          <h3 style="margin: 0.5rem 0 0; color: #667eea; font-weight: 500;">${uni.name}</h3>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+          <div style="text-align: center; padding: 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px;">
+            <span style="display: block; font-size: 1.25rem; font-weight: 700; color: #667eea;">${uni.acceptanceRate}%</span>
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">Acceptance Rate</span>
+          </div>
+          <div style="text-align: center; padding: 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px;">
+            <span style="display: block; font-size: 1.25rem; font-weight: 700; color: #10b981;">Jan 1</span>
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">Typical Deadline</span>
+          </div>
+          <div style="text-align: center; padding: 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px;">
+            <span style="display: block; font-size: 1.25rem; font-weight: 700; color: #f59e0b;">${uni.type}</span>
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">University Type</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <h4 style="margin-bottom: 1rem; color: var(--text-primary);">📍 Application Steps</h4>
+          <div style="position: relative; padding-left: 2rem;">
+            ${applicationSteps.map((item, index) => `
+              <div style="position: relative; padding-bottom: 1rem; ${index < applicationSteps.length - 1 ? 'border-left: 2px solid #667eea; margin-left: 8px;' : ''}">
+                <div style="position: absolute; left: -2rem; top: 0; width: 24px; height: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">${item.icon}</div>
+                <div style="padding: 0.75rem 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; margin-left: 1rem;">
+                  <strong style="display: block; color: var(--text-primary);">${item.step}</strong>
+                  <span style="font-size: 0.875rem; color: var(--text-secondary);">${item.desc}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <h4 style="margin-bottom: 0.75rem; color: var(--text-primary);">📚 Helpful Resources</h4>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+            <a href="${uni.website}/admissions" target="_blank" style="padding: 0.75rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+              🎓 <span>Admissions Portal</span>
+            </a>
+            <a href="${uni.website}/financialaid" target="_blank" style="padding: 0.75rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+              💰 <span>Financial Aid</span>
+            </a>
+            <a href="/pages/scholarships.html" style="padding: 0.75rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+              🏆 <span>Scholarships</span>
+            </a>
+            <a href="/pages/roadmaps.html?goal=undergraduate" style="padding: 0.75rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; text-decoration: none; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+              🗺️ <span>Application Roadmap</span>
+            </a>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+          <a href="${uni.website}/apply" target="_blank" class="btn btn-primary" style="flex: 1; text-align: center; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            Start Application
+          </a>
+          <button onclick="document.getElementById('guideModal').style.display='none'; document.body.style.overflow='';" class="btn btn-secondary" style="flex: 1; padding: 0.75rem 1.5rem; background: var(--bg-secondary, #f3f4f6); color: var(--text-primary); border-radius: 8px; font-weight: 600; border: 1px solid var(--border-color, #e5e7eb); cursor: pointer;">
+            Close
+          </button>
+        </div>
+      </div>
+    `;
+
+    guideModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   }
 
   // Toggle filter sidebar (mobile)

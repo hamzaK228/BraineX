@@ -12,6 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSearchTabs();
   setupFilterTabs();
 
+  // Modal Close
+  document.getElementById('closeScholarshipModal')?.addEventListener('click', () => {
+    document.getElementById('scholarshipModal').style.display = 'none';
+  });
+  window.onclick = function (event) {
+    const modal = document.getElementById('scholarshipModal');
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  }
+
   // Check URL params
   const urlParams = new URLSearchParams(window.location.search);
   const filterId = urlParams.get('id');
@@ -92,6 +103,7 @@ async function loadScholarships() {
 
   filteredScholarships = [...allScholarships];
   renderScholarships(filteredScholarships);
+  renderFeaturedScholarships();
 }
 
 /**
@@ -206,11 +218,17 @@ window.performAdvancedSearch = function () {
   const deadline = document.getElementById('deadlineSelect')?.value;
   const eligibility = document.getElementById('eligibilitySelect')?.value;
 
+  const gpa = document.querySelector('.search-content#advanced-search select:nth-of-type(1)')?.value; // Using selectors or adding IDs to HTML would be better
+  const need = document.querySelector('.search-content#advanced-search select:nth-of-type(2)')?.value;
+
   filteredScholarships = allScholarships.filter((s) => {
     if (field && !matchField(s, field)) return false;
     if (level && !matchLevel(s, level)) return false;
     if (country && !matchCountry(s, country)) return false;
-    // Simplified matching for other fields
+    if (funding && !matchFunding(s, funding)) return false;
+
+    // Future: Add logic for deadline, eligibility, gpa, need if data supports it
+    // For now, at least include Funding matching
     return true;
   });
 
@@ -220,17 +238,37 @@ window.performAdvancedSearch = function () {
 
 function matchField(s, field) {
   return (
-    (s.field || '').toLowerCase().includes(field) ||
-    (s.tags || []).some((t) => t.toLowerCase().includes(field))
+    (s.field || '').toLowerCase().includes(field.toLowerCase()) ||
+    (s.tags || []).some((t) => t.toLowerCase().includes(field.toLowerCase()))
   );
 }
 
 function matchLevel(s, level) {
-  return (s.level || '').toLowerCase().includes(level);
+  return (s.level || '').toLowerCase().includes(level.toLowerCase());
 }
 
 function matchCountry(s, country) {
-  return (s.country || '').toLowerCase().includes(country);
+  return (s.country || '').toLowerCase().includes(country.toLowerCase());
+}
+
+function matchFunding(s, funding) {
+  const amount = (s.amount || '').toLowerCase();
+  const description = (s.description || '').toLowerCase();
+
+  switch (funding) {
+    case 'full-tuition':
+      return amount.includes('full') || description.includes('full tuition') || amount.includes('100%');
+    case 'partial-tuition':
+      return amount.includes('und') || !amount.includes('full');
+    case 'living-allowance':
+      return description.includes('living') || description.includes('stipend') || amount.includes('stipend');
+    case 'research-funding':
+      return (s.category === 'research' || description.includes('research') || (s.tags || []).includes('Research'));
+    case 'travel-grants':
+      return description.includes('travel') || description.includes('conference');
+    default:
+      return true;
+  }
 }
 
 window.resetAllFilters = function () {
@@ -298,15 +336,27 @@ window.applyToScholarship = function (id) {
   // Else show login or redirect to external.
   // Given the HTML says "Apply" or "View Details", let's open details.
 
+  // Force modal open to allow user to see details before applying
   const sch = allScholarships.find((s) => s.id == id);
   if (!sch) return;
 
-  if (sch.website) {
-    window.open(sch.website, '_blank');
-  } else {
-    alert(
-      `Details for ${sch.name}:\n\n${sch.description}\n\nDeadline: ${sch.deadline}\nAmount: ${sch.amount}`
-    );
+  const modal = document.getElementById('scholarshipModal');
+  const content = document.getElementById('scholarshipModalContent');
+  if (modal && content) {
+    content.innerHTML = `
+          <h2>${escapeHtml(sch.name)}</h2>
+          <div class="scholarship-meta" style="margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div><strong>Organization:</strong> ${escapeHtml(sch.organization)}</div>
+              <div><strong>Amount:</strong> ${escapeHtml(sch.amount)}</div>
+              <div><strong>Deadline:</strong> ${escapeHtml(sch.deadline)}</div>
+              <div><strong>Field:</strong> ${escapeHtml(sch.field)}</div>
+          </div>
+          <p>${escapeHtml(sch.description)}</p>
+          <div style="margin-top: 20px; text-align: right;">
+              <button class="btn-primary" onclick="window.open('${sch.website || '#'}', '_blank')">Apply on Website</button>
+          </div>
+      `;
+    modal.style.display = 'block';
   }
 };
 
@@ -352,6 +402,7 @@ function getFallbackScholarships() {
       tags: ['Full Funding', 'International', 'Graduate'],
       category: 'general',
       website: 'https://www.gatescambridge.org/',
+      featured: true
     },
     {
       id: 'nsf',
@@ -367,6 +418,7 @@ function getFallbackScholarships() {
       tags: ['STEM', 'Research', 'USA'],
       category: 'stem',
       website: 'https://www.nsfgrfp.org/',
+      featured: true
     },
     {
       id: 'rhodes',
@@ -382,7 +434,9 @@ function getFallbackScholarships() {
       tags: ['Full Funding', 'Leadership', 'Network'],
       category: 'general',
       website: 'https://www.rhodeshouse.ox.ac.uk/',
+      featured: false
     },
+    // ... (rest with featured flags)
     {
       id: 'chevening',
       name: 'Chevening Scholarship',
@@ -397,6 +451,7 @@ function getFallbackScholarships() {
       tags: ['Leadership', 'International', 'Government'],
       category: 'social',
       website: 'https://www.chevening.org/',
+      featured: false
     },
     {
       id: 'fulbright',
@@ -411,6 +466,7 @@ function getFallbackScholarships() {
       tags: ['Exchange', 'Global', 'Culture'],
       category: 'social',
       website: 'https://us.fulbrightonline.org/',
+      featured: true
     },
     {
       id: 'daad',
@@ -425,6 +481,7 @@ function getFallbackScholarships() {
       tags: ['Germany', 'Exchange', 'Europe'],
       category: 'general',
       website: 'https://www.daad.de/en/',
+      featured: false
     },
     {
       id: 'google-ai',
@@ -439,8 +496,36 @@ function getFallbackScholarships() {
       tags: ['AI', 'Tech', 'Diversity'],
       category: 'stem',
       website: 'https://buildyourfuture.withgoogle.com/scholarships',
+      featured: true
     },
   ];
+}
+
+function renderFeaturedScholarships() {
+  const container = document.querySelector('.pathways-grid');
+  if (!container) return;
+
+  // Fallback to top 3 if no featured flag
+  let featured = allScholarships.filter(s => s.featured);
+  if (featured.length === 0) featured = allScholarships.slice(0, 3);
+
+  container.innerHTML = featured.map(sch => `
+        <div class="pathway-card">
+            <div class="pathway-icon">🏆</div>
+            <h3>${escapeHtml(sch.name)}</h3>
+            <div class="pathway-info">
+                <span class="growth-rate">🔥 Popular</span>
+                <span class="avg-salary">${escapeHtml(sch.amount)}</span>
+            </div>
+            <p>${escapeHtml(sch.description)}</p>
+            <div class="required-skills">
+                <span class="skill">${escapeHtml(sch.country)}</span>
+                <span class="skill">${escapeHtml(sch.level)}</span>
+                <span class="skill">Deadline: ${escapeHtml(sch.deadline)}</span>
+            </div>
+            <button class="btn-pathway" onclick="window.applyToScholarship('${sch.id}')" style="border:none; cursor:pointer; width:100%;">View Details</button>
+        </div>
+    `).join('');
 }
 
 function escapeHtml(text) {

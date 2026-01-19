@@ -58,7 +58,7 @@ try {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3001; // Forced for stability
 
 // Trust proxy (for rate limiting behind reverse proxy)
 app.set('trust proxy', 1);
@@ -231,10 +231,26 @@ async function startServer() {
     }
 
     // Start listening
-    const server = app.listen(PORT, () => {
-      logger.info(`🚀 BraineX server running on http://localhost:${PORT}`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      logger.info(`🚀 BraineX server running on port ${PORT} (Bound to 0.0.0.0)`);
+      logger.info(`🔗 URL: http://localhost:${PORT}`);
       logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`🔒 Security: Helmet, CORS, Rate Limiting, XSS Protection enabled`);
+
+      // Initialize Socket.IO
+      try {
+        initializeSocketIO(server);
+      } catch (ioError) {
+        logger.error('Failed to initialize Socket.IO:', ioError);
+      }
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        logger.error(`Port ${PORT} is already in use. Please kill the process or use a different port.`);
+      } else {
+        logger.error('Server error:', err);
+      }
     });
 
     // Graceful shutdown
@@ -260,6 +276,17 @@ async function startServer() {
 
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+    // Global error handlers
+    process.on('uncaughtException', (err) => {
+      logger.error('UNCAUGHT EXCEPTION! 💥 Shutting down...', err);
+      process.exit(1);
+    });
+
+    process.on('unhandledRejection', (reason, promise) => {
+      logger.error('UNHANDLED REJECTION! 💥 Shutting down...', reason);
+      process.exit(1);
+    });
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);

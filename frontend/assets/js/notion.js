@@ -6,6 +6,9 @@ let tasks = JSON.parse(localStorage.getItem('edugateway_tasks')) || [];
 let notes = JSON.parse(localStorage.getItem('edugateway_notes')) || [];
 let calendarEvents = JSON.parse(localStorage.getItem('edugateway_events')) || [];
 let userPages = JSON.parse(localStorage.getItem('user_pages')) || [];
+let myUniversities = JSON.parse(localStorage.getItem('my_universities')) || [];
+let myPrograms = JSON.parse(localStorage.getItem('my_programs')) || [];
+let myProjects = JSON.parse(localStorage.getItem('my_projects')) || []; // Defined here
 let weeklyFocus = JSON.parse(localStorage.getItem('edugateway_weekly_focus')) || [
   { emoji: '🎓', text: 'Complete scholarship applications' },
   { emoji: '📚', text: 'Prepare for midterm exams' },
@@ -142,7 +145,7 @@ function loadMyUniversities() {
   if (!container) return;
 
   if (myUniversities.length === 0) {
-    container.innerHTML = '<p class="empty-state">No universities added yet.</p>';
+    container.innerHTML = '<div class="empty-state"><h3>🏛️ University Applications</h3><p>Track your dream schools.</p></div>';
     return;
   }
 
@@ -179,7 +182,7 @@ function loadMyPrograms() {
   if (!container) return;
 
   if (myPrograms.length === 0) {
-    container.innerHTML = '<p class="empty-state">No programs added yet.</p>';
+    container.innerHTML = '<div class="empty-state"><h3>🌟 Summer Programs</h3><p>Manage your extracurriculars.</p></div>';
     return;
   }
 
@@ -1047,6 +1050,69 @@ document.addEventListener('DOMContentLoaded', () => {
   const addProjBtn = document.getElementById('addNewProjectBtn');
   if (addProjBtn) addProjBtn.addEventListener('click', () => window.showTemplates());
 
+  // Add Resource Button Handler
+  document.querySelector('.js-add-resource')?.addEventListener('click', () => {
+    const name = prompt('Resource Name:');
+    if (!name) return;
+    const url = prompt('Resource URL:');
+    const resources = JSON.parse(localStorage.getItem('edugateway_resources') || '[]');
+    resources.push({ id: Date.now(), name, url: url || '#', type: 'link' });
+    localStorage.setItem('edugateway_resources', JSON.stringify(resources));
+    loadResources();
+    showNotification('Resource added!', 'success');
+  });
+
+  // Add Course Button Handler
+  document.querySelector('.js-add-course')?.addEventListener('click', () => {
+    const name = prompt('Course Name:');
+    if (!name) return;
+    const grade = prompt('Current Grade (e.g. A, B+):');
+    const courses = JSON.parse(localStorage.getItem('edugateway_courses') || '[]');
+    courses.push({ id: Date.now(), name, grade: grade || 'N/A', status: 'in-progress' });
+    localStorage.setItem('edugateway_courses', JSON.stringify(courses));
+    loadCourses();
+    showNotification('Course added!', 'success');
+  });
+
+  // Add Application Button Handler
+  document.querySelector('.js-add-application')?.addEventListener('click', () => {
+    const org = prompt('Organization/University:');
+    if (!org) return;
+    const position = prompt('Position/Program:');
+    const deadline = prompt('Deadline (YYYY-MM-DD):');
+    const applications = JSON.parse(localStorage.getItem('edugateway_applications') || '[]');
+    applications.push({ id: Date.now(), organization: org, position: position || 'Application', deadline: deadline || '', status: 'pending' });
+    localStorage.setItem('edugateway_applications', JSON.stringify(applications));
+    loadApplications();
+    showNotification('Application added!', 'success');
+  });
+
+  // Add Scholarship Tracker Button Handler
+  document.querySelector('.js-add-scholarship-track')?.addEventListener('click', () => {
+    const name = prompt('Scholarship Name:');
+    if (!name) return;
+    const amount = prompt('Amount (e.g. $5,000):');
+    const deadline = prompt('Deadline (YYYY-MM-DD):');
+    const scholarships = JSON.parse(localStorage.getItem('edugateway_scholarship_tracker') || '[]');
+    scholarships.push({ id: Date.now(), name, amount: amount || 'N/A', deadline: deadline || '', status: 'pending' });
+    localStorage.setItem('edugateway_scholarship_tracker', JSON.stringify(scholarships));
+    loadScholarshipTracker();
+    showNotification('Scholarship added to tracker!', 'success');
+  });
+
+  // Add Deadline Button Handler
+  document.querySelector('.js-add-deadline')?.addEventListener('click', () => {
+    const title = prompt('Deadline Title:');
+    if (!title) return;
+    const date = prompt('Date (YYYY-MM-DD):');
+    if (!date) return;
+    const deadlines = JSON.parse(localStorage.getItem('edugateway_deadlines') || '[]');
+    deadlines.push({ id: Date.now(), title, date });
+    localStorage.setItem('edugateway_deadlines', JSON.stringify(deadlines));
+    loadDeadlines();
+    showNotification('Deadline added!', 'success');
+  });
+
   // Initial Load
   loadDashboard();
 });
@@ -1332,13 +1398,12 @@ function openAddModal(type, title, fields) {
       (f) => `
         <div class="add-form-group">
             <label class="${f.required ? 'required' : ''}">${f.label}</label>
-            ${
-              f.type === 'textarea'
-                ? `<textarea id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`
-                : f.type === 'select'
-                  ? `<select id="add_${f.name}" ${f.required ? 'required' : ''}>${f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`
-                  : `<input type="${f.type || 'text'}" id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`
-            }
+            ${f.type === 'textarea'
+          ? `<textarea id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}></textarea>`
+          : f.type === 'select'
+            ? `<select id="add_${f.name}" ${f.required ? 'required' : ''}>${f.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`
+            : `<input type="${f.type || 'text'}" id="add_${f.name}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`
+        }
             ${f.helper ? `<div class="form-helper">${f.helper}</div>` : ''}
         </div>
     `
@@ -1400,6 +1465,156 @@ function handleAddSubmit() {
   }
   closeAddModal();
 }
+
+// ---------------------------------------------------------
+// SPECIFIC FORM HANDLERS (Universities, Programs, Projects)
+// ---------------------------------------------------------
+
+// 1. My Universities
+const uniBtn = document.querySelector('.js-add-university');
+if (uniBtn) {
+  uniBtn.addEventListener('click', () => {
+    const m = document.getElementById('universityModal');
+    const form = document.getElementById('universityForm');
+    if (m && form) {
+      form.reset();
+      m.classList.add('show');
+      const input = m.querySelector('input');
+      if (input) setTimeout(() => input.focus(), 100);
+    }
+  });
+}
+
+const uniForm = document.getElementById('universityForm');
+// Remove old listeners by cloning if necessary, but cleaner to just ensure single binding
+if (uniForm) {
+  // Use onsubmit property to prevent multiple listeners accumulation if referenced multiple times
+  uniForm.onsubmit = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('uniName').value;
+    const location = document.getElementById('uniLocation').value;
+    const status = document.getElementById('uniStatus').value;
+    const chance = document.getElementById('uniChance').value;
+
+    const newUni = {
+      id: Date.now(),
+      name,
+      location,
+      status,
+      chance
+    };
+
+    let all = JSON.parse(localStorage.getItem('my_universities')) || [];
+    all.push(newUni);
+    localStorage.setItem('my_universities', JSON.stringify(all));
+
+    // Update global state
+    if (typeof myUniversities !== 'undefined') {
+      myUniversities = all;
+    }
+
+    showNotification('University added!', 'success');
+    document.getElementById('universityModal').classList.remove('show');
+    uniForm.reset();
+    if (typeof loadMyUniversities === 'function') loadMyUniversities();
+  };
+}
+
+// 2. My Programs
+const progBtn = document.querySelector('.js-add-program');
+if (progBtn) {
+  progBtn.addEventListener('click', () => {
+    const m = document.getElementById('programModal');
+    const form = document.getElementById('programForm');
+    if (m && form) {
+      form.reset();
+      m.classList.add('show');
+      const input = m.querySelector('input');
+      if (input) setTimeout(() => input.focus(), 100);
+    }
+  });
+}
+
+const progForm = document.getElementById('programForm');
+if (progForm) {
+  progForm.onsubmit = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('progName').value;
+    const org = document.getElementById('progOrg').value;
+    const deadline = document.getElementById('progDeadline').value;
+    const status = document.getElementById('progStatus').value;
+
+    const newProg = {
+      id: Date.now(),
+      name,
+      org,
+      deadline,
+      status
+    };
+
+    let all = JSON.parse(localStorage.getItem('my_programs')) || [];
+    all.push(newProg);
+    localStorage.setItem('my_programs', JSON.stringify(all));
+
+    if (typeof myPrograms !== 'undefined') {
+      myPrograms = all;
+    }
+
+    showNotification('Program added!', 'success');
+    document.getElementById('programModal').classList.remove('show');
+    progForm.reset();
+    if (typeof loadMyPrograms === 'function') loadMyPrograms();
+  };
+}
+
+// 3. My Projects
+const projBtn = document.getElementById('addNewProjectBtn');
+if (projBtn) {
+  // Replace logic handled in setupEventListeners for general project button, 
+  // but here we specifically handle the modal opening for the separate project modal
+  const newBtn = projBtn.cloneNode(true);
+  projBtn.parentNode.replaceChild(newBtn, projBtn);
+  newBtn.addEventListener('click', () => {
+    const m = document.getElementById('projectModal');
+    const form = document.getElementById('projectForm');
+    if (m && form) {
+      form.reset();
+      m.classList.add('show');
+      const input = m.querySelector('input');
+      if (input) setTimeout(() => input.focus(), 100);
+    }
+  });
+}
+
+const projForm = document.getElementById('projectForm');
+if (projForm) {
+  projForm.onsubmit = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('projName').value;
+    const desc = document.getElementById('projDesc').value;
+    const deadline = document.getElementById('projDeadline').value;
+    const status = document.getElementById('projStatus').value;
+
+    const newProj = {
+      id: Date.now(),
+      name,
+      description: desc,
+      deadline,
+      status
+    };
+
+    let all = JSON.parse(localStorage.getItem('my_projects')) || [];
+    all.push(newProj);
+    localStorage.setItem('my_projects', JSON.stringify(all));
+
+    showNotification('Project added!', 'success');
+    document.getElementById('projectModal').classList.remove('show');
+    projForm.reset();
+    if (typeof loadProjects === 'function') loadProjects();
+  };
+}
+});
+
 
 // Project
 function addResource() {
@@ -1757,8 +1972,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Global exposure for things that might need it
 window.switchSection = switchSection;
-window.setupNotionListeners = () => {};
-window.initializeNotionSection = () => {};
+window.setupNotionListeners = () => { };
+window.initializeNotionSection = () => { };
 window.addResource = addResource;
 window.addCourse = addCourse;
 window.addApplication = addApplication;

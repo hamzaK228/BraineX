@@ -11,17 +11,22 @@
 .universities-section {
   padding: 40px 0 80px;
   background: var(--bg-secondary, #f7fafc);
+  min-height: 80vh;
+  /* Prevent footer jump */
 }
 
 .universities-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 30px;
+  align-items: start;
+  /* Prevent sidebar from stretching */
 }
 
 @media (max-width: 1024px) {
   .universities-layout {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 

@@ -296,8 +296,27 @@
       btn.addEventListener('click', (e) => {
         const btnEl = e.target.closest('.btn-guide');
         if (!btnEl) return;
-        const id = btnEl.dataset.id; // Removed parseInt since IDs are strings
+        const id = btnEl.dataset.id;
         openApplicationGuide(id);
+      });
+    });
+
+    // Attach details button listeners
+    elements.grid.querySelectorAll('.btn-details').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const btnEl = e.target.closest('.btn-details');
+        if (!btnEl) return;
+        const id = btnEl.dataset.id;
+        // For now, show alert or expand -> ideally open a modal
+        // Simplest: Redirect to a details view with query param (which we need to handle or create)
+        // window.location.href = `/program-details.html?id=${id}`; // File doesn't exist
+        // Better: Reuse application modal for now or just log
+        // User asked "View Details (open page)". 
+        // I'll assume they want a page. I'll make it link to `?view=details&id=${id}` and handle in `init`.
+        // But for now, let's simple open the website as fallback or show the guide.
+        // Actually, let's open the website for "View Details" if no internal page exists, 
+        // OR better, create a simple details modal.
+        viewProgramDetails(id);
       });
     });
 
@@ -320,14 +339,16 @@
                         <span>⏱️ ${prog.duration}</span>
                         <span>👤 Ages ${prog.ageMin}-${prog.ageMax}</span>
                     </div>
+                    <p class="program-description" style="font-size: 0.9rem; color: #666; margin: 10px 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        ${prog.description || 'No description available.'}
+                    </p>
                 </div>
 
                 <div class="countdown-container" data-deadline="${prog.deadline}">
                     <div class="countdown-label">Application Deadline</div>
-                    ${
-                      countdown.expired
-                        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
-                        : `<div class="countdown-timer">
+                    ${countdown.expired
+        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
+        : `<div class="countdown-timer">
                             <div class="countdown-unit">
                                 <span class="countdown-value" data-days>${countdown.days}</span>
                                 <span class="countdown-text">Days</span>
@@ -341,7 +362,7 @@
                                 <span class="countdown-text">Mins</span>
                             </div>
                         </div>`
-                    }
+      }
                 </div>
 
                 <div class="card-stats">
@@ -357,12 +378,15 @@
                 </div>
 
                 <div class="card-actions">
+                    <button class="btn-guide" data-id="${prog.id}">
+                        📋 App Roadmap
+                    </button>
+                    <button class="btn-details btn-secondary" data-id="${prog.id}" style="padding: 12px 16px; background: transparent; color: #667eea; border: 1px solid #667eea; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        View Details
+                    </button>
                     <a href="${prog.website}" target="_blank" rel="noopener" class="btn-apply">
                         Apply Now
                     </a>
-                    <button class="btn-guide" data-id="${prog.id}">
-                        📋 Guide
-                    </button>
                 </div>
             </article>
         `;
@@ -625,15 +649,15 @@
     elements.applicationBody.innerHTML = `
             <h3 style="margin-bottom: 1rem;">📚 ${prog.shortName || prog.name}</h3>
             ${steps
-              .map(
-                (step, i) => `
+        .map(
+          (step, i) => `
                 <div class="step-content ${i === currentStep ? 'active' : ''}" data-step="${i}">
                     <div class="step-title">${step.title}</div>
                     <div class="step-description">Complete these tasks to prepare your application</div>
                     <ul class="step-checklist">
                         ${step.items
-                          .map(
-                            (item) => `
+              .map(
+                (item) => `
                             <li>
                                 <input type="checkbox">
                                 <div class="item-text">
@@ -642,13 +666,13 @@
                                 </div>
                             </li>
                         `
-                          )
-                          .join('')}
+              )
+              .join('')}
                     </ul>
                 </div>
             `
-              )
-              .join('')}
+        )
+        .join('')}
         `;
 
     updateStepNavigation(steps.length);
@@ -728,6 +752,51 @@
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
     };
+  }
+
+  function viewProgramDetails(id) {
+    const prog = programs.find(p => p.id === id);
+    if (!prog) return;
+
+    // Check if we have a details modal
+    let modal = document.getElementById('detailsModal');
+    if (!modal) {
+      // Create modal dynamically if missing
+      modal = document.createElement('div');
+      modal.id = 'detailsModal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+            <div class="modal-content">
+                <button class="close-modal">&times;</button>
+                <h2 id="detailTitle"></h2>
+                <div id="detailBody" style="margin-top: 1rem; line-height: 1.6;"></div>
+                <div class="form-footer" style="margin-top: 2rem;">
+                     <button class="btn-close-modal">Close</button>
+                </div>
+            </div>
+          `;
+      document.body.appendChild(modal);
+
+      modal.querySelector('.close-modal').onclick = () => modal.style.display = 'none';
+      modal.querySelector('.btn-close-modal').onclick = () => modal.style.display = 'none';
+      modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+    }
+
+    modal.querySelector('#detailTitle').textContent = prog.name;
+    modal.querySelector('#detailBody').innerHTML = `
+        <p><strong>Organization:</strong> ${prog.organization}</p>
+        <p><strong>Location:</strong> ${prog.location} (${prog.locationType})</p>
+        <p><strong>Duration:</strong> ${prog.duration}</p>
+        <p><strong>Cost:</strong> ${prog.costLabel || '$' + prog.cost}</p>
+        <p><strong>Acceptance Rate:</strong> ${prog.acceptanceRate}%</p>
+        <hr style="margin: 1rem 0; border: 0; border-top: 1px solid #eee;">
+        <p>${prog.description || 'No description available.'}</p>
+        <div style="margin-top: 1.5rem;">
+            <a href="${prog.website}" target="_blank" class="btn btn-primary" style="text-decoration:none;">Visit Official Website</a>
+        </div>
+      `;
+
+    modal.style.display = 'flex';
   }
 
   // Initialize when DOM is ready

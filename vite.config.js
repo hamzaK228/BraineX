@@ -20,9 +20,6 @@ export default defineConfig({
         admin: path.resolve(__dirname, 'frontend/pages/admin.html'),
       },
       output: {
-        manualChunks: {
-          vendor: ['chart.js'],
-        },
       },
     },
     minify: 'terser',
@@ -39,12 +36,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },
   },
   optimizeDeps: {
-    include: ['chart.js'],
+    include: [],
   },
 });
