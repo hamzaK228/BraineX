@@ -25,7 +25,7 @@ export const securityHeaders = helmet({
       ],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdnjs.cloudflare.com'],
       imgSrc: ["'self'", 'data:', 'https:', 'https://cdn.jsdelivr.net'],
-      connectSrc: ["'self'", "ws:", "wss:"],
+      connectSrc: ["'self'", 'ws:', 'wss:'],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       // upgradeInsecureRequests: [],

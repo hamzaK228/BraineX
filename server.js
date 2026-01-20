@@ -247,7 +247,9 @@ async function startServer() {
 
     server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        logger.error(`Port ${PORT} is already in use. Please kill the process or use a different port.`);
+        logger.error(
+          `Port ${PORT} is already in use. Please kill the process or use a different port.`
+        );
       } else {
         logger.error('Server error:', err);
       }

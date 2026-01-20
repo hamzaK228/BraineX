@@ -160,7 +160,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Modal Close Logic
   const modal = document.getElementById('roadmapModal');
   if (modal) {
-    modal.querySelector('.close-modal').addEventListener('click', () => modal.style.display = 'none');
+    modal
+      .querySelector('.close-modal')
+      .addEventListener('click', () => (modal.style.display = 'none'));
     window.addEventListener('click', (e) => {
       if (e.target === modal) modal.style.display = 'none';
     });
@@ -172,17 +174,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!modal || !content) return;
 
     // Find data (check both static list and dynamic list logic)
-    const roadmap = roadmaps.find(r => r.title === title) || {
+    const roadmap = roadmaps.find((r) => r.title === title) || {
       title: title,
-      description: "A comprehensive guide to achieving your goals in " + title,
-      duration: "Flexible",
-      milestones: "Multiple Phases",
-      icon: "🎯"
+      description: 'A comprehensive guide to achieving your goals in ' + title,
+      duration: 'Flexible',
+      milestones: 'Multiple Phases',
+      icon: '🎯',
     };
 
     // Check if already tracking
     const myRoadmaps = JSON.parse(localStorage.getItem('my_roadmaps') || '[]');
-    const isTracking = myRoadmaps.some(r => r.title === roadmap.title);
+    const isTracking = myRoadmaps.some((r) => r.title === roadmap.title);
 
     content.innerHTML = `
         <div class="roadmap-header" style="text-align: center; margin-bottom: 2rem;">
@@ -236,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const myRoadmaps = JSON.parse(localStorage.getItem('my_roadmaps') || '[]');
 
     // Check if already exists
-    if (myRoadmaps.some(r => r.title === roadmap.title)) {
+    if (myRoadmaps.some((r) => r.title === roadmap.title)) {
       if (window.BraineX && window.BraineX.showNotification) {
         BraineX.showNotification('You are already tracking this roadmap!', 'info');
       }
@@ -249,13 +251,16 @@ document.addEventListener('DOMContentLoaded', function () {
       icon: roadmap.icon,
       description: roadmap.description,
       startedAt: new Date().toISOString(),
-      progress: 0
+      progress: 0,
     });
 
     localStorage.setItem('my_roadmaps', JSON.stringify(myRoadmaps));
 
     if (window.BraineX && window.BraineX.showNotification) {
-      BraineX.showNotification(`Started tracking "${roadmap.title}"! Check My Goals for progress.`, 'success');
+      BraineX.showNotification(
+        `Started tracking "${roadmap.title}"! Check My Goals for progress.`,
+        'success'
+      );
     } else {
       alert(`Started tracking "${roadmap.title}"!`);
     }

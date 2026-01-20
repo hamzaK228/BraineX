@@ -2,21 +2,21 @@ import { Component } from '../core/Component.js';
 import { StroopEngine } from '../core/StroopEngine.js';
 
 export class StroopGame extends Component {
-    constructor(config) {
-        super(config);
-        this.engine = new StroopEngine(20);
-        this.isPlaying = false;
-    }
+  constructor(config) {
+    super(config);
+    this.engine = new StroopEngine(20);
+    this.isPlaying = false;
+  }
 
-    init() {
-        this.render();
-        this.addEventListeners();
-    }
+  init() {
+    this.render();
+    this.addEventListeners();
+  }
 
-    render() {
-        const stats = this.engine.getStats();
+  render() {
+    const stats = this.engine.getStats();
 
-        this.element.innerHTML = `
+    this.element.innerHTML = `
             <div class="game-container" style="text-align: center; max-width: 500px; margin: 0 auto;">
                 <div class="game-header" style="margin-bottom: 2rem;">
                     <h2>Stroop Test</h2>
@@ -44,97 +44,97 @@ export class StroopGame extends Component {
                 </div>
             </div>
         `;
+  }
+
+  addEventListeners() {
+    const startBtn = this.element.querySelector('.btn-start');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => this.startGame());
     }
 
-    addEventListeners() {
-        const startBtn = this.element.querySelector('.btn-start');
-        if (startBtn) {
-            startBtn.addEventListener('click', () => this.startGame());
-        }
+    const colorBtns = this.element.querySelectorAll('.btn-color');
+    colorBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => this.handleInput(e.target.dataset.color, e.target));
+    });
+  }
 
-        const colorBtns = this.element.querySelectorAll('.btn-color');
-        colorBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleInput(e.target.dataset.color, e.target));
-        });
+  startGame() {
+    this.isPlaying = true;
+    this.engine.startGame();
+    this.render();
+    // Need to re-bind events after render
+    this.addEventListeners();
+    this.nextTurn();
+  }
+
+  nextTurn() {
+    const stimulus = this.engine.nextRound();
+
+    if (!stimulus) {
+      this.endGame();
+      return;
     }
 
-    startGame() {
-        this.isPlaying = true;
-        this.engine.startGame();
-        this.render();
-        // Need to re-bind events after render
-        this.addEventListeners();
-        this.nextTurn();
-    }
+    const stimulusEl = this.element.querySelector('.stimulus-text');
 
-    nextTurn() {
-        const stimulus = this.engine.nextRound();
+    // Reset state
+    stimulusEl.style.opacity = '0';
 
-        if (!stimulus) {
-            this.endGame();
-            return;
-        }
+    setTimeout(() => {
+      stimulusEl.textContent = stimulus.text.toUpperCase();
+      stimulusEl.style.color = this.getColorHex(stimulus.color);
+      stimulusEl.style.opacity = '1';
+    }, 200);
+  }
 
-        const stimulusEl = this.element.querySelector('.stimulus-text');
+  getColorHex(name) {
+    const map = {
+      red: '#ef4444',
+      blue: '#3b82f6',
+      green: '#10b981',
+      yellow: '#f59e0b',
+    };
+    return map[name] || '#000';
+  }
 
-        // Reset state
-        stimulusEl.style.opacity = '0';
+  handleInput(color, btn) {
+    const result = this.engine.submitAnswer(color);
 
-        setTimeout(() => {
-            stimulusEl.textContent = stimulus.text.toUpperCase();
-            stimulusEl.style.color = this.getColorHex(stimulus.color);
-            stimulusEl.style.opacity = '1';
-        }, 200);
-    }
+    // Feedback
+    // If correct, maybe a subtle flash?
+    // If wrong, shake the screen?
 
-    getColorHex(name) {
-        const map = {
-            'red': '#ef4444',
-            'blue': '#3b82f6',
-            'green': '#10b981',
-            'yellow': '#f59e0b'
-        };
-        return map[name] || '#000';
-    }
+    this.updateStatsUI();
+    this.nextTurn();
+  }
 
-    handleInput(color, btn) {
-        const result = this.engine.submitAnswer(color);
-
-        // Feedback
-        // If correct, maybe a subtle flash?
-        // If wrong, shake the screen?
-
-        this.updateStatsUI();
-        this.nextTurn();
-    }
-
-    updateStatsUI() {
-        const stats = this.engine.getStats();
-        // Simply re-rendering might be too heavy/flickery for rapid Stroop, but let's try updating DOM directly
-        const container = this.element.querySelector('.game-stats');
-        if (container) {
-            container.innerHTML = `
+  updateStatsUI() {
+    const stats = this.engine.getStats();
+    // Simply re-rendering might be too heavy/flickery for rapid Stroop, but let's try updating DOM directly
+    const container = this.element.querySelector('.game-stats');
+    if (container) {
+      container.innerHTML = `
                 <span>Round: ${stats.round}/${stats.total}</span>
                 <span>Avg RT: ${stats.avgRT}ms</span>
                 <span>Score: ${stats.score}</span>
             `;
-        }
+    }
+  }
+
+  endGame() {
+    this.isPlaying = false;
+    this.render();
+    this.addEventListeners();
+
+    // Save to analytics
+    if (window.app && window.app.store) {
+      window.app.store.dispatch('recordSession', {
+        game: 'Stroop',
+        score: this.engine.score,
+        metrics: { accuracy: this.engine.getStats().accuracy, avgRT: this.engine.getStats().avgRT },
+      });
     }
 
-    endGame() {
-        this.isPlaying = false;
-        this.render();
-        this.addEventListeners();
-
-        // Save to analytics
-        if (window.app && window.app.store) {
-            window.app.store.dispatch('recordSession', {
-                game: 'Stroop',
-                score: this.engine.score,
-                metrics: { accuracy: this.engine.getStats().accuracy, avgRT: this.engine.getStats().avgRT }
-            });
-        }
-
-        alert(`Game Over! Final Score: ${this.engine.score}`);
-    }
+    alert(`Game Over! Final Score: ${this.engine.score}`);
+  }
 }

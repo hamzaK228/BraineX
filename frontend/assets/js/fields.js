@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Setup listener for Category Explore buttons
-  document.querySelectorAll('.field-categories .btn-explore').forEach(btn => {
+  document.querySelectorAll('.field-categories .btn-explore').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const category = e.target.dataset.category;
       if (category) {
@@ -96,9 +96,10 @@ async function loadFields() {
 
   if (trackParam) {
     const query = trackParam.replace(/-/g, ' ').toLowerCase();
-    filteredFields = allFields.filter(f =>
-      f.name.toLowerCase().includes(query) ||
-      (f.tags && f.tags.some(t => t.toLowerCase().includes(query)))
+    filteredFields = allFields.filter(
+      (f) =>
+        f.name.toLowerCase().includes(query) ||
+        (f.tags && f.tags.some((t) => t.toLowerCase().includes(query)))
     );
     // Update search input to reflect logic
     const searchInput = document.querySelector('.field-search .search-input');
@@ -106,7 +107,7 @@ async function loadFields() {
   } else if (searchParam) {
     // Logic for search param if used
     const query = searchParam.toLowerCase();
-    filteredFields = allFields.filter(f => f.name.toLowerCase().includes(query));
+    filteredFields = allFields.filter((f) => f.name.toLowerCase().includes(query));
   }
 
   renderFields(filteredFields);
@@ -270,7 +271,7 @@ function parseSalary(salaryStr) {
  * Explore Field - Show detailed field modal
  */
 window.exploreField = function (fieldId) {
-  const field = allFields.find(f => f.id === fieldId);
+  const field = allFields.find((f) => f.id === fieldId);
 
   if (!field) {
     // Fallback to redirect
@@ -321,14 +322,18 @@ window.exploreField = function (fieldId) {
       </div>
     </div>
     
-    ${field.tags && field.tags.length > 0 ? `
+    ${
+      field.tags && field.tags.length > 0
+        ? `
       <div style="margin-bottom: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem; color: var(--text-primary);">Related Topics</h4>
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-          ${field.tags.map(tag => `<span style="padding: 0.25rem 0.75rem; background: var(--bg-secondary, #f3f4f6); color: var(--text-primary); border-radius: 20px; font-size: 0.875rem; border: 1px solid var(--border-color, #e5e7eb);">${escapeHtml(tag)}</span>`).join('')}
+          ${field.tags.map((tag) => `<span style="padding: 0.25rem 0.75rem; background: var(--bg-secondary, #f3f4f6); color: var(--text-primary); border-radius: 20px; font-size: 0.875rem; border: 1px solid var(--border-color, #e5e7eb);">${escapeHtml(tag)}</span>`).join('')}
         </div>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <div style="display: flex; gap: 1rem; margin-top: 2rem;">
       <a href="/pages/scholarships.html?field=${fieldId}" class="btn btn-primary" style="flex: 1; text-align: center; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
@@ -357,35 +362,60 @@ window.closeFieldModal = function () {
  */
 window.showPathwayDetails = function (pathwayName) {
   // Find the field by name
-  const field = allFields.find(f => f.name === pathwayName) ||
-    allFields.find(f => f.name.toLowerCase().includes(pathwayName.toLowerCase()));
+  const field =
+    allFields.find((f) => f.name === pathwayName) ||
+    allFields.find((f) => f.name.toLowerCase().includes(pathwayName.toLowerCase()));
 
   // Pathway data (enriched)
   const pathwayData = {
     'Computer Science': {
-      steps: ['Foundation in Math & Logic', 'Learn Programming Basics', 'Data Structures & Algorithms', 'Specialize (AI/Web/Systems)', 'Build Portfolio Projects'],
+      steps: [
+        'Foundation in Math & Logic',
+        'Learn Programming Basics',
+        'Data Structures & Algorithms',
+        'Specialize (AI/Web/Systems)',
+        'Build Portfolio Projects',
+      ],
       duration: '2-4 years',
       skills: ['Programming', 'Problem Solving', 'System Design'],
-      opportunities: 120
+      opportunities: 120,
     },
-    'Biology': {
-      steps: ['Core Biology Courses', 'Lab Experience', 'Research Projects', 'Choose Specialization', 'Graduate Study or Industry'],
+    Biology: {
+      steps: [
+        'Core Biology Courses',
+        'Lab Experience',
+        'Research Projects',
+        'Choose Specialization',
+        'Graduate Study or Industry',
+      ],
       duration: '4-6 years',
       skills: ['Research Methods', 'Lab Techniques', 'Scientific Writing'],
-      opportunities: 85
+      opportunities: 85,
     },
     'Business Administration': {
-      steps: ['Core Business Courses', 'Internships', 'Leadership Roles', 'Specialization (Finance/Marketing)', 'MBA (Optional)'],
+      steps: [
+        'Core Business Courses',
+        'Internships',
+        'Leadership Roles',
+        'Specialization (Finance/Marketing)',
+        'MBA (Optional)',
+      ],
       duration: '3-5 years',
       skills: ['Leadership', 'Financial Analysis', 'Strategic Planning'],
-      opportunities: 150
+      opportunities: 150,
     },
-    'default': {
-      steps: ['Explore Foundation Courses', 'Gain Practical Experience', 'Find Your Specialization', 'Build Your Network', 'Launch Your Career'],
+    default: {
+      steps: [
+        'Explore Foundation Courses',
+        'Gain Practical Experience',
+        'Find Your Specialization',
+        'Build Your Network',
+        'Launch Your Career',
+      ],
       duration: '3-5 years',
       skills: ['Critical Thinking', 'Communication', 'Problem Solving'],
-      opportunities: 100
-    }
+      opportunities: 100,
+    },
   };
 
   const pathway = pathwayData[pathwayName] || pathwayData['default'];
@@ -436,21 +466,25 @@ window.showPathwayDetails = function (pathwayName) {
     <div style="margin-bottom: 1.5rem;">
       <h4 style="margin-bottom: 1rem; color: var(--text-primary);">📍 Pathway Steps</h4>
       <div style="position: relative; padding-left: 2rem;">
-        ${pathway.steps.map((step, index) => `
+        ${pathway.steps
+          .map(
+            (step, index) => `
           <div style="position: relative; padding-bottom: 1rem; ${index < pathway.steps.length - 1 ? 'border-left: 2px solid #667eea; margin-left: 8px;' : ''}">
             <div style="position: absolute; left: -2rem; top: 0; width: 18px; height: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">${index + 1}</div>
             <div style="padding: 0.75rem 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; margin-left: 1rem;">
               ${escapeHtml(step)}
             </div>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     </div>
     
     <div style="margin-bottom: 1.5rem;">
       <h4 style="margin-bottom: 0.75rem; color: var(--text-primary);">💪 Skills You'll Develop</h4>
       <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-        ${pathway.skills.map(skill => `<span style="padding: 0.25rem 0.75rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 0.875rem;">${escapeHtml(skill)}</span>`).join('')}
+        ${pathway.skills.map((skill) => `<span style="padding: 0.25rem 0.75rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 0.875rem;">${escapeHtml(skill)}</span>`).join('')}
       </div>
     </div>
     

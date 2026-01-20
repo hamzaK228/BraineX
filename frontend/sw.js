@@ -6,7 +6,7 @@ const ASSETS_TO_CACHE = [
   '/assets/css/design-system.css',
   '/assets/js/main.js',
   '/assets/js/core/Store.js',
-  '/assets/js/core/EventBus.js'
+  '/assets/js/core/EventBus.js',
 ];
 
 self.addEventListener('install', (event) => {

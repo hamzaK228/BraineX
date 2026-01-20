@@ -262,7 +262,6 @@ body {
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   ::before,
   ::after {
@@ -284,7 +283,6 @@ body {
 
 /* High Contrast Mode Adjustments */
 @media (forced-colors: active) {
-
   button,
   .btn {
     border: 2px solid ButtonText;

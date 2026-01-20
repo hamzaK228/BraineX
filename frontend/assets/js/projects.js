@@ -25,7 +25,7 @@ function initializeProjectsPage() {
 // Function to view project details
 window.viewProjectDetails = function (id) {
   const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
-  const project = projects.find(p => p.id === id);
+  const project = projects.find((p) => p.id === id);
   if (!project) return;
 
   // Create modal
@@ -33,7 +33,8 @@ window.viewProjectDetails = function (id) {
   modal.className = 'modal show';
   modal.id = 'projectDetailModal';
 
-  const progressColor = project.progress >= 80 ? '#28a745' : project.progress >= 50 ? '#ffc107' : '#dc3545';
+  const progressColor =
+    project.progress >= 80 ? '#28a745' : project.progress >= 50 ? '#ffc107' : '#dc3545';
 
   modal.innerHTML = `
       <div class="modal-content" style="max-width: 800px; padding: 0;">
@@ -72,7 +73,7 @@ window.viewProjectDetails = function (id) {
                   <div style="background: #f7fafc; padding: 20px; border-radius: 12px;">
                        <h4 style="margin-top: 0; color: #2d3748;">🛠️ Tech Stack & Skills</h4>
                        <div class="project-skills" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                          ${(project.skills || []).map(s => `<span class="skill-tag" style="background: white; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem;">${s}</span>`).join('')}
+                          ${(project.skills || []).map((s) => `<span class="skill-tag" style="background: white; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem;">${s}</span>`).join('')}
                        </div>
                   </div>
               </div>
@@ -86,7 +87,7 @@ window.viewProjectDetails = function (id) {
               <div style="background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 16px;">
                   <h4 style="margin-top: 0; color: #2c5282;">✨ Expected Outcomes</h4>
                   <ul style="margin: 0; padding-left: 20px; color: #2b6cb0;">
-                      ${(project.outcomes || []).map(o => `<li>${o}</li>`).join('')}
+                      ${(project.outcomes || []).map((o) => `<li>${o}</li>`).join('')}
                   </ul>
               </div>
           </div>
@@ -483,14 +484,15 @@ function createProjectCard(project) {
   return `
         <div class=\"project-card enhanced\" data-project-id=\"${project.id}\" data-category=\"${project.category}\" data-status=\"${project.status}\">
             <div class="project-badge ${project.status}">
-                ${project.status === 'recruiting'
-      ? '🔍 Recruiting'
-      : project.status === 'active'
-        ? '⚡ Active'
-        : project.status === 'completed'
-          ? '✅ Completed'
-          : '📋 Planning'
-    }
+                ${
+                  project.status === 'recruiting'
+                    ? '🔍 Recruiting'
+                    : project.status === 'active'
+                      ? '⚡ Active'
+                      : project.status === 'completed'
+                        ? '✅ Completed'
+                        : '📋 Planning'
+                }
             </div>
             
             <div class="project-header">
@@ -537,9 +539,9 @@ function createProjectCard(project) {
                 
                 <div class="project-skills">
                     ${project.skills
-      .slice(0, 4)
-      .map((skill) => `<span class="skill-tag">${skill}</span>`)
-      .join('')}
+                      .slice(0, 4)
+                      .map((skill) => `<span class="skill-tag">${skill}</span>`)
+                      .join('')}
                 </div>
                 
                 <div class="project-tags">
@@ -651,7 +653,7 @@ function applyAllFilters() {
 
   // Apply Skill Level filter (Mocking data if missing)
   if (skillLevelFilter) {
-    filtered = filtered.filter(p => {
+    filtered = filtered.filter((p) => {
       const level = p.level || ['beginner', 'intermediate', 'advanced'][p.id % 3]; // Deterministic mock
       return level === skillLevelFilter;
     });
@@ -659,9 +661,10 @@ function applyAllFilters() {
 
   // Apply Tech Stack filter
   if (techFilter) {
-    filtered = filtered.filter(p =>
-      (p.skills || []).some(s => s.toLowerCase().includes(techFilter.toLowerCase())) ||
-      (p.tags || []).some(t => t.toLowerCase().includes(techFilter.toLowerCase()))
+    filtered = filtered.filter(
+      (p) =>
+        (p.skills || []).some((s) => s.toLowerCase().includes(techFilter.toLowerCase())) ||
+        (p.tags || []).some((t) => t.toLowerCase().includes(techFilter.toLowerCase()))
     );
   }
 
@@ -1375,7 +1378,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Initialize project action buttons
-// Duplicate functions removed. 
+// Duplicate functions removed.
 // Logic consolidated in initializeProjectActions (delegation) and openCreateProjectModal (multi-step).
 
 function setupCategoryExplore() {

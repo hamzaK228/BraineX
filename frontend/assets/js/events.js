@@ -131,14 +131,15 @@ function createEventCard(event) {
                          <span class="detail-icon">📍</span>
                          <span>${event.location || 'Online'}</span>
                     </div>
-                    ${event.type
-      ? `
+                    ${
+                      event.type
+                        ? `
                     <div class="detail">
                         <span class="detail-icon">🏷️</span>
                         <span>${event.type}</span>
                     </div>`
-      : ''
-    }
+                        : ''
+                    }
                 </div>
                 
     <div class="event-tags">
@@ -179,7 +180,7 @@ function setupEventActions() {
 }
 
 function viewEventDetails(eventId) {
-  const event = allEvents.find(e => e.id == eventId);
+  const event = allEvents.find((e) => e.id == eventId);
   if (!event) return;
 
   const modal = document.createElement('div');
@@ -197,10 +198,11 @@ function viewEventDetails(eventId) {
             
             <div class="modal-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
                  <button class="btn-secondary close-btn">Close</button>
-                 ${new Date(event.date) > new Date() ?
-      `<button class="btn-primary" onclick="registerForEvent('${event.id}')">Register Now</button>` :
-      '<button class="btn-outline" disabled>Event Ended</button>'
-    }
+                 ${
+                   new Date(event.date) > new Date()
+                     ? `<button class="btn-primary" onclick="registerForEvent('${event.id}')">Register Now</button>`
+                     : '<button class="btn-outline" disabled>Event Ended</button>'
+                 }
             </div>
         </div>
     `;
@@ -211,7 +213,9 @@ function viewEventDetails(eventId) {
   const close = () => modal.remove();
   modal.querySelector('.close-modal').addEventListener('click', close);
   modal.querySelector('.close-btn').addEventListener('click', close);
-  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) close();
+  });
 }
 
 function getEventIcon(type) {
@@ -237,7 +241,7 @@ function setupEventFilters() {
   }
 
   // Auto-filter on change
-  [typeSelect, fieldSelect].forEach(select => {
+  [typeSelect, fieldSelect].forEach((select) => {
     if (select) {
       select.addEventListener('change', () => {
         const type = typeSelect ? typeSelect.value.toLowerCase() : '';
@@ -249,12 +253,14 @@ function setupEventFilters() {
 }
 
 function filterEvents(type, field) {
-  currentEvents = allEvents.filter(e => {
+  currentEvents = allEvents.filter((e) => {
     const typeMatch = !type || type === 'all' || (e.type || '').toLowerCase().includes(type);
     // Field filtering might need tags or description check if field isn't explicit
-    const eventTags = (e.tags || []).map(t => t.toLowerCase());
-    const fieldMatch = !field || field === 'all' ||
-      eventTags.some(t => t.includes(field)) ||
+    const eventTags = (e.tags || []).map((t) => t.toLowerCase());
+    const fieldMatch =
+      !field ||
+      field === 'all' ||
+      eventTags.some((t) => t.includes(field)) ||
       (e.description || '').toLowerCase().includes(field);
     return typeMatch && fieldMatch;
   });
@@ -460,7 +466,7 @@ function saveEventToLocalStorage(event) {
   const myEvents = JSON.parse(localStorage.getItem('my_events') || '[]');
 
   // Check if already registered
-  if (myEvents.some(e => e.id === event.id)) {
+  if (myEvents.some((e) => e.id === event.id)) {
     return; // Already registered
   }
 
@@ -469,7 +475,7 @@ function saveEventToLocalStorage(event) {
     title: event.title,
     date: event.date,
     location: event.location,
-    registeredAt: new Date().toISOString()
+    registeredAt: new Date().toISOString(),
   });
 
   localStorage.setItem('my_events', JSON.stringify(myEvents));

@@ -15,7 +15,12 @@
       "sat": "1510-1580",
       "act": "34-36"
     },
-    "programs": ["Computer Science", "Engineering", "Physics", "Mathematics"],
+    "programs": [
+      "Computer Science",
+      "Engineering",
+      "Physics",
+      "Mathematics"
+    ],
     "type": "Private"
   },
   {
@@ -34,7 +39,11 @@
       "sat": "1440-1570",
       "act": "32-35"
     },
-    "programs": ["Computer Science", "Economics", "Human Biology"],
+    "programs": [
+      "Computer Science",
+      "Economics",
+      "Human Biology"
+    ],
     "type": "Private"
   },
   {
@@ -53,7 +62,36 @@
       "sat": "1460-1580",
       "act": "33-36"
     },
-    "programs": ["Law", "Business", "Medicine", "Liberal Arts"],
+    "programs": [
+      "Law",
+      "Business",
+      "Medicine",
+      "Liberal Arts"
+    ],
+    "type": "Private"
+  },
+  {
+    "id": "harvard",
+    "name": "Harvard University",
+    "location": {
+      "city": "Cambridge",
+      "country": "USA"
+    },
+    "ranking": 5,
+    "tuition": 54002,
+    "acceptance_rate": 5,
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Harvard_University_shield.png/1024px-Harvard_University_shield.png",
+    "description": "The oldest institution of higher learning in the US, Ivy League.",
+    "scores": {
+      "sat": "1460-1580",
+      "act": "33-36"
+    },
+    "programs": [
+      "Law",
+      "Business",
+      "Medicine",
+      "Liberal Arts"
+    ],
     "type": "Private"
   },
   {
@@ -72,7 +110,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Humanities", "Sciences", "Philosophy"],
+    "programs": [
+      "Humanities",
+      "Sciences",
+      "Philosophy"
+    ],
     "type": "Public"
   },
   {
@@ -91,7 +133,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Mathematics", "Science", "Engineering"],
+    "programs": [
+      "Mathematics",
+      "Science",
+      "Engineering"
+    ],
     "type": "Public"
   },
   {
@@ -110,7 +156,11 @@
       "sat": "1530-1580",
       "act": "35-36"
     },
-    "programs": ["Physics", "Chemistry", "Engineering"],
+    "programs": [
+      "Physics",
+      "Chemistry",
+      "Engineering"
+    ],
     "type": "Private"
   },
   {
@@ -129,7 +179,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Engineering", "Architecture", "Natural Sciences"],
+    "programs": [
+      "Engineering",
+      "Architecture",
+      "Natural Sciences"
+    ],
     "type": "Public"
   },
   {
@@ -148,7 +202,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Medicine", "Engineering", "Business"],
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Business"
+    ],
     "type": "Public"
   },
   {
@@ -167,7 +225,11 @@
       "sat": "1500-1570",
       "act": "33-35"
     },
-    "programs": ["Economics", "Law", "Sociology"],
+    "programs": [
+      "Economics",
+      "Law",
+      "Sociology"
+    ],
     "type": "Private"
   },
   {
@@ -186,7 +248,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Architecture", "Education", "Psychology"],
+    "programs": [
+      "Architecture",
+      "Education",
+      "Psychology"
+    ],
     "type": "Public"
   },
   {
@@ -205,7 +271,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Engineering", "Science", "Computing"],
+    "programs": [
+      "Engineering",
+      "Science",
+      "Computing"
+    ],
     "type": "Public"
   },
   {
@@ -224,7 +294,11 @@
       "sat": "1460-1570",
       "act": "33-35"
     },
-    "programs": ["Public Policy", "Humanities", "Mathematics"],
+    "programs": [
+      "Public Policy",
+      "Humanities",
+      "Mathematics"
+    ],
     "type": "Private"
   },
   {
@@ -243,7 +317,11 @@
       "sat": "1460-1570",
       "act": "33-35"
     },
-    "programs": ["Drama", "Law", "History"],
+    "programs": [
+      "Drama",
+      "Law",
+      "History"
+    ],
     "type": "Private"
   },
   {
@@ -262,7 +340,11 @@
       "sat": "1400-1540",
       "act": "32-35"
     },
-    "programs": ["Hotel Management", "Engineering", "Agriculture"],
+    "programs": [
+      "Hotel Management",
+      "Engineering",
+      "Agriculture"
+    ],
     "type": "Private"
   },
   {
@@ -281,7 +363,11 @@
       "sat": "1470-1570",
       "act": "33-35"
     },
-    "programs": ["Journalism", "Law", "International Relations"],
+    "programs": [
+      "Journalism",
+      "Law",
+      "International Relations"
+    ],
     "type": "Private"
   },
   {
@@ -300,7 +386,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Robotics", "Computer Science", "Life Sciences"],
+    "programs": [
+      "Robotics",
+      "Computer Science",
+      "Life Sciences"
+    ],
     "type": "Public"
   },
   {
@@ -319,7 +409,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Medicine", "Informatics", "Arts"],
+    "programs": [
+      "Medicine",
+      "Informatics",
+      "Arts"
+    ],
     "type": "Public"
   },
   {
@@ -338,7 +432,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Engineering", "Computer Science", "Materials Science"],
+    "programs": [
+      "Engineering",
+      "Computer Science",
+      "Materials Science"
+    ],
     "type": "Public"
   },
   {
@@ -357,7 +455,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Humanities", "Sciences", "Social Sciences"],
+    "programs": [
+      "Humanities",
+      "Sciences",
+      "Social Sciences"
+    ],
     "type": "Public"
   },
   {
@@ -376,7 +478,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Medicine", "Engineering", "Education"],
+    "programs": [
+      "Medicine",
+      "Engineering",
+      "Education"
+    ],
     "type": "Public"
   },
   {
@@ -395,7 +501,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Medicine", "Law", "Management"],
+    "programs": [
+      "Medicine",
+      "Law",
+      "Management"
+    ],
     "type": "Public"
   },
   {
@@ -414,7 +524,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["International Relations", "Earth Sciences", "Asian Studies"],
+    "programs": [
+      "International Relations",
+      "Earth Sciences",
+      "Asian Studies"
+    ],
     "type": "Public"
   },
   {
@@ -433,7 +547,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Law", "Medicine", "Education"],
+    "programs": [
+      "Law",
+      "Medicine",
+      "Education"
+    ],
     "type": "Public"
   },
   {
@@ -452,7 +570,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Science", "Tech", "Law"],
+    "programs": [
+      "Science",
+      "Tech",
+      "Law"
+    ],
     "type": "Public"
   },
   {
@@ -471,7 +593,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Chemistry", "Physics", "Medicine"],
+    "programs": [
+      "Chemistry",
+      "Physics",
+      "Medicine"
+    ],
     "type": "Public"
   },
   {
@@ -490,7 +616,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Dentistry", "Education", "Biomedicine"],
+    "programs": [
+      "Dentistry",
+      "Education",
+      "Biomedicine"
+    ],
     "type": "Public"
   },
   {
@@ -509,7 +639,11 @@
       "sat": "N/A",
       "act": "N/A"
     },
-    "programs": ["Engineering", "Medicine", "Business"],
+    "programs": [
+      "Engineering",
+      "Medicine",
+      "Business"
+    ],
     "type": "Public"
   },
   {
@@ -528,7 +662,11 @@
       "sat": "1480-1570",
       "act": "33-35"
     },
-    "programs": ["Medicine", "Law", "Public Policy"],
+    "programs": [
+      "Medicine",
+      "Law",
+      "Public Policy"
+    ],
     "type": "Private"
   },
   {
@@ -547,7 +685,11 @@
       "sat": "1430-1550",
       "act": "33-35"
     },
-    "programs": ["Journalism", "Communication", "Materials Science"],
+    "programs": [
+      "Journalism",
+      "Communication",
+      "Materials Science"
+    ],
     "type": "Private"
   },
   {
@@ -566,7 +708,11 @@
       "sat": "1500-1570",
       "act": "34-35"
     },
-    "programs": ["Medicine", "Public Health", "International Studies"],
+    "programs": [
+      "Medicine",
+      "Public Health",
+      "International Studies"
+    ],
     "type": "Private"
   }
 ]

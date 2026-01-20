@@ -311,10 +311,10 @@
         // Simplest: Redirect to a details view with query param (which we need to handle or create)
         // window.location.href = `/program-details.html?id=${id}`; // File doesn't exist
         // Better: Reuse application modal for now or just log
-        // User asked "View Details (open page)". 
+        // User asked "View Details (open page)".
         // I'll assume they want a page. I'll make it link to `?view=details&id=${id}` and handle in `init`.
         // But for now, let's simple open the website as fallback or show the guide.
-        // Actually, let's open the website for "View Details" if no internal page exists, 
+        // Actually, let's open the website for "View Details" if no internal page exists,
         // OR better, create a simple details modal.
         viewProgramDetails(id);
       });
@@ -346,9 +346,10 @@
 
                 <div class="countdown-container" data-deadline="${prog.deadline}">
                     <div class="countdown-label">Application Deadline</div>
-                    ${countdown.expired
-        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
-        : `<div class="countdown-timer">
+                    ${
+                      countdown.expired
+                        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
+                        : `<div class="countdown-timer">
                             <div class="countdown-unit">
                                 <span class="countdown-value" data-days>${countdown.days}</span>
                                 <span class="countdown-text">Days</span>
@@ -362,7 +363,7 @@
                                 <span class="countdown-text">Mins</span>
                             </div>
                         </div>`
-      }
+                    }
                 </div>
 
                 <div class="card-stats">
@@ -649,15 +650,15 @@
     elements.applicationBody.innerHTML = `
             <h3 style="margin-bottom: 1rem;">📚 ${prog.shortName || prog.name}</h3>
             ${steps
-        .map(
-          (step, i) => `
+              .map(
+                (step, i) => `
                 <div class="step-content ${i === currentStep ? 'active' : ''}" data-step="${i}">
                     <div class="step-title">${step.title}</div>
                     <div class="step-description">Complete these tasks to prepare your application</div>
                     <ul class="step-checklist">
                         ${step.items
-              .map(
-                (item) => `
+                          .map(
+                            (item) => `
                             <li>
                                 <input type="checkbox">
                                 <div class="item-text">
@@ -666,13 +667,13 @@
                                 </div>
                             </li>
                         `
-              )
-              .join('')}
+                          )
+                          .join('')}
                     </ul>
                 </div>
             `
-        )
-        .join('')}
+              )
+              .join('')}
         `;
 
     updateStepNavigation(steps.length);
@@ -755,7 +756,7 @@
   }
 
   function viewProgramDetails(id) {
-    const prog = programs.find(p => p.id === id);
+    const prog = programs.find((p) => p.id === id);
     if (!prog) return;
 
     // Check if we have a details modal
@@ -777,9 +778,11 @@
           `;
       document.body.appendChild(modal);
 
-      modal.querySelector('.close-modal').onclick = () => modal.style.display = 'none';
-      modal.querySelector('.btn-close-modal').onclick = () => modal.style.display = 'none';
-      modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+      modal.querySelector('.close-modal').onclick = () => (modal.style.display = 'none');
+      modal.querySelector('.btn-close-modal').onclick = () => (modal.style.display = 'none');
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+      };
     }
 
     modal.querySelector('#detailTitle').textContent = prog.name;

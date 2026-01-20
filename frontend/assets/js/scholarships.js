@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick = function (event) {
     const modal = document.getElementById('scholarshipModal');
     if (event.target === modal) {
-      modal.style.display = "none";
+      modal.style.display = 'none';
     }
-  }
+  };
 
   // Check URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -218,8 +218,12 @@ window.performAdvancedSearch = function () {
   const deadline = document.getElementById('deadlineSelect')?.value;
   const eligibility = document.getElementById('eligibilitySelect')?.value;
 
-  const gpa = document.querySelector('.search-content#advanced-search select:nth-of-type(1)')?.value; // Using selectors or adding IDs to HTML would be better
-  const need = document.querySelector('.search-content#advanced-search select:nth-of-type(2)')?.value;
+  const gpa = document.querySelector(
+    '.search-content#advanced-search select:nth-of-type(1)'
+  )?.value; // Using selectors or adding IDs to HTML would be better
+  const need = document.querySelector(
+    '.search-content#advanced-search select:nth-of-type(2)'
+  )?.value;
 
   filteredScholarships = allScholarships.filter((s) => {
     if (field && !matchField(s, field)) return false;
@@ -257,13 +261,23 @@ function matchFunding(s, funding) {
 
   switch (funding) {
     case 'full-tuition':
-      return amount.includes('full') || description.includes('full tuition') || amount.includes('100%');
+      return (
+        amount.includes('full') || description.includes('full tuition') || amount.includes('100%')
+      );
     case 'partial-tuition':
       return amount.includes('und') || !amount.includes('full');
     case 'living-allowance':
-      return description.includes('living') || description.includes('stipend') || amount.includes('stipend');
+      return (
+        description.includes('living') ||
+        description.includes('stipend') ||
+        amount.includes('stipend')
+      );
     case 'research-funding':
-      return (s.category === 'research' || description.includes('research') || (s.tags || []).includes('Research'));
+      return (
+        s.category === 'research' ||
+        description.includes('research') ||
+        (s.tags || []).includes('Research')
+      );
     case 'travel-grants':
       return description.includes('travel') || description.includes('conference');
     default:
@@ -402,7 +416,7 @@ function getFallbackScholarships() {
       tags: ['Full Funding', 'International', 'Graduate'],
       category: 'general',
       website: 'https://www.gatescambridge.org/',
-      featured: true
+      featured: true,
     },
     {
       id: 'nsf',
@@ -418,7 +432,7 @@ function getFallbackScholarships() {
       tags: ['STEM', 'Research', 'USA'],
       category: 'stem',
       website: 'https://www.nsfgrfp.org/',
-      featured: true
+      featured: true,
     },
     {
       id: 'rhodes',
@@ -434,7 +448,7 @@ function getFallbackScholarships() {
       tags: ['Full Funding', 'Leadership', 'Network'],
       category: 'general',
       website: 'https://www.rhodeshouse.ox.ac.uk/',
-      featured: false
+      featured: false,
     },
     // ... (rest with featured flags)
     {
@@ -451,7 +465,7 @@ function getFallbackScholarships() {
       tags: ['Leadership', 'International', 'Government'],
       category: 'social',
       website: 'https://www.chevening.org/',
-      featured: false
+      featured: false,
     },
     {
       id: 'fulbright',
@@ -466,7 +480,7 @@ function getFallbackScholarships() {
       tags: ['Exchange', 'Global', 'Culture'],
       category: 'social',
       website: 'https://us.fulbrightonline.org/',
-      featured: true
+      featured: true,
     },
     {
       id: 'daad',
@@ -481,7 +495,7 @@ function getFallbackScholarships() {
       tags: ['Germany', 'Exchange', 'Europe'],
       category: 'general',
       website: 'https://www.daad.de/en/',
-      featured: false
+      featured: false,
     },
     {
       id: 'google-ai',
@@ -496,7 +510,7 @@ function getFallbackScholarships() {
       tags: ['AI', 'Tech', 'Diversity'],
       category: 'stem',
       website: 'https://buildyourfuture.withgoogle.com/scholarships',
-      featured: true
+      featured: true,
     },
   ];
 }
@@ -506,10 +520,12 @@ function renderFeaturedScholarships() {
   if (!container) return;
 
   // Fallback to top 3 if no featured flag
-  let featured = allScholarships.filter(s => s.featured);
+  let featured = allScholarships.filter((s) => s.featured);
   if (featured.length === 0) featured = allScholarships.slice(0, 3);
 
-  container.innerHTML = featured.map(sch => `
+  container.innerHTML = featured
+    .map(
+      (sch) => `
         <div class="pathway-card">
             <div class="pathway-icon">🏆</div>
             <h3>${escapeHtml(sch.name)}</h3>
@@ -525,7 +541,9 @@ function renderFeaturedScholarships() {
             </div>
             <button class="btn-pathway" onclick="window.applyToScholarship('${sch.id}')" style="border:none; cursor:pointer; width:100%;">View Details</button>
         </div>
-    `).join('');
+    `
+    )
+    .join('');
 }
 
 function escapeHtml(text) {

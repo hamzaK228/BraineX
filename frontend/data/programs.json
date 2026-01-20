@@ -26,19 +26,6 @@
     "description": "Intensive research in Astrophysics, Biochemistry, and Genomics."
   },
   {
-    "id": "tasp",
-    "name": "Telluride Association Summer Program (TASP)",
-    "provider": "Telluride Association",
-    "location": "Cornell / Michigan / Maryland",
-    "deadline": "2026-01-04T23:59:00",
-    "dates": "June 20 - August 1",
-    "cost": 0,
-    "category": "Humanities",
-    "ages": "16-17",
-    "scholarship": true,
-    "description": "Six-week educational experience based on seminars and community self-governance."
-  },
-  {
     "id": "simr",
     "name": "Stanford Institutes of Medicine Summer Research Program (SIMR)",
     "provider": "Stanford Medicine",

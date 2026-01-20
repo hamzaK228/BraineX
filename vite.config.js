@@ -19,8 +19,7 @@ export default defineConfig({
         about: path.resolve(__dirname, 'frontend/pages/about.html'),
         admin: path.resolve(__dirname, 'frontend/pages/admin.html'),
       },
-      output: {
-      },
+      output: {},
     },
     minify: 'terser',
     terserOptions: {

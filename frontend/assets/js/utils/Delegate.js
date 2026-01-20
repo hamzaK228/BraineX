@@ -11,25 +11,25 @@
  * @param {Function} handler - The callback function
  */
 export function delegate(el, evt, sel, handler) {
-    el.addEventListener(evt, function (event) {
-        const t = event.target;
-        // Check if the target or any of its parents match the selector
-        const matchingParent = t.closest(sel);
+  el.addEventListener(evt, function (event) {
+    const t = event.target;
+    // Check if the target or any of its parents match the selector
+    const matchingParent = t.closest(sel);
 
-        // Ensure the matching parent is actually inside the delegated element
-        if (matchingParent && el.contains(matchingParent)) {
-            handler.call(matchingParent, event, matchingParent);
-        }
-    });
+    // Ensure the matching parent is actually inside the delegated element
+    if (matchingParent && el.contains(matchingParent)) {
+      handler.call(matchingParent, event, matchingParent);
+    }
+  });
 }
 
 /**
  * Prevent propagation helper
- * @param {Event} e 
+ * @param {Event} e
  */
 export function stop(e) {
-    if (e) {
-        e.stopPropagation();
-        e.preventDefault();
-    }
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
 }
