@@ -1090,6 +1090,54 @@
     <script defer src="../assets/js/auth-api.js?v=hotfix.1"></script>
     <script defer src="../assets/js/buttonStateEngine.js?v=hotfix.1"></script>
     <script defer src="/assets/js/global.js"></script>
+    <!-- Make openTrackDetail available before ES module loads -->
+    <script>
+        window.openTrackDetail = function (trackId) {
+            const trackData = {
+                'ai-data-science': { name: 'Artificial Intelligence & Data Science', icon: '🤖', description: 'Explore the cutting-edge world of AI, machine learning, and data analytics.', scholarshipsCount: 152, roadmapsCount: 18, mentorsCount: 6, skills: ['Machine Learning', 'Deep Learning', 'Python', 'TensorFlow'], careers: ['AI Engineer', 'Data Scientist', 'ML Researcher'] },
+                'biotech': { name: 'Biotech & Health Sciences', icon: '🧬', description: 'Advance medical research and healthcare innovation.', scholarshipsCount: 128, roadmapsCount: 15, mentorsCount: 8, skills: ['Molecular Biology', 'Genetics', 'Bioinformatics'], careers: ['Biotech Researcher', 'Clinical Scientist'] },
+                'climate-tech': { name: 'Climate Tech & Sustainability', icon: '🌱', description: 'Build solutions for environmental challenges.', scholarshipsCount: 94, roadmapsCount: 12, mentorsCount: 5, skills: ['Environmental Science', 'Renewable Energy'], careers: ['Sustainability Consultant', 'Climate Scientist'] },
+                'engineering': { name: 'Engineering & Robotics', icon: '⚙️', description: 'Design and build the technologies of tomorrow.', scholarshipsCount: 176, roadmapsCount: 22, mentorsCount: 10, skills: ['Mechanical Design', 'Electronics', 'Control Systems'], careers: ['Robotics Engineer', 'Mechanical Engineer'] },
+                'entrepreneurship': { name: 'Entrepreneurship & Innovation', icon: '💡', description: 'Turn your ideas into impactful startups.', scholarshipsCount: 86, roadmapsCount: 14, mentorsCount: 12, skills: ['Business Strategy', 'Fundraising', 'Leadership'], careers: ['Startup Founder', 'Product Manager'] },
+                'social-impact': { name: 'Social Impact & Global Policy', icon: '🌍', description: 'Drive change in diplomacy and human rights.', scholarshipsCount: 112, roadmapsCount: 16, mentorsCount: 7, skills: ['Policy Analysis', 'International Relations'], careers: ['Policy Analyst', 'NGO Director'] },
+                'creative-tech': { name: 'Digital Media & Creative Tech', icon: '🎨', description: 'Create immersive experiences and digital art.', scholarshipsCount: 68, roadmapsCount: 10, mentorsCount: 9, skills: ['UI/UX Design', 'Motion Graphics'], careers: ['UX Designer', 'Creative Director'] },
+                'economics': { name: 'Economics & Finance', icon: '💰', description: 'Master financial systems and economic policy.', scholarshipsCount: 142, roadmapsCount: 19, mentorsCount: 11, skills: ['Financial Analysis', 'Econometrics'], careers: ['Investment Banker', 'Economist'] }
+            };
+            const track = trackData[trackId];
+            if (!track) { console.warn('Track not found:', trackId); return; }
+
+            const modal = document.getElementById('trackModal');
+            const content = document.getElementById('trackModalContent');
+            if (!modal || !content) { console.error('Modal not found'); return; }
+
+            content.innerHTML = '<h2>' + track.icon + ' ' + track.name + '</h2>' +
+                '<div class="modal-body">' +
+                '<p style="font-size:1.1rem;color:var(--text-secondary);margin-bottom:1.5rem;">' + track.description + '</p>' +
+                '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">' +
+                '<div style="text-align:center;padding:1rem;background:var(--bg-secondary,#f3f4f6);border-radius:8px;"><span style="display:block;font-size:1.5rem;font-weight:700;color:var(--primary-color,#667eea);">' + track.scholarshipsCount + '</span><span style="font-size:0.875rem;">Scholarships</span></div>' +
+                '<div style="text-align:center;padding:1rem;background:var(--bg-secondary,#f3f4f6);border-radius:8px;"><span style="display:block;font-size:1.5rem;font-weight:700;color:var(--primary-color,#667eea);">' + track.roadmapsCount + '</span><span style="font-size:0.875rem;">Roadmaps</span></div>' +
+                '<div style="text-align:center;padding:1rem;background:var(--bg-secondary,#f3f4f6);border-radius:8px;"><span style="display:block;font-size:1.5rem;font-weight:700;color:var(--primary-color,#667eea);">' + track.mentorsCount + '</span><span style="font-size:0.875rem;">Mentors</span></div>' +
+                '</div>' +
+                '<div style="margin-bottom:1.5rem;"><h4 style="margin-bottom:0.75rem;">Key Skills</h4><div style="display:flex;flex-wrap:wrap;gap:0.5rem;">' + track.skills.map(function (s) { return '<span style="padding:0.25rem 0.75rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:20px;font-size:0.875rem;">' + s + '</span>'; }).join('') + '</div></div>' +
+                '<div style="margin-bottom:1.5rem;"><h4 style="margin-bottom:0.75rem;">Career Paths</h4><div style="display:flex;flex-wrap:wrap;gap:0.5rem;">' + track.careers.map(function (c) { return '<span style="padding:0.25rem 0.75rem;background:var(--bg-secondary,#f3f4f6);border:1px solid var(--border-color,#e5e7eb);border-radius:20px;font-size:0.875rem;">' + c + '</span>'; }).join('') + '</div></div>' +
+                '<div style="display:flex;gap:1rem;margin-top:2rem;">' +
+                '<a href="/pages/roadmaps.html?track=' + trackId + '" style="flex:1;text-align:center;padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:8px;text-decoration:none;font-weight:600;">View Full Roadmap</a>' +
+                '<a href="/pages/scholarships.html?field=' + trackId + '" style="flex:1;text-align:center;padding:0.75rem 1.5rem;background:var(--bg-secondary,#f3f4f6);color:var(--text-primary);border-radius:8px;text-decoration:none;font-weight:600;border:1px solid var(--border-color,#e5e7eb);">Browse Scholarships</a>' +
+                '</div></div>';
+
+            modal.style.display = 'block';
+            setTimeout(function () { modal.classList.add('show'); }, 10);
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeModal = function () {
+            document.querySelectorAll('.modal').forEach(function (m) {
+                m.style.display = 'none';
+                m.classList.remove('show');
+            });
+            document.body.style.overflow = '';
+        };
+    </script>
     <script type="module" src="/assets/js/main.js"></script>
     <script defer src="/assets/js/performance.js"></script>
     <script defer src="../assets/js/interactions.js?v=hotfix.1"></script>
