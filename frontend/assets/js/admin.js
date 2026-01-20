@@ -109,8 +109,20 @@ async function loadSectionData(sectionId) {
       case 'users':
         await loadUsersTable();
         break;
+      case 'universities':
+        await loadUniversitiesTable();
+        break;
+      case 'programs':
+        await loadProgramsTable();
+        break;
+      case 'projects':
+        await loadProjectsTable();
+        break;
+      case 'roadmaps':
+        await loadRoadmapsTable();
+        break;
       case 'events':
-        // await loadEventsTable(); // API for events not fully implemented yet
+        await loadEventsTable();
         break;
     }
   } catch (error) {
@@ -313,6 +325,191 @@ function renderFieldsGrid(fields) {
     .join('');
 }
 
+// --- Universities ---
+
+async function loadUniversitiesTable() {
+  try {
+    const response = await window.authAPI.request('/admin/universities');
+    const data = await response.json();
+    if (data.success) {
+      adminData.universities = data.data;
+      renderUniversitiesTable(data.data);
+    }
+  } catch (error) {
+    showNotification('Failed to load universities', 'error');
+  }
+}
+
+function renderUniversitiesTable(universities) {
+  const tableBody = document.getElementById('universitiesTable');
+  if (!tableBody) return;
+  tableBody.innerHTML = universities
+    .map(
+      (u) => `
+    <tr>
+      <td>${u.name}</td>
+      <td>${u.location}</td>
+      <td>${u.rank || 'N/A'}</td>
+      <td>${u.students || '0'}</td>
+      <td>
+        <div class="table-actions">
+           <button class="btn-table btn-delete" data-action="delete-university" data-id="${u.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `
+    )
+    .join('');
+}
+
+// --- Programs ---
+
+async function loadProgramsTable() {
+  try {
+    const response = await window.authAPI.request('/admin/programs');
+    const data = await response.json();
+    if (data.success) {
+      adminData.programs = data.data;
+      renderProgramsTable(data.data);
+    }
+  } catch (error) {
+    showNotification('Failed to load programs', 'error');
+  }
+}
+
+function renderProgramsTable(programs) {
+  const tableBody = document.getElementById('programsTable');
+  if (!tableBody) return;
+  tableBody.innerHTML = programs
+    .map(
+      (p) => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.organization}</td>
+      <td>${new Date(p.deadline).toLocaleDateString()}</td>
+      <td>${p.type || 'Program'}</td>
+      <td>
+        <div class="table-actions">
+           <button class="btn-table btn-delete" data-action="delete-program" data-id="${p.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `
+    )
+    .join('');
+}
+
+// --- Projects ---
+
+async function loadProjectsTable() {
+  try {
+    const response = await window.authAPI.request('/admin/projects');
+    const data = await response.json();
+    if (data.success) {
+      adminData.projects = data.data;
+      renderProjectsTable(data.data);
+    }
+  } catch (error) {
+    showNotification('Failed to load projects', 'error');
+  }
+}
+
+function renderProjectsTable(projects) {
+  const tableBody = document.getElementById('projectsTable');
+  if (!tableBody) return;
+  tableBody.innerHTML = projects
+    .map(
+      (p) => `
+    <tr>
+      <td>${p.title}</td>
+      <td>${p.category}</td>
+      <td>${p.difficulty}</td>
+      <td>${p.estimatedTime || 'N/A'}</td>
+      <td>
+        <div class="table-actions">
+           <button class="btn-table btn-delete" data-action="delete-project" data-id="${p.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `
+    )
+    .join('');
+}
+
+// --- Roadmaps ---
+
+async function loadRoadmapsTable() {
+  try {
+    const response = await window.authAPI.request('/admin/roadmaps');
+    const data = await response.json();
+    if (data.success) {
+      adminData.roadmaps = data.data;
+      renderRoadmapsTable(data.data);
+    }
+  } catch (error) {
+    showNotification('Failed to load roadmaps', 'error');
+  }
+}
+
+function renderRoadmapsTable(roadmaps) {
+  const tableBody = document.getElementById('roadmapsTable');
+  if (!tableBody) return;
+  tableBody.innerHTML = roadmaps
+    .map(
+      (r) => `
+    <tr>
+      <td>${r.title}</td>
+      <td>${r.category}</td>
+      <td>${r.steps ? r.steps.length : 0} steps</td>
+      <td>${r.duration}</td>
+      <td>
+        <div class="table-actions">
+           <button class="btn-table btn-delete" data-action="delete-roadmap" data-id="${r.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `
+    )
+    .join('');
+}
+
+// --- Events ---
+
+async function loadEventsTable() {
+  try {
+    const response = await window.authAPI.request('/admin/events');
+    const data = await response.json();
+    if (data.success) {
+      adminData.events = data.data;
+      renderEventsTable(data.data);
+    }
+  } catch (error) {
+    showNotification('Failed to load events', 'error');
+  }
+}
+
+function renderEventsTable(events) {
+  const tableBody = document.getElementById('eventsTable');
+  if (!tableBody) return;
+  tableBody.innerHTML = events
+    .map(
+      (e) => `
+    <tr>
+      <td>${e.title}</td>
+      <td>${e.type}</td>
+      <td>${new Date(e.date).toLocaleDateString()}</td>
+      <td>${e.format || 'Online'}</td>
+      <td>
+         <div class="table-actions">
+           <button class="btn-table btn-delete" data-action="delete-event" data-id="${e.id}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `
+    )
+    .join('');
+}
+
 // --- Users ---
 
 async function loadUsersTable() {
@@ -349,6 +546,17 @@ function initializeFormHandlers() {
 
     if (target.matches('[data-action="edit-field"]')) editField(target.dataset.id);
     if (target.matches('[data-action="delete-field"]')) deleteField(target.dataset.id);
+
+    if (target.matches('[data-action="delete-university"]'))
+      window.deleteEntity('universities', target.dataset.id, loadUniversitiesTable);
+    if (target.matches('[data-action="delete-program"]'))
+      window.deleteEntity('programs', target.dataset.id, loadProgramsTable);
+    if (target.matches('[data-action="delete-project"]'))
+      window.deleteEntity('projects', target.dataset.id, loadProjectsTable);
+    if (target.matches('[data-action="delete-roadmap"]'))
+      window.deleteEntity('roadmaps', target.dataset.id, loadRoadmapsTable);
+    if (target.matches('[data-action="delete-event"]'))
+      window.deleteEntity('events', target.dataset.id, loadEventsTable);
 
     // Modal Openers
     if (target.matches('.js-add-scholarship')) showAddScholarshipModal();
@@ -743,3 +951,26 @@ function showNotification(message, type = 'info') {
     notification.remove();
   }, 5000);
 }
+
+window.deleteEntity = async function (type, id, refreshCallback) {
+  const typeName = type.slice(0, -1); // remove 's'
+  if (confirm(`Are you sure you want to delete this ${typeName}?`)) {
+    try {
+      const response = await window.authAPI.request(`/admin/${type}/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        showNotification(
+          `${typeName.charAt(0).toUpperCase() + typeName.slice(1)} deleted`,
+          'success'
+        );
+        if (refreshCallback) refreshCallback();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showNotification('Delete failed: ' + error.message, 'error');
+    }
+  }
+};

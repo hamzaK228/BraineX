@@ -320,4 +320,206 @@ router.delete('/events/:id', async (req, res) => {
   }
 });
 
+// ==================== UNIVERSITIES ====================
+
+router.get('/universities', async (req, res) => {
+  try {
+    const universities = await loadData('universities');
+    res.json({ success: true, data: universities, count: universities.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch universities' });
+  }
+});
+
+router.post('/universities', async (req, res) => {
+  try {
+    const universities = await loadData('universities');
+    const newUniversity = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
+    universities.push(newUniversity);
+    await writeJson('universities', universities);
+    res.status(201).json({ success: true, data: newUniversity });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to create university' });
+  }
+});
+
+router.put('/universities/:id', async (req, res) => {
+  try {
+    const universities = await loadData('universities');
+    const index = universities.findIndex((u) => u.id == req.params.id);
+    if (index === -1)
+      return res.status(404).json({ success: false, error: 'University not found' });
+    universities[index] = { ...universities[index], ...req.body };
+    await writeJson('universities', universities);
+    res.json({ success: true, data: universities[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update university' });
+  }
+});
+
+router.delete('/universities/:id', async (req, res) => {
+  try {
+    let universities = await loadData('universities');
+    const index = universities.findIndex((u) => u.id == req.params.id);
+    if (index === -1)
+      return res.status(404).json({ success: false, error: 'University not found' });
+    universities.splice(index, 1);
+    await writeJson('universities', universities);
+    res.json({ success: true, message: 'University deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to delete university' });
+  }
+});
+
+// ==================== PROGRAMS ====================
+
+router.get('/programs', async (req, res) => {
+  try {
+    const programs = await loadData('programs');
+    res.json({ success: true, data: programs, count: programs.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch programs' });
+  }
+});
+
+router.post('/programs', async (req, res) => {
+  try {
+    const programs = await loadData('programs');
+    const newProgram = {
+      id: Date.now().toString(),
+      ...req.body,
+      createdAt: new Date().toISOString(),
+    };
+    programs.push(newProgram);
+    await writeJson('programs', programs);
+    res.status(201).json({ success: true, data: newProgram });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to create program' });
+  }
+});
+
+router.put('/programs/:id', async (req, res) => {
+  try {
+    const programs = await loadData('programs');
+    const index = programs.findIndex((p) => p.id == req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Program not found' });
+    programs[index] = { ...programs[index], ...req.body };
+    await writeJson('programs', programs);
+    res.json({ success: true, data: programs[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update program' });
+  }
+});
+
+router.delete('/programs/:id', async (req, res) => {
+  try {
+    let programs = await loadData('programs');
+    const index = programs.findIndex((p) => p.id == req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Program not found' });
+    programs.splice(index, 1);
+    await writeJson('programs', programs);
+    res.json({ success: true, message: 'Program deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to delete program' });
+  }
+});
+
+// ==================== PROJECTS ====================
+
+router.get('/projects', async (req, res) => {
+  try {
+    const projects = await loadData('projects');
+    res.json({ success: true, data: projects, count: projects.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch projects' });
+  }
+});
+
+router.post('/projects', async (req, res) => {
+  try {
+    const projects = await loadData('projects');
+    const newProject = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
+    projects.push(newProject);
+    await writeJson('projects', projects);
+    res.status(201).json({ success: true, data: newProject });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to create project' });
+  }
+});
+
+router.put('/projects/:id', async (req, res) => {
+  try {
+    const projects = await loadData('projects');
+    const index = projects.findIndex((p) => p.id == req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Project not found' });
+    projects[index] = { ...projects[index], ...req.body };
+    await writeJson('projects', projects);
+    res.json({ success: true, data: projects[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update project' });
+  }
+});
+
+router.delete('/projects/:id', async (req, res) => {
+  try {
+    let projects = await loadData('projects');
+    const index = projects.findIndex((p) => p.id == req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Project not found' });
+    projects.splice(index, 1);
+    await writeJson('projects', projects);
+    res.json({ success: true, message: 'Project deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to delete project' });
+  }
+});
+
+// ==================== ROADMAPS ====================
+
+router.get('/roadmaps', async (req, res) => {
+  try {
+    const roadmaps = await loadData('roadmaps');
+    res.json({ success: true, data: roadmaps, count: roadmaps.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch roadmaps' });
+  }
+});
+
+router.post('/roadmaps', async (req, res) => {
+  try {
+    const roadmaps = await loadData('roadmaps');
+    const newRoadmap = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
+    roadmaps.push(newRoadmap);
+    await writeJson('roadmaps', roadmaps);
+    res.status(201).json({ success: true, data: newRoadmap });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to create roadmap' });
+  }
+});
+
+router.put('/roadmaps/:id', async (req, res) => {
+  try {
+    const roadmaps = await loadData('roadmaps');
+    const index = roadmaps.findIndex((r) => r.id == req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Roadmap not found' });
+    roadmaps[index] = { ...roadmaps[index], ...req.body };
+    await writeJson('roadmaps', roadmaps);
+    res.json({ success: true, data: roadmaps[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update roadmap' });
+  }
+});
+
+router.delete('/roadmaps/:id', async (req, res) => {
+  try {
+    let roadmaps = await loadData('roadmaps');
+    const index = roadmaps.findIndex((r) => r.id == req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Roadmap not found' });
+    roadmaps.splice(index, 1);
+    await writeJson('roadmaps', roadmaps);
+    res.json({ success: true, message: 'Roadmap deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to delete roadmap' });
+  }
+});
+
 export default router;

@@ -371,13 +371,13 @@ function setupTracksSlider() {
 }
 
 // Dummy/Stub functions for others to prevent crashes
-function setupMobileMenu() { }
-function setupSmoothScroll() { }
-function setupIntersectionObservers() { }
-function animateStatsInit() { }
-function setupServiceWorker() { }
-function setupMultiSelect() { }
-function setupFormValidation() { }
+function setupMobileMenu() {}
+function setupSmoothScroll() {}
+function setupIntersectionObservers() {}
+function animateStatsInit() {}
+function setupServiceWorker() {}
+function setupMultiSelect() {}
+function setupFormValidation() {}
 
 // --- Data Loading (Mock) ---
 

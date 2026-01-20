@@ -1,48 +1,91 @@
-import { pool } from '../config/database.js';
-import { asyncHandler } from '../middleware/errorHandler.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export const getProjects = asyncHandler(async (req, res) => {
-  const { field, difficulty, status = 'active', page = 1, limit = 20 } = req.query;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  let query = 'SELECT * FROM projects WHERE status = ?';
-  const params = [status];
-
-  if (field) {
-    query += ' AND field = ?';
-    params.push(field);
+// Load projects data from JSON
+function loadProjects() {
+  try {
+    const dataPath = path.join(__dirname, '../data/projects.json');
+    if (!fs.existsSync(dataPath)) {
+      return [];
+    }
+    const data = fs.readFileSync(dataPath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error loading projects data:', error);
+    return [];
   }
+}
 
-  if (difficulty) {
-    query += ' AND difficulty = ?';
-    params.push(difficulty);
-  }
+export const getProjects = async (req, res) => {
+  try {
+    const projects = loadProjects();
+    const { field, difficulty, status = 'active', page = 1, limit = 20 } = req.query;
 
-  const offset = (page - 1) * limit;
-  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-  params.push(parseInt(limit), parseInt(offset));
+    let filtered = projects;
 
-  const [projects] = await pool.query(query, params);
+    // Filter by status (if present in data)
+    if (status && status !== 'all') {
+      filtered = filtered.filter((p) => p.status === status);
+    }
 
-  res.json({
-    success: true,
-    data: projects,
-  });
-});
+    // Filter by field
+    if (field) {
+      filtered = filtered.filter((p) => p.category === field || p.field === field);
+    }
 
-export const getProjectById = asyncHandler(async (req, res) => {
-  const [projects] = await pool.query('SELECT * FROM projects WHERE id = ?', [req.params.id]);
+    // Filter by difficulty
+    if (difficulty) {
+      filtered = filtered.filter((p) => p.difficulty === difficulty);
+    }
 
-  if (projects.length === 0) {
-    return res.status(404).json({
-      success: false,
-      error: 'Project not found',
+    // Pagination
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const startIndex = (pageNum - 1) * limitNum;
+    const endIndex = startIndex + limitNum;
+
+    const paginatedResults = filtered.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: paginatedResults,
+      pagination: {
+        total: filtered.length,
+        page: pageNum,
+        pages: Math.ceil(filtered.length / limitNum),
+      },
     });
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch projects' });
   }
+};
 
-  res.json({
-    success: true,
-    data: projects[0],
-  });
-});
+export const getProjectById = async (req, res) => {
+  try {
+    const projects = loadProjects();
+    const id = req.params.id;
+    // Handle both string and number IDs
+    const project = projects.find((p) => p.id == id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        error: 'Project not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch project' });
+  }
+};
 
 export default { getProjects, getProjectById };

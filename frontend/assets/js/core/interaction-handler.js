@@ -305,24 +305,25 @@ const InteractionHandler = (function () {
         <button class="close-modal" aria-label="Close modal">&times;</button>
         ${title ? `<h2 class="modal-title">${title}</h2>` : ''}
         <div class="modal-body">${content}</div>
-        ${actions.length > 0
-        ? `
+        ${
+          actions.length > 0
+            ? `
           <div class="modal-actions">
             ${actions
-          .map(
-            (action) => `
+              .map(
+                (action) => `
               <button class="btn ${action.primary ? 'btn-primary' : 'btn-secondary'}" 
                       data-action="${action.id || ''}"
                       ${action.href ? `onclick="window.open('${action.href}', '_blank')"` : ''}>
                 ${action.label}
               </button>
             `
-          )
-          .join('')}
+              )
+              .join('')}
           </div>
         `
-        : ''
-      }
+            : ''
+        }
       </div>
     `;
 

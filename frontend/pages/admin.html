@@ -83,9 +83,14 @@
                 >
               </li>
               <li>
-                <a href="#fields" class="menu-link" data-section="fields">🌍 Academic Fields</a>
+                <a href="#universities" class="menu-link" data-section="universities"
+                  >🏛️ Universities</a
+                >
               </li>
+              <li><a href="#programs" class="menu-link" data-section="programs">🌟 Programs</a></li>
+              <li><a href="#fields" class="menu-link" data-section="fields">🌍 Fields</a></li>
               <li><a href="#projects" class="menu-link" data-section="projects">🚀 Projects</a></li>
+              <li><a href="#roadmaps" class="menu-link" data-section="roadmaps">🗺️ Roadmaps</a></li>
               <li><a href="#events" class="menu-link" data-section="events">🎪 Events</a></li>
             </ul>
           </div>
@@ -276,6 +281,146 @@
 
           <div class="fields-grid" id="fieldsGrid">
             <!-- Field cards will be populated -->
+          </div>
+        </section>
+
+        <!-- Universities Management -->
+        <section class="admin-section" id="universities">
+          <div class="section-header">
+            <h1>🏛️ University Management</h1>
+            <button class="btn-primary js-add-university">+ Add New University</button>
+          </div>
+          <div class="table-container">
+            <input
+              type="text"
+              placeholder="Search universities..."
+              class="search-input"
+              id="universitySearch"
+            />
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Location</th>
+                  <th>Rank</th>
+                  <th>Students</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="universitiesTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Programs Management -->
+        <section class="admin-section" id="programs">
+          <div class="section-header">
+            <h1>🌟 Program Management</h1>
+            <button class="btn-primary js-add-program">+ Add New Program</button>
+          </div>
+          <div class="table-container">
+            <input
+              type="text"
+              placeholder="Search programs..."
+              class="search-input"
+              id="programSearch"
+            />
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Program Name</th>
+                  <th>Organization</th>
+                  <th>Deadline</th>
+                  <th>Type</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="programsTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Projects Management -->
+        <section class="admin-section" id="projects">
+          <div class="section-header">
+            <h1>🚀 Project Management</h1>
+            <button class="btn-primary js-add-project">+ Add New Project</button>
+          </div>
+          <div class="table-container">
+            <input
+              type="text"
+              placeholder="Search projects..."
+              class="search-input"
+              id="projectSearch"
+            />
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Difficulty</th>
+                  <th>Est. Time</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Roadmaps Management -->
+        <section class="admin-section" id="roadmaps">
+          <div class="section-header">
+            <h1>🗺️ Roadmap Management</h1>
+            <button class="btn-primary js-add-roadmap">+ Add New Roadmap</button>
+          </div>
+          <div class="table-container">
+            <input
+              type="text"
+              placeholder="Search roadmaps..."
+              class="search-input"
+              id="roadmapSearch"
+            />
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Steps</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="roadmapsTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Events Management -->
+        <section class="admin-section" id="events">
+          <div class="section-header">
+            <h1>🎪 Event Management</h1>
+            <button class="btn-primary js-add-event">+ Add New Event</button>
+          </div>
+          <div class="table-container">
+            <input
+              type="text"
+              placeholder="Search events..."
+              class="search-input"
+              id="eventSearch"
+            />
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Event Name</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Format</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="eventsTable"></tbody>
+            </table>
           </div>
         </section>
       </main>
