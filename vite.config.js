@@ -3,7 +3,7 @@ import path from 'path';
 
 export default defineConfig({
   root: './frontend',
-  publicDir: 'assets',
+  publicDir: 'public',
   build: {
     outDir: '../dist',
     emptyOutDir: true,

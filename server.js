@@ -104,7 +104,7 @@ app.use(
 );
 app.use(
   '/assets',
-  express.static(path.join(__dirname, 'frontend/assets'), {
+  express.static(path.join(__dirname, 'frontend/public/assets'), {
     maxAge: '1y',
     immutable: true,
   })
