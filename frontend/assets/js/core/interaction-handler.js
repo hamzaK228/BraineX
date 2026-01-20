@@ -30,8 +30,14 @@ const InteractionHandler = (function () {
       const target = e.target.closest('button, a, [role="button"]');
       if (!target) return;
 
-      // Handle explore buttons
-      if (target.classList.contains('btn-explore') || target.classList.contains('btn-category')) {
+      // NOTE: btn-explore buttons use onclick="openTrackDetail('...')" directly
+      // Skip handling here to avoid conflicts
+      if (target.classList.contains('btn-explore')) {
+        return; // Let onclick handle it
+      }
+
+      // Handle category buttons only
+      if (target.classList.contains('btn-category')) {
         handleExploreButton(e, target);
       }
 
@@ -195,9 +201,10 @@ const InteractionHandler = (function () {
    * Setup modal handlers
    */
   function setupModalHandlers() {
-    // Close modal on backdrop click
+    // Close modal on backdrop click - must click directly on the modal background, not content
     document.addEventListener('click', function (e) {
-      if (e.target.classList.contains('modal') && e.target === e.currentTarget) {
+      // Only close if click is directly on the modal element (the backdrop), not on its children
+      if (e.target.classList.contains('modal') && !e.target.closest('.modal-content')) {
         closeActiveModal();
       }
     });
@@ -298,25 +305,24 @@ const InteractionHandler = (function () {
         <button class="close-modal" aria-label="Close modal">&times;</button>
         ${title ? `<h2 class="modal-title">${title}</h2>` : ''}
         <div class="modal-body">${content}</div>
-        ${
-          actions.length > 0
-            ? `
+        ${actions.length > 0
+        ? `
           <div class="modal-actions">
             ${actions
-              .map(
-                (action) => `
+          .map(
+            (action) => `
               <button class="btn ${action.primary ? 'btn-primary' : 'btn-secondary'}" 
                       data-action="${action.id || ''}"
                       ${action.href ? `onclick="window.open('${action.href}', '_blank')"` : ''}>
                 ${action.label}
               </button>
             `
-              )
-              .join('')}
+          )
+          .join('')}
           </div>
         `
-            : ''
-        }
+        : ''
+      }
       </div>
     `;
 
