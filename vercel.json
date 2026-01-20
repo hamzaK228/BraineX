@@ -1,9 +1,57 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/server.js"
-    }
-  ]
+    "version": 2,
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "/server.js"
+        },
+        {
+            "source": "/",
+            "destination": "/pages/main.html"
+        },
+        {
+            "source": "/fields",
+            "destination": "/pages/fields.html"
+        },
+        {
+            "source": "/universities",
+            "destination": "/pages/universities.html"
+        },
+        {
+            "source": "/programs",
+            "destination": "/pages/programs.html"
+        },
+        {
+            "source": "/scholarships",
+            "destination": "/pages/scholarships.html"
+        },
+        {
+            "source": "/projects",
+            "destination": "/pages/projects.html"
+        },
+        {
+            "source": "/roadmaps",
+            "destination": "/pages/roadmaps.html"
+        },
+        {
+            "source": "/mentors",
+            "destination": "/pages/mentors.html"
+        },
+        {
+            "source": "/events",
+            "destination": "/pages/events.html"
+        },
+        {
+            "source": "/about",
+            "destination": "/pages/about.html"
+        },
+        {
+            "source": "/admin",
+            "destination": "/pages/admin.html"
+        },
+        {
+            "source": "/notion",
+            "destination": "/pages/notion.html"
+        }
+    ]
 }

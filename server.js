@@ -295,7 +295,10 @@ async function startServer() {
   }
 }
 
-startServer();
+// Only start server if not running in Vercel environment
+if (process.env.VERCEL !== '1') {
+  startServer();
+}
 // console.log('Server file loaded successfully, but startServer disabled.');
 
 export default app;

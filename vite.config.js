@@ -18,6 +18,7 @@ export default defineConfig({
         events: path.resolve(__dirname, 'frontend/pages/events.html'),
         about: path.resolve(__dirname, 'frontend/pages/about.html'),
         admin: path.resolve(__dirname, 'frontend/pages/admin.html'),
+        notion: path.resolve(__dirname, 'frontend/pages/notion.html'),
       },
       output: {},
     },
