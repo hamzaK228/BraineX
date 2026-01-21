@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BraineX Gym | Cognitive Training</title>
     <link rel="manifest" href="/manifest.json" />
-    <link rel="stylesheet" href="../assets/css/design-system.css" />
-    <link rel="stylesheet" href="../assets/css/animations.css" />
-    <link rel="stylesheet" href="../assets/css/pages/gym.css" />
-    <script src="../assets/js/theme.js"></script>
+    <link rel="stylesheet" href="/assets/css/design-system.css" />
+    <link rel="stylesheet" href="/assets/css/animations.css" />
+    <link rel="stylesheet" href="/assets/css/pages/gym.css" />
+    <script src="/assets/js/theme.js"></script>
     <style>
       /* Styles moved to assets/css/pages/gym.css */
     </style>
@@ -68,12 +68,12 @@
     </main>
 
     <script type="module">
-      import { Store } from '../assets/js/core/Store.js';
-      import { DualNBackGame } from '../assets/js/components/DualNBackGame.js';
-      import { StroopGame } from '../assets/js/components/StroopGame.js';
-      import { SpeedMatchGame } from '../assets/js/components/SpeedMatchGame.js';
-      import { analyticsModule } from '../assets/js/core/AnalyticsStore.js';
-      import { gamificationModule } from '../assets/js/core/GamificationStore.js';
+      import { Store } from '/assets/js/core/Store.js';
+      import { DualNBackGame } from '/assets/js/components/DualNBackGame.js';
+      import { StroopGame } from '/assets/js/components/StroopGame.js';
+      import { SpeedMatchGame } from '/assets/js/components/SpeedMatchGame.js';
+      import { analyticsModule } from '/assets/js/core/AnalyticsStore.js';
+      import { gamificationModule } from '/assets/js/core/GamificationStore.js';
 
       // Initialize Store (Shared state)
       const store = new Store({
@@ -140,3 +140,4 @@
     </script>
   </body>
 </html>
+
