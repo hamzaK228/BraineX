@@ -21,13 +21,40 @@ function updateUIForAuthenticatedUser() {
   if (authButtons && user) {
     authButtons.innerHTML = `
       <span style="color: white; margin-right: 1rem;">
-        Welcome, ${user.firstName || user.name}!
+        Welcome, ${user.firstName || user.name || 'User'}!
       </span>
-      ${user.role === 'admin' ? '<a href="/admin" class="btn btn-outline">Admin</a>' : ''}
+      ${user.role === 'admin' ? '<a href="/admin" class="btn btn-outline" style="margin-right: 0.5rem">Admin</a>' : ''}
       <button class="btn btn-primary" onclick="handleLogout()">Logout</button>
     `;
   }
 }
+
+// Initialize Auth Interaction Listeners
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('a, button');
+  if (!target) return;
+
+  const href = target.getAttribute('href');
+
+  // Login Modal Triggers
+  if (href === '#login' || target.classList.contains('js-switch-login')) {
+    e.preventDefault();
+    if (window.closeModal) window.closeModal(); // Close others first
+    // Small timeout to ensure close animation finishes or doesn't conflict
+    setTimeout(() => {
+      if (window.openModal) window.openModal('loginModal');
+    }, 50);
+  }
+
+  // Signup Modal Triggers
+  if (href === '#signup' || target.classList.contains('js-switch-signup')) {
+    e.preventDefault();
+    if (window.closeModal) window.closeModal();
+    setTimeout(() => {
+      if (window.openModal) window.openModal('signupModal');
+    }, 50);
+  }
+});
 
 /**
  * Handle logout
