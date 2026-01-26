@@ -270,10 +270,15 @@ function generateTrackContent(track, trackId) {
 
 // Handle "Apply/View Details" buttons
 delegate(document.body, 'click', '.btn-apply', (e, target) => {
+  // If it's an external link or meant to open in new tab, let native behavior handle it
+  if (target.getAttribute('target') === '_blank' || (target.href && target.href.startsWith('http') && !target.href.includes(window.location.hostname))) {
+    return;
+  }
+
   const card = target.closest('.scholarship-card');
   if (!card) return;
 
-  stop(e); // Only stop if it's a scholarship card we handle
+  stop(e); // Only stop if we are handling it as an internal SPAs/modal action
 
   const title = card.querySelector('h3').textContent.trim();
   const scholarships = window.appState.scholarships || [];
@@ -283,8 +288,7 @@ delegate(document.body, 'click', '.btn-apply', (e, target) => {
   if (scholarship) {
     openScholarshipModal(scholarship);
   } else {
-    console.warn('Scholarship data not found for:', title);
-    // Fallback
+    // Fallback for internal navigation if not found in data
     const href = target.getAttribute('href');
     if (href) window.location.href = href;
   }
