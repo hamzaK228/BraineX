@@ -1468,8 +1468,11 @@ footer {
     /* Use a solid background for contrast */
     padding: 3rem 2rem;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    z-index: 2001;
-    /* Above almost everything */
+    z-index: 10000;
+    /* Above absolutely everything */
+    padding-bottom: 5rem;
+    /* Ensure bottom items are reachable */
+    pointer-events: auto;
     overflow-y: auto;
     text-align: center;
     gap: 2rem !important;

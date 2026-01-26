@@ -52,12 +52,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (target && target.closest('.nav-menu a')) {
       const navMenu = document.getElementById('navMenu');
       const btn = document.querySelector('.mobile-menu-btn');
+
+      // Use a small delay to ensure the click/navigation registers before hiding the menu
+      // This fixes the "can't switch pages" issue on some mobile browsers
       if (navMenu && navMenu.classList.contains('active')) {
-        navMenu.classList.remove('active');
-        if (btn) {
-          btn.setAttribute('aria-expanded', 'false');
-          btn.innerHTML = '☰';
-        }
+        setTimeout(() => {
+          navMenu.classList.remove('active');
+          if (btn) {
+            btn.setAttribute('aria-expanded', 'false');
+            btn.innerHTML = '☰';
+          }
+        }, 300);
       }
     }
 
