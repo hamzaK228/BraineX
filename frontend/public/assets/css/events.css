@@ -130,9 +130,11 @@ html[data-theme='dark'] .events-hero {
 .featured-events {
   background: var(--bg-primary);
 }
+
 .event-categories {
   background: var(--bg-secondary);
 }
+
 .events-calendar {
   background: var(--bg-primary);
 }
@@ -161,18 +163,35 @@ html[data-theme='dark'] .events-hero {
 
 /* Featured event card */
 .event-featured-card {
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
+  background: var(--surface-card);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
 .event-featured-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(102, 126, 234, 0.4);
+}
+
+.event-featured-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.event-featured-card:hover::after {
+  opacity: 1;
 }
 
 .event-badge {
@@ -376,7 +395,7 @@ html[data-theme='dark'] .events-hero {
   background: var(--card-border);
 }
 
-.calendar-grid > * {
+.calendar-grid>* {
   background: var(--card-bg);
   min-height: 90px;
   padding: 0.75rem;

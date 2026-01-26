@@ -270,9 +270,10 @@ function generateTrackContent(track, trackId) {
 
 // Handle "Apply/View Details" buttons
 delegate(document.body, 'click', '.btn-apply', (e, target) => {
-  stop(e);
   const card = target.closest('.scholarship-card');
   if (!card) return;
+
+  stop(e); // Only stop if it's a scholarship card we handle
 
   const title = card.querySelector('h3').textContent.trim();
   const scholarships = window.appState.scholarships || [];
@@ -371,13 +372,13 @@ function setupTracksSlider() {
 }
 
 // Dummy/Stub functions for others to prevent crashes
-function setupMobileMenu() {}
-function setupSmoothScroll() {}
-function setupIntersectionObservers() {}
-function animateStatsInit() {}
-function setupServiceWorker() {}
-function setupMultiSelect() {}
-function setupFormValidation() {}
+function setupMobileMenu() { }
+function setupSmoothScroll() { }
+function setupIntersectionObservers() { }
+function animateStatsInit() { }
+function setupServiceWorker() { }
+function setupMultiSelect() { }
+function setupFormValidation() { }
 
 // --- Data Loading (Mock) ---
 

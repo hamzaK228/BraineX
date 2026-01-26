@@ -3,59 +3,47 @@
 
 /* ===== CSS CUSTOM PROPERTIES (VARIABLES) ===== */
 /* Light Theme (default) */
+/* ===== CSS CUSTOM PROPERTIES (VARIABLES) ===== */
+/* Light Theme (default) */
+/* 
+NOTE: Variables are now inherited from design-system.css to ensure consistency.
+Local overrides should be minimal.
+*/
+
+/* 
 :root {
-  /* Fonts */
   --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-numbers: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
-  /* Backgrounds */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
   --bg-tertiary: #f0f4ff;
   --bg-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --bg-overlay: rgba(0, 0, 0, 0.6);
-
-  /* Text Colors */
   --text-primary: #333333;
   --text-secondary: #555555;
   --text-muted: #666666;
   --text-light: #999999;
   --text-inverse: #ffffff;
-  /* For text on dark backgrounds like hero/header */
-
-  /* Card & Surface Colors */
   --card-bg: #ffffff;
   --card-border: #e0e0e0;
   --card-shadow: rgba(0, 0, 0, 0.1);
   --card-shadow-hover: rgba(0, 0, 0, 0.15);
-
-  /* Accent Colors */
   --accent-primary: #667eea;
   --accent-secondary: #764ba2;
   --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-  /* Form Elements */
   --input-bg: #ffffff;
   --input-border: #e0e0e0;
   --input-focus-border: #667eea;
   --placeholder-color: #a0aec0;
-
-  /* Header & Footer */
   --header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --footer-bg: #2c3e50;
   --footer-text: #bbbbbb;
   --footer-link-hover: #ffffff;
-
-  /* Tags & Badges */
   --tag-bg: #f0f4ff;
   --tag-text: #667eea;
   --tag-border: transparent;
-
-  /* Stats */
   --stat-bg: transparent;
   --stat-border: transparent;
-
-  /* Success/Error States */
   --success-bg: #d4edda;
   --success-text: #155724;
   --success-border: #c3e6cb;
@@ -65,69 +53,45 @@
   --warning-bg: #fff3cd;
   --warning-text: #856404;
   --warning-border: #ffeaa7;
-
-  /* Misc */
   --divider-color: #e0e0e0;
   --logo-icon-bg: #ffffff;
   --logo-icon-text: #333333;
-
-  /* Timeline */
   --timeline-line: #e0e0e0;
   --timeline-marker-bg: var(--accent-gradient);
   --timeline-marker-text: #ffffff;
 }
 
-/* Dark Theme */
 html[data-theme='dark'] {
-  /* Backgrounds */
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
   --bg-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --bg-overlay: rgba(0, 0, 0, 0.85);
-
-  /* Text Colors */
   --text-primary: #f8fafc;
   --text-secondary: #e2e8f0;
   --text-muted: #cbd5e1;
   --text-light: #94a3b8;
   --text-inverse: #f8fafc;
-
-  /* Card & Surface Colors */
   --card-bg: #1e293b;
   --card-border: #334155;
   --card-shadow: rgba(0, 0, 0, 0.3);
   --card-shadow-hover: rgba(0, 0, 0, 0.4);
-
-  /* Accent Colors */
   --accent-primary: #818cf8;
-  /* Lighter indigo for dark mode */
   --accent-secondary: #a78bfa;
-  /* Lighter purple for dark mode */
   --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-
-  /* Form Elements */
   --input-bg: #0f172a;
   --input-border: #334155;
   --input-focus-border: #818cf8;
   --placeholder-color: #64748b;
-
-  /* Header & Footer */
   --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   --footer-bg: #0a0f1a;
   --footer-text: #94a3b8;
   --footer-link-hover: #e2e8f0;
-
-  /* Tags & Badges */
   --tag-bg: #312e81;
   --tag-text: #e0e7ff;
   --tag-border: #4338ca;
-
-  /* Stats */
   --stat-bg: #0f172a;
   --stat-border: #334155;
-
-  /* Success/Error States */
   --success-bg: #064e3b;
   --success-text: #6ee7b7;
   --success-border: #065f46;
@@ -137,17 +101,15 @@ html[data-theme='dark'] {
   --warning-bg: #78350f;
   --warning-text: #fcd34d;
   --warning-border: #92400e;
-
-  /* Misc */
   --divider-color: #334155;
   --logo-icon-bg: #334155;
   --logo-icon-text: #f8fafc;
-
-  /* Timeline */
   --timeline-line: #334155;
   --timeline-marker-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   --timeline-marker-text: #ffffff;
 }
+*/
+
 
 /* ===== BASE STYLES ===== */
 * {
@@ -1690,6 +1652,7 @@ html[data-theme='dark'] .faq-answer {
     padding: 1rem 1.25rem;
   }
 }
+
 /* Interactive Cards - Why Choose Our Platform */
 .features-grid {
   display: grid;

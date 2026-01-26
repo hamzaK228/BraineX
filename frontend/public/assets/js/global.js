@@ -30,29 +30,116 @@ function updateUIForAuthenticatedUser() {
 }
 
 // Initialize Auth Interaction Listeners
-document.addEventListener('click', (e) => {
-  const target = e.target.closest('a, button');
-  if (!target) return;
+// Initialize Auth Interaction Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Global Click Delegation
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('a, button');
 
-  const href = target.getAttribute('href');
+    // Mobile Menu Toggle
+    if (target && target.classList.contains('mobile-menu-btn')) {
+      const navMenu = document.getElementById('navMenu');
+      if (navMenu) {
+        navMenu.classList.toggle('active');
+        const expanded = navMenu.classList.contains('active');
+        target.setAttribute('aria-expanded', expanded);
+        target.innerHTML = expanded ? '✕' : '☰';
+      }
+      return;
+    }
 
-  // Login Modal Triggers
-  if (href === '#login' || target.classList.contains('js-switch-login')) {
-    e.preventDefault();
-    if (window.closeModal) window.closeModal(); // Close others first
-    // Small timeout to ensure close animation finishes or doesn't conflict
-    setTimeout(() => {
-      if (window.openModal) window.openModal('loginModal');
-    }, 50);
+    // Close Mobile Menu on Link Click
+    if (target && target.closest('.nav-menu a')) {
+      const navMenu = document.getElementById('navMenu');
+      const btn = document.querySelector('.mobile-menu-btn');
+      if (navMenu && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        if (btn) {
+          btn.setAttribute('aria-expanded', 'false');
+          btn.innerHTML = '☰';
+        }
+      }
+    }
+
+    if (!target) return;
+
+    const href = target.getAttribute('href');
+
+    // Login Modal Triggers
+    if (href === '#login' || target.classList.contains('js-switch-login')) {
+      e.preventDefault();
+      if (window.closeModal) window.closeModal(); // Close others first
+      setTimeout(() => {
+        if (window.openModal) window.openModal('loginModal');
+      }, 50);
+    }
+
+    // Signup Modal Triggers
+    if (href === '#signup' || target.classList.contains('js-switch-signup')) {
+      e.preventDefault();
+      if (window.closeModal) window.closeModal();
+      setTimeout(() => {
+        if (window.openModal) window.openModal('signupModal');
+      }, 50);
+    }
+  });
+
+  // Auth Form Handling
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = loginForm.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+      btn.textContent = 'Signing in...';
+      btn.disabled = true;
+
+      const formData = new FormData(loginForm);
+      const data = Object.fromEntries(formData.entries());
+
+      // Handle "Remember Me" checkbox manually if needed
+      if (loginForm.querySelector('#rememberMe')?.checked) data.remember = true;
+
+      try {
+        await window.authAPI.login(data);
+        window.showNotification('Login successful!', 'success');
+        setTimeout(() => {
+          window.closeModal();
+          window.location.reload();
+        }, 1000);
+      } catch (err) {
+        window.showNotification(err.message || 'Login failed', 'error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    });
   }
 
-  // Signup Modal Triggers
-  if (href === '#signup' || target.classList.contains('js-switch-signup')) {
-    e.preventDefault();
-    if (window.closeModal) window.closeModal();
-    setTimeout(() => {
-      if (window.openModal) window.openModal('signupModal');
-    }, 50);
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = signupForm.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+      btn.textContent = 'Creating account...';
+      btn.disabled = true;
+
+      const formData = new FormData(signupForm);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        await window.authAPI.register(data);
+        window.showNotification('Account created!', 'success');
+        setTimeout(() => {
+          window.closeModal();
+          window.location.reload();
+        }, 1000);
+      } catch (err) {
+        window.showNotification(err.message || 'Registration failed', 'error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    });
   }
 });
 

@@ -63,10 +63,31 @@ let filteredFields = [];
  * Load fields from API or Fallback
  */
 async function loadFields() {
-  const container = document.getElementById('fieldsGrid'); // ID from fields.html
+  const container = document.getElementById('fieldsGrid');
   if (!container) return;
 
-  container.innerHTML = '<div class="loading">Loading fields...</div>';
+  // Try to load from cache first for instant render
+  const CACHE_KEY = 'brainex_fields_v1';
+  const cachedData = localStorage.getItem(CACHE_KEY);
+  let hasCachedData = false;
+
+  if (cachedData) {
+    try {
+      const parsed = JSON.parse(cachedData);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        allFields = parsed;
+        renderFields(allFields);
+        hasCachedData = true;
+      }
+    } catch (e) {
+      console.warn('Invalid cached fields data', e);
+    }
+  }
+
+  // Only show loading spinner if we didn't show cached data
+  if (!hasCachedData) {
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading fields...</div>';
+  }
 
   try {
     const response = await fetch('/api/fields');
@@ -74,22 +95,37 @@ async function loadFields() {
 
     if (data.success && data.data && data.data.length > 0) {
       allFields = data.data;
-    } else {
+      // Update cache
+      localStorage.setItem(CACHE_KEY, JSON.stringify(allFields));
+      // Re-render with fresh data
+      renderFields(allFields);
+    } else if (!hasCachedData) {
+      // Only fallback if we have no data at all
       if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
         console.warn('API returned no fields, using fallback data.');
       }
       allFields = getFallbackFields();
+      renderFields(allFields);
     }
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error loading fields from API:', error);
+    console.error('Error loading fields from API:', error);
+    // FORCE fallback if API fails
+    if (!hasCachedData || allFields.length === 0) {
+      allFields = getFallbackFields();
+      renderFields(allFields);
     }
-    allFields = getFallbackFields();
+  } finally {
+    // Clear loading state if valid data exists, or show error if still empty
+    if (allFields.length === 0) {
+      container.innerHTML = '<div class="no-results">Unable to load fields. Please try again later.</div>';
+    }
   }
 
   filteredFields = [...allFields];
+  applyUrlFilters();
+}
 
-  // Check for URL parameters
+function applyUrlFilters() {
   const urlParams = new URLSearchParams(window.location.search);
   const trackParam = urlParams.get('track');
   const searchParam = urlParams.get('search');
@@ -101,16 +137,16 @@ async function loadFields() {
         f.name.toLowerCase().includes(query) ||
         (f.tags && f.tags.some((t) => t.toLowerCase().includes(query)))
     );
-    // Update search input to reflect logic
     const searchInput = document.querySelector('.field-search .search-input');
     if (searchInput) searchInput.value = query;
   } else if (searchParam) {
-    // Logic for search param if used
     const query = searchParam.toLowerCase();
     filteredFields = allFields.filter((f) => f.name.toLowerCase().includes(query));
   }
 
-  renderFields(filteredFields);
+  if (trackParam || searchParam) {
+    renderFields(filteredFields);
+  }
 }
 
 /**
@@ -322,9 +358,8 @@ window.exploreField = function (fieldId) {
       </div>
     </div>
     
-    ${
-      field.tags && field.tags.length > 0
-        ? `
+    ${field.tags && field.tags.length > 0
+      ? `
       <div style="margin-bottom: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem; color: var(--text-primary);">Related Topics</h4>
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
@@ -332,7 +367,7 @@ window.exploreField = function (fieldId) {
         </div>
       </div>
     `
-        : ''
+      : ''
     }
     
     <div style="display: flex; gap: 1rem; margin-top: 2rem;">
@@ -467,8 +502,8 @@ window.showPathwayDetails = function (pathwayName) {
       <h4 style="margin-bottom: 1rem; color: var(--text-primary);">📍 Pathway Steps</h4>
       <div style="position: relative; padding-left: 2rem;">
         ${pathway.steps
-          .map(
-            (step, index) => `
+      .map(
+        (step, index) => `
           <div style="position: relative; padding-bottom: 1rem; ${index < pathway.steps.length - 1 ? 'border-left: 2px solid #667eea; margin-left: 8px;' : ''}">
             <div style="position: absolute; left: -2rem; top: 0; width: 18px; height: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">${index + 1}</div>
             <div style="padding: 0.75rem 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; margin-left: 1rem;">
@@ -476,8 +511,8 @@ window.showPathwayDetails = function (pathwayName) {
             </div>
           </div>
         `
-          )
-          .join('')}
+      )
+      .join('')}
       </div>
     </div>
     

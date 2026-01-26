@@ -1985,3 +1985,14 @@ window.addMilestone = addMilestone;
 window.removeMilestone = removeMilestone;
 window.showTemplates = showTemplates;
 window.applyTemplate = applyTemplate;
+
+ d o c u m e n t . a d d E v e n t L i s t e n e r ( ' D O M C o n t e n t L o a d e d ' ,   ( )   = >   { 
+         / /   I n i t i a l i z e   n o t i o n   l i s t e n e r s   i f   w e   a r e   o n   t h e   n o t i o n   p a g e 
+         i f   ( d o c u m e n t . g e t E l e m e n t B y I d ( ' s i d e b a r ' ) )   { 
+                 s e t u p E v e n t L i s t e n e r s ( ) ; 
+                 / /   L o a d   i n i t i a l   s e c t i o n   b a s e d   o n   h a s h   o r   d e f a u l t   t o   o v e r v i e w 
+                 c o n s t   h a s h   =   w i n d o w . l o c a t i o n . h a s h . s u b s t r i n g ( 1 )   | |   ' o v e r v i e w ' ; 
+                 s w i t c h S e c t i o n ( h a s h ) ; 
+         } 
+ } ) ;  
+ 
