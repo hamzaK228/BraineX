@@ -120,7 +120,7 @@ app.use(
 app.get('/sw.js', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'frontend/sw.js'));
+  res.sendFile(path.join(__dirname, 'frontend/public/sw.js'));
 });
 
 // Offline page

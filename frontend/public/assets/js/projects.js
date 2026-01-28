@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setupProjectModals();
   initializeProjectActions();
   setupCategoryExplore();
+  setupProjectSearch();
 });
 
 function initializeProjectsPage() {
@@ -20,6 +21,51 @@ function initializeProjectsPage() {
 
   displayProjects(projects);
   updateProjectStats(projects);
+}
+
+// Load projects data - API call or localStorage
+function loadProjectsData() {
+  // This function can be expanded to fetch from API in the future
+  const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
+  displayProjects(projects);
+  updateProjectStats(projects);
+}
+
+// Search functionality
+function setupProjectSearch() {
+  const searchInput = document.getElementById('projectSearch') || document.querySelector('.search-input');
+  if (!searchInput) return;
+
+  let searchTimeout;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const query = e.target.value.trim().toLowerCase();
+      const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
+
+      if (query === '') {
+        displayProjects(projects);
+        return;
+      }
+
+      const filtered = projects.filter(p =>
+        p.title.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.team.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query) ||
+        (p.skills || []).some(s => s.toLowerCase().includes(query)) ||
+        (p.tags || []).some(t => t.toLowerCase().includes(query))
+      );
+
+      displayProjects(filtered);
+
+      if (filtered.length > 0) {
+        BraineX.showNotification(`Found ${filtered.length} projects matching "${query}"`, 'success');
+      } else {
+        BraineX.showNotification(`No projects found matching "${query}"`, 'info');
+      }
+    }, 300);
+  });
 }
 
 // Function to view project details
@@ -484,15 +530,14 @@ function createProjectCard(project) {
   return `
         <div class=\"project-card enhanced\" data-project-id=\"${project.id}\" data-category=\"${project.category}\" data-status=\"${project.status}\">
             <div class="project-badge ${project.status}">
-                ${
-                  project.status === 'recruiting'
-                    ? '🔍 Recruiting'
-                    : project.status === 'active'
-                      ? '⚡ Active'
-                      : project.status === 'completed'
-                        ? '✅ Completed'
-                        : '📋 Planning'
-                }
+                ${project.status === 'recruiting'
+      ? '🔍 Recruiting'
+      : project.status === 'active'
+        ? '⚡ Active'
+        : project.status === 'completed'
+          ? '✅ Completed'
+          : '📋 Planning'
+    }
             </div>
             
             <div class="project-header">
@@ -539,9 +584,9 @@ function createProjectCard(project) {
                 
                 <div class="project-skills">
                     ${project.skills
-                      .slice(0, 4)
-                      .map((skill) => `<span class="skill-tag">${skill}</span>`)
-                      .join('')}
+      .slice(0, 4)
+      .map((skill) => `<span class="skill-tag">${skill}</span>`)
+      .join('')}
                 </div>
                 
                 <div class="project-tags">

@@ -1,57 +1,69 @@
 {
-    "version": 2,
-    "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/server.js"
-        },
-        {
-            "source": "/",
-            "destination": "/pages/main.html"
-        },
-        {
-            "source": "/fields",
-            "destination": "/pages/fields.html"
-        },
-        {
-            "source": "/universities",
-            "destination": "/pages/universities.html"
-        },
-        {
-            "source": "/programs",
-            "destination": "/pages/programs.html"
-        },
-        {
-            "source": "/scholarships",
-            "destination": "/pages/scholarships.html"
-        },
-        {
-            "source": "/projects",
-            "destination": "/pages/projects.html"
-        },
-        {
-            "source": "/roadmaps",
-            "destination": "/pages/roadmaps.html"
-        },
-        {
-            "source": "/mentors",
-            "destination": "/pages/mentors.html"
-        },
-        {
-            "source": "/events",
-            "destination": "/pages/events.html"
-        },
-        {
-            "source": "/about",
-            "destination": "/pages/about.html"
-        },
-        {
-            "source": "/admin",
-            "destination": "/pages/admin.html"
-        },
-        {
-            "source": "/notion",
-            "destination": "/pages/notion.html"
-        }
-    ]
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/frontend/public/assets/$1"
+    },
+    {
+      "source": "/sw.js",
+      "destination": "/frontend/public/sw.js"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/frontend/manifest.json"
+    },
+    {
+      "source": "/",
+      "destination": "/frontend/pages/main.html"
+    },
+    {
+      "source": "/fields",
+      "destination": "/frontend/pages/fields.html"
+    },
+    {
+      "source": "/universities",
+      "destination": "/frontend/pages/universities.html"
+    },
+    {
+      "source": "/programs",
+      "destination": "/frontend/pages/programs.html"
+    },
+    {
+      "source": "/scholarships",
+      "destination": "/frontend/pages/scholarships.html"
+    },
+    {
+      "source": "/projects",
+      "destination": "/frontend/pages/projects.html"
+    },
+    {
+      "source": "/roadmaps",
+      "destination": "/frontend/pages/roadmaps.html"
+    },
+    {
+      "source": "/mentors",
+      "destination": "/frontend/pages/mentors.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/frontend/pages/events.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/frontend/pages/about.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/frontend/pages/admin.html"
+    },
+    {
+      "source": "/notion",
+      "destination": "/frontend/pages/notion.html"
+    }
+  ]
 }

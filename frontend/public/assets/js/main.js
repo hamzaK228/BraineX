@@ -271,7 +271,12 @@ function generateTrackContent(track, trackId) {
 // Handle "Apply/View Details" buttons
 delegate(document.body, 'click', '.btn-apply', (e, target) => {
   // If it's an external link or meant to open in new tab, let native behavior handle it
-  if (target.getAttribute('target') === '_blank' || (target.href && target.href.startsWith('http') && !target.href.includes(window.location.hostname))) {
+  if (
+    target.getAttribute('target') === '_blank' ||
+    (target.href &&
+      target.href.startsWith('http') &&
+      !target.href.includes(window.location.hostname))
+  ) {
     return;
   }
 
@@ -380,7 +385,20 @@ function setupMobileMenu() { }
 function setupSmoothScroll() { }
 function setupIntersectionObservers() { }
 function animateStatsInit() { }
-function setupServiceWorker() { }
+function setupServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('SW registered: ', registration);
+        })
+        .catch((registrationError) => {
+          console.log('SW registration failed: ', registrationError);
+        });
+    });
+  }
+}
 function setupMultiSelect() { }
 function setupFormValidation() { }
 

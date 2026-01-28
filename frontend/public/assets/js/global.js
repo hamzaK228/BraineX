@@ -87,6 +87,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.openModal) window.openModal('signupModal');
       }, 50);
     }
+
+    // Modal close button handlers
+    if (target && target.classList.contains('close-modal')) {
+      e.preventDefault();
+      window.closeModal();
+      return;
+    }
+
+    // Password toggle button handlers
+    if (target && target.classList.contains('btn-toggle-password')) {
+      e.preventDefault();
+      const targetId = target.getAttribute('data-target');
+      if (targetId) window.BraineX.togglePassword(targetId);
+      return;
+    }
+
+    // Social login button handlers
+    if (target && target.classList.contains('btn-social')) {
+      e.preventDefault();
+      const provider = target.getAttribute('data-provider');
+      if (provider) window.BraineX.socialLogin(provider);
+      return;
+    }
+
+    // Modal overlay close (click outside modal content)
+    if (target && target.classList.contains('modal') && target === e.target) {
+      e.preventDefault();
+      window.closeModal();
+      return;
+    }
   });
 
   // Auth Form Handling
@@ -245,11 +275,24 @@ function handleAPIError(error) {
 
   if (error.message.includes('401') || error.message.includes('Unauthorized')) {
     showNotification('Session expired. Please login again.', 'error');
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 2000);
+    // Removed auto-redirect
   } else {
     showNotification(error.message || 'An error occurred', 'error');
+  }
+}
+
+/**
+ * Show loading spinner in a container
+ */
+function showLoading(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = `
+      <div class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    `;
   }
 }
 
@@ -286,6 +329,7 @@ window.formatDate = formatDate;
 window.formatCurrency = formatCurrency;
 window.handleAPIError = handleAPIError;
 window.handleLogout = handleLogout;
+window.showLoading = showLoading;
 
 // Namespace for specific page calls
 window.BraineX = {

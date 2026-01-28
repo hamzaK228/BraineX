@@ -72,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // State
 let allScholarships = [];
 let filteredScholarships = [];
+let savedScholarships = new Set();
+let currentPage = 1;
+const itemsPerPage = 9;
 
 /**
  * Load scholarships from API or Fallback
@@ -80,7 +83,11 @@ async function loadScholarships() {
   const container = document.getElementById('scholarshipGrid');
   if (!container) return;
 
-  container.innerHTML = '<div class="loading">Loading scholarships...</div>';
+  if (window.showLoading) {
+    window.showLoading('scholarshipGrid');
+  } else {
+    container.innerHTML = '<div class="loading">Loading scholarships...</div>';
+  }
 
   try {
     const response = await fetch('/api/scholarships');
@@ -102,6 +109,7 @@ async function loadScholarships() {
   }
 
   filteredScholarships = [...allScholarships];
+  loadSavedScholarships();
   renderScholarships(filteredScholarships);
   renderFeaturedScholarships();
 }
@@ -119,10 +127,22 @@ function renderScholarships(scholarships) {
     return;
   }
 
-  container.innerHTML = scholarships
+  // Pagination
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedScholarships = scholarships.slice(startIndex, endIndex);
+
+  container.innerHTML = paginatedScholarships
     .map(
-      (sch) => `
-        <div class="scholarship-card" data-category="${sch.category || 'other'}" data-level="${sch.level || ''}">
+      (sch) => {
+        const isSaved = savedScholarships.has(sch.id);
+        const urgencyBadge = getDeadlineUrgency(sch.deadline);
+        return `
+        <div class="scholarship-card" data-category="${sch.category || 'other'}" data-level="${sch.level || ''}" data-id="${sch.id}">
+            <button class="save-icon ${isSaved ? 'saved' : ''}" data-scholarship-id="${sch.id}" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; z-index: 10;" title="${isSaved ? 'Remove from saved' : 'Save scholarship'}">
+                ${isSaved ? '❤️' : '🤍'}
+            </button>
+            ${urgencyBadge ? `<div class="urgency-badge ${urgencyBadge.class}" style="position: absolute; top: 1rem; left: 1rem; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; background: ${urgencyBadge.color}; color: white;">${urgencyBadge.text}</div>` : ''}
             <div class="scholarship-header">
                 <h3>${escapeHtml(sch.name)}</h3>
                 <span class="scholarship-amount">${escapeHtml(sch.amount || 'Variable')}</span>
@@ -137,11 +157,26 @@ function renderScholarships(scholarships) {
             <div class="scholarship-tags">
                  ${(sch.tags || []).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
             </div>
-            <button class="btn-apply" data-id="${sch.id}">View Details</button>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button class="btn-apply btn-secondary" data-id="${sch.id}" style="flex: 1;">View Details</button>
+                ${sch.website ? `<a href="${sch.website}" target="_blank" rel="noopener" class="btn-apply" style="flex: 1; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">Apply Now</a>` : ''}
+            </div>
         </div>
-    `
+    `;
+      }
     )
     .join('');
+
+  // Attach save icon listeners
+  container.querySelectorAll('.save-icon').forEach(icon => {
+    icon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSaveScholarship(icon.dataset.scholarshipId);
+    });
+  });
+
+  // Render pagination
+  renderPagination(scholarships.length);
 }
 
 /**
@@ -202,9 +237,21 @@ window.performScholarshipSearch = function () {
   document.getElementById('scholarshipGrid')?.scrollIntoView({ behavior: 'smooth' });
 };
 
+// Real-time search with debouncing
+let searchTimeout;
+document.querySelector('.field-search .search-input')?.addEventListener('input', (e) => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    window.performScholarshipSearch();
+  }, 300);
+});
+
 // Enter key search
 document.querySelector('.field-search .search-input')?.addEventListener('keyup', (e) => {
-  if (e.key === 'Enter') window.performScholarshipSearch();
+  if (e.key === 'Enter') {
+    clearTimeout(searchTimeout);
+    window.performScholarshipSearch();
+  }
 });
 
 /**
@@ -552,3 +599,114 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// ========================================
+// Save/Favorites Functionality
+// ========================================
+function loadSavedScholarships() {
+  const saved = localStorage.getItem('savedScholarships');
+  if (saved) {
+    savedScholarships = new Set(JSON.parse(saved));
+  }
+}
+
+function saveSavedScholarships() {
+  localStorage.setItem('savedScholarships', JSON.stringify([...savedScholarships]));
+}
+
+function toggleSaveScholarship(scholarshipId) {
+  if (savedScholarships.has(scholarshipId)) {
+    savedScholarships.delete(scholarshipId);
+  } else {
+    savedScholarships.add(scholarshipId);
+  }
+  saveSavedScholarships();
+  renderScholarships(filteredScholarships); // Re-render to update icon
+}
+
+// ========================================
+// Deadline Urgency Badges
+// ========================================
+function getDeadlineUrgency(deadlineStr) {
+  if (!deadlineStr || deadlineStr === 'Open' || deadlineStr === 'Varies') return null;
+
+  try {
+    const deadline = new Date(deadlineStr);
+    const now = new Date();
+    const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+
+    if (daysUntil < 0) {
+      return { text: 'Closed', color: '#6b7280', class: 'closed' };
+    } else if (daysUntil <= 7) {
+      return { text: `${daysUntil} days left!`, color: '#dc2626', class: 'urgent' };
+    } else if (daysUntil <= 30) {
+      return { text: `${daysUntil} days left`, color: '#f59e0b', class: 'soon' };
+    }
+    return null; // No badge for deadlines > 30 days
+  } catch (e) {
+    return null;
+  }
+}
+
+// ========================================
+// Pagination
+// ========================================
+function renderPagination(totalItems) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // Find or create pagination container
+  let paginationContainer = document.getElementById('paginationContainer');
+  if (!paginationContainer) {
+    const grid = document.getElementById('scholarshipGrid');
+    if (!grid) return;
+
+    paginationContainer = document.createElement('div');
+    paginationContainer.id = 'paginationContainer';
+    paginationContainer.style.cssText = 'display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem; flex-wrap: wrap;';
+    grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
+  }
+
+  if (totalPages <= 1) {
+    paginationContainer.innerHTML = '';
+    return;
+  }
+
+  let buttons = '';
+
+  // Previous button
+  buttons += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: ${currentPage === 1 ? '#f3f4f6' : 'white'}; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; border-radius: 6px;">← Prev</button>`;
+
+  // Page numbers
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+  if (endPage - startPage < maxButtons - 1) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+
+  if (startPage > 1) {
+    buttons += `<button onclick="changePage(1)" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 6px;">1</button>`;
+    if (startPage > 2) buttons += `<span style="padding: 0.5rem;">...</span>`;
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    buttons += `<button onclick="changePage(${i})" style="padding: 0.5rem 1rem; border: 1px solid ${i === currentPage ? '#667eea' : '#ddd'}; background: ${i === currentPage ? '#667eea' : 'white'}; color: ${i === currentPage ? 'white' : 'black'}; cursor: pointer; border-radius: 6px; font-weight: ${i === currentPage ? '600' : '400'};">${i}</button>`;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) buttons += `<span style="padding: 0.5rem;">...</span>`;
+    buttons += `<button onclick="changePage(${totalPages})" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 6px;">${totalPages}</button>`;
+  }
+
+  // Next button
+  buttons += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: ${currentPage === totalPages ? '#f3f4f6' : 'white'}; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; border-radius: 6px;">Next →</button>`;
+
+  paginationContainer.innerHTML = buttons;
+}
+
+window.changePage = function (page) {
+  currentPage = page;
+  renderScholarships(filteredScholarships);
+  document.getElementById('scholarshipGrid')?.scrollIntoView({ behavior: 'smooth' });
+};

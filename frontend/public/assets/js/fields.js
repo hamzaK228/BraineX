@@ -117,7 +117,8 @@ async function loadFields() {
   } finally {
     // Clear loading state if valid data exists, or show error if still empty
     if (allFields.length === 0) {
-      container.innerHTML = '<div class="no-results">Unable to load fields. Please try again later.</div>';
+      container.innerHTML =
+        '<div class="no-results">Unable to load fields. Please try again later.</div>';
     }
   }
 
@@ -358,8 +359,9 @@ window.exploreField = function (fieldId) {
       </div>
     </div>
     
-    ${field.tags && field.tags.length > 0
-      ? `
+    ${
+      field.tags && field.tags.length > 0
+        ? `
       <div style="margin-bottom: 1.5rem;">
         <h4 style="margin-bottom: 0.75rem; color: var(--text-primary);">Related Topics</h4>
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
@@ -367,7 +369,7 @@ window.exploreField = function (fieldId) {
         </div>
       </div>
     `
-      : ''
+        : ''
     }
     
     <div style="display: flex; gap: 1rem; margin-top: 2rem;">
@@ -502,8 +504,8 @@ window.showPathwayDetails = function (pathwayName) {
       <h4 style="margin-bottom: 1rem; color: var(--text-primary);">📍 Pathway Steps</h4>
       <div style="position: relative; padding-left: 2rem;">
         ${pathway.steps
-      .map(
-        (step, index) => `
+          .map(
+            (step, index) => `
           <div style="position: relative; padding-bottom: 1rem; ${index < pathway.steps.length - 1 ? 'border-left: 2px solid #667eea; margin-left: 8px;' : ''}">
             <div style="position: absolute; left: -2rem; top: 0; width: 18px; height: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">${index + 1}</div>
             <div style="padding: 0.75rem 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; margin-left: 1rem;">
@@ -511,8 +513,8 @@ window.showPathwayDetails = function (pathwayName) {
             </div>
           </div>
         `
-      )
-      .join('')}
+          )
+          .join('')}
       </div>
     </div>
     

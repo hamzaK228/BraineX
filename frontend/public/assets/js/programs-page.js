@@ -12,6 +12,7 @@
   let currentCarouselIndex = 0;
   let currentApplicationProgram = null;
   let currentStep = 0;
+  let selectedPrograms = new Set(); // Track selected programs for comparison
 
   // DOM Elements
   const elements = {
@@ -320,17 +321,30 @@
       });
     });
 
+    // Attach comparison checkbox listeners
+    elements.grid.querySelectorAll('.program-compare-checkbox').forEach((checkbox) => {
+      checkbox.addEventListener('change', handleComparisonToggle);
+    });
+
     // Update countdowns
     updateCountdowns();
+    updateCompareButton();
   }
 
   // Create program card HTML
   function createProgramCard(prog) {
     const countdown = getCountdown(prog.deadline);
     const competitiveClass = prog.competitive ? 'competitive' : '';
+    const isSelected = selectedPrograms.has(prog.id);
 
     return `
             <article class="program-card ${competitiveClass}" data-id="${prog.id}">
+                <div class="card-checkbox">
+                    <label class="compare-checkbox" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem;">
+                        <input type="checkbox" class="program-compare-checkbox" data-program-id="${prog.id}" ${isSelected ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 0.9rem; color: #666;">Compare</span>
+                    </label>
+                </div>
                 <div class="card-header">
                     <div class="program-organization">${prog.organization}</div>
                     <h3 class="program-name">${prog.name}</h3>
@@ -346,10 +360,9 @@
 
                 <div class="countdown-container" data-deadline="${prog.deadline}">
                     <div class="countdown-label">Application Deadline</div>
-                    ${
-                      countdown.expired
-                        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
-                        : `<div class="countdown-timer">
+                    ${countdown.expired
+        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
+        : `<div class="countdown-timer">
                             <div class="countdown-unit">
                                 <span class="countdown-value" data-days>${countdown.days}</span>
                                 <span class="countdown-text">Days</span>
@@ -363,7 +376,7 @@
                                 <span class="countdown-text">Mins</span>
                             </div>
                         </div>`
-                    }
+      }
                 </div>
 
                 <div class="card-stats">
@@ -650,15 +663,15 @@
     elements.applicationBody.innerHTML = `
             <h3 style="margin-bottom: 1rem;">📚 ${prog.shortName || prog.name}</h3>
             ${steps
-              .map(
-                (step, i) => `
+        .map(
+          (step, i) => `
                 <div class="step-content ${i === currentStep ? 'active' : ''}" data-step="${i}">
                     <div class="step-title">${step.title}</div>
                     <div class="step-description">Complete these tasks to prepare your application</div>
                     <ul class="step-checklist">
                         ${step.items
-                          .map(
-                            (item) => `
+              .map(
+                (item) => `
                             <li>
                                 <input type="checkbox">
                                 <div class="item-text">
@@ -667,13 +680,13 @@
                                 </div>
                             </li>
                         `
-                          )
-                          .join('')}
+              )
+              .join('')}
                     </ul>
                 </div>
             `
-              )
-              .join('')}
+        )
+        .join('')}
         `;
 
     updateStepNavigation(steps.length);
@@ -800,6 +813,178 @@
       `;
 
     modal.style.display = 'flex';
+  }
+
+  // ========================================
+  // Comparison Feature
+  // ========================================
+  function handleComparisonToggle(e) {
+    const checkbox = e.target;
+    const programId = checkbox.dataset.programId;
+
+    if (checkbox.checked) {
+      selectedPrograms.add(programId);
+    } else {
+      selectedPrograms.delete(programId);
+    }
+
+    updateCompareButton();
+  }
+
+  function updateCompareButton() {
+    let compareBtn = document.getElementById('compareFloatingBtn');
+
+    if (selectedPrograms.size === 0) {
+      // Hide button if exists
+      if (compareBtn) compareBtn.style.display = 'none';
+      return;
+    }
+
+    // Create button if doesn't exist
+    if (!compareBtn) {
+      compareBtn = document.createElement('button');
+      compareBtn.id = 'compareFloatingBtn';
+      compareBtn.style.cssText = `
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        z-index: 999;
+        transition: all 0.3s ease;
+      `;
+      compareBtn.onmouseover = () => {
+        compareBtn.style.transform = 'translateY(-2px)';
+        compareBtn.style.boxShadow = '0 6px 25px rgba(102, 126, 234, 0.6)';
+      };
+      compareBtn.onmouseout = () => {
+        compareBtn.style.transform = 'translateY(0)';
+        compareBtn.style.boxShadow = '0 4px 20px rgba(102, 126, 234, 0.4)';
+      };
+      compareBtn.onclick = showComparisonModal;
+      document.body.appendChild(compareBtn);
+    }
+
+    compareBtn.textContent = `🔍 Compare Selected (${selectedPrograms.size})`;
+    compareBtn.style.display = 'block';
+  }
+
+  function showComparisonModal() {
+    const selectedProgramsArray = Array.from(selectedPrograms)
+      .map((id) => programs.find((p) => p.id === id))
+      .filter(Boolean);
+
+    if (selectedProgramsArray.length === 0) return;
+
+    // Create comparison modal if doesn't exist
+    let modal = document.getElementById('comparisonModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'comparisonModal';
+      modal.className = 'modal';
+      modal.style.cssText = 'display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000;';
+      modal.innerHTML = `
+        <div class="modal-content" style="background: white; border-radius: 12px; max-width: 95vw; max-height: 90vh; overflow: auto; position: relative; padding: 2rem;">
+          <button class="close-modal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+          <h2 style="margin-bottom: 1.5rem;">Program Comparison</h2>
+          <div id="comparisonTable"></div>
+          <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="btn-clear-selection" style="padding: 0.75rem 1.5rem; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: 600;">Clear Selection</button>
+            <button class="btn-close-comparison" style="padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Close</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      modal.querySelector('.close-modal').onclick = () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      };
+      modal.querySelector('.btn-close-comparison').onclick = () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      };
+      modal.querySelector('.btn-clear-selection').onclick = () => {
+        selectedPrograms.clear();
+        renderPrograms();
+        updateCompareButton();
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      };
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      };
+    }
+
+    // Populate comparison table
+    const comparisonTable = modal.querySelector('#comparisonTable');
+    comparisonTable.innerHTML = `
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+              <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;">Feature</th>
+              ${selectedProgramsArray.map((p) => `<th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151; min-width: 200px;">${p.shortName || p.name}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1rem; font-weight: 500;">Organization</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;">${p.organization}</td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+              <td style="padding: 1rem; font-weight: 500;">Location</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;">${p.location}<br><span style="font-size: 0.9rem; color: #6b7280;">${p.locationType}</span></td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1rem; font-weight: 500;">Duration</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;">${p.duration}</td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+              <td style="padding: 1rem; font-weight: 500;">Cost</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;"><span style="color: ${p.cost === 0 ? '#10b981' : '#374151'}; font-weight: 600;">${p.costLabel || '$' + p.cost}</span></td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1rem; font-weight: 500;">Acceptance Rate</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;"><span style="color: ${p.acceptanceRate < 20 ? '#ef4444' : '#10b981'};">${p.acceptanceRate}%</span></td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+              <td style="padding: 1rem; font-weight: 500;">Age Range</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;">${p.ageMin}-${p.ageMax} years</td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1rem; font-weight: 500;">Category</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;"><span style="background: #ede9fe; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem;">${p.category}</span></td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb; background: #f9fafb;">
+              <td style="padding: 1rem; font-weight: 500;">Deadline</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;">${new Date(p.deadline).toLocaleDateString()}</td>`).join('')}
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 1rem; font-weight: 500;">Competitiveness</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;"><span style="background: ${p.competitive ? '#fee2e2' : '#d1fae5'}; color: ${p.competitive ? '#991b1b' : '#065f46'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem;">${p.competitive ? 'Highly Competitive' : 'Moderate'}</span></td>`).join('')}
+            </tr>
+            <tr>
+              <td style="padding: 1rem; font-weight: 500;">Actions</td>
+              ${selectedProgramsArray.map((p) => `<td style="padding: 1rem;"><a href="${p.website}" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; text-decoration: none; border-radius: 6px; font-size: 0.9rem;">Apply Now</a></td>`).join('')}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
   }
 
   // Initialize when DOM is ready

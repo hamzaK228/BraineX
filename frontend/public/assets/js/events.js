@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
   setupEventFilters();
   setupCalendarNav();
   setupEventActions();
+  setupSearchFunctionality();
+  setupViewToggle();
 });
 
 async function initializeEventsPage() {
@@ -112,7 +114,7 @@ function createEventCard(event) {
   const icon = getEventIcon(event.type);
 
   return `
-        <div class="event-featured-card" data-id="${event.id}">
+        <div class="event-featured-card" data-id="${event.id}" style="cursor: pointer;">
             <div class="event-badge">${badgeText}</div>
             <div class="event-image">
                 <div class="event-placeholder">${icon}</div>
@@ -131,15 +133,14 @@ function createEventCard(event) {
                          <span class="detail-icon">📍</span>
                          <span>${event.location || 'Online'}</span>
                     </div>
-                    ${
-                      event.type
-                        ? `
+                    ${event.type
+      ? `
                     <div class="detail">
                         <span class="detail-icon">🏷️</span>
                         <span>${event.type}</span>
                     </div>`
-                        : ''
-                    }
+      : ''
+    }
                 </div>
                 
     <div class="event-tags">
@@ -147,9 +148,13 @@ function createEventCard(event) {
         ${(event.tags || []).map((t) => `<span class="tag">${t}</span>`).join('')}
     </div>
     
-    <button class="btn-event-primary js-event-action" data-id="${event.id}" data-action="${isUpcoming ? 'register' : 'view'}">
-        ${isUpcoming ? 'Register Now' : 'View Details'}
-    </button>
+    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn-event-primary js-event-action" data-id="${event.id}" data-action="${isUpcoming ? 'register' : 'view'}" style="flex: 1;">
+            ${isUpcoming ? 'Register Now' : 'View Details'}
+        </button>
+        <button class="btn-secondary js-share-event" data-id="${event.id}" style="padding: 0.75rem; border-radius: 8px; cursor: pointer;" title="Share Event">📤</button>
+        ${isUpcoming ? `<button class="btn-secondary js-add-calendar" data-id="${event.id}" style="padding: 0.75rem; border-radius: 8px; cursor: pointer;" title="Add to Calendar">📅</button>` : ''}
+    </div>
 </div>
 </div>
 `;
@@ -166,6 +171,22 @@ function setupEventActions() {
       } else {
         viewEventDetails(id);
       }
+      return;
+    }
+
+    // Share button
+    const shareBtn = e.target.closest('.js-share-event');
+    if (shareBtn) {
+      const id = shareBtn.getAttribute('data-id');
+      openShareModal(id);
+      return;
+    }
+
+    // Add to calendar button
+    const calBtn = e.target.closest('.js-add-calendar');
+    if (calBtn) {
+      const id = calBtn.getAttribute('data-id');
+      downloadICSFile(id);
       return;
     }
 
@@ -198,11 +219,10 @@ function viewEventDetails(eventId) {
             
             <div class="modal-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
                  <button class="btn-secondary close-btn">Close</button>
-                 ${
-                   new Date(event.date) > new Date()
-                     ? `<button class="btn-primary" onclick="registerForEvent('${event.id}')">Register Now</button>`
-                     : '<button class="btn-outline" disabled>Event Ended</button>'
-                 }
+                 ${new Date(event.date) > new Date()
+      ? `<button class="btn-primary" onclick="registerForEvent('${event.id}')">Register Now</button>`
+      : '<button class="btn-outline" disabled>Event Ended</button>'
+    }
             </div>
         </div>
     `;
@@ -384,34 +404,116 @@ window.registerForEvent = function (eventId) {
   const event = allEvents.find((e) => e.id == eventId || e._id == eventId);
   if (!event) return;
 
-  // Check auth
-  if (window.authAPI && !window.authAPI.isAuthenticated()) {
-    BraineX.showNotification('Please login to register', 'error');
-    BraineX.openModal('loginModal');
-    return;
-  }
-
-  // Show registration modal (using global modal logic re-creation or existing)
+  // Show enhanced registration modal with form
   const modal = document.createElement('div');
   modal.className = 'modal show';
+  modal.id = 'registrationModal';
   modal.innerHTML = `
-        <div class="modal-content">
-            <button class="close-modal">&times;</button>
-            <h2>${event.title}</h2>
-            <p>Date: ${new Date(event.date).toLocaleDateString()}</p>
-            <p>Confirm your registration for this event.</p>
-            <div class="form-actions" style="margin-top:20px;">
-                <button class="btn btn-primary js-confirm-reg" data-id="${event.id}">Confirm Registration</button>
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-modal" onclick="this.closest('.modal').remove()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 2rem; cursor: pointer; color: #64748b;">&times;</button>
+            
+            <div style="padding-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0 0 0.5rem 0; color: #1f2937;">Register for ${event.title}</h2>
+                <p style="margin: 0; color: #64748b;">📅 ${new Date(event.date).toLocaleDateString()} • 📍 ${event.location || 'Online'}</p>
             </div>
+
+            <form id="eventRegistrationForm" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;">Full Name *</label>
+                    <input type="text" id="regName" required placeholder="Enter your full name" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;">Email Address *</label>
+                    <input type="email" id="regEmail" required placeholder="your.email@example.com" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;">Phone Number</label>
+                    <input type="tel" id="regPhone" placeholder="Optional" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;">Organization/University</label>
+                    <input type="text" id="regOrg" placeholder="Optional" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;">Why do you want to attend? *</label>
+                    <textarea id="regReason" required rows="3" placeholder="Tell us why you're interested in this event..." style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+                </div>
+
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="regNewsletter" style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer;">
+                        <span style="color: #64748b; font-size: 0.95rem;">Send me updates about upcoming events</span>
+                    </label>
+                </div>
+
+                <button type="submit" style="padding: 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;">Complete Registration</button>
+            </form>
         </div>
     `;
   document.body.appendChild(modal);
 
-  // Modal Specific Delegation
-  modal.querySelector('.js-confirm-reg').addEventListener('click', function () {
-    confirmRegistration(event.id, this);
+  // Form submit handler
+  document.getElementById('eventRegistrationForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const org = document.getElementById('regOrg').value.trim();
+    const reason = document.getElementById('regReason').value.trim();
+    const newsletter = document.getElementById('regNewsletter').checked;
+
+    // Validation
+    if (!name || !email || !reason) {
+      if (window.BraineX?.showNotification) {
+        BraineX.showNotification('Please fill in all required fields', 'error');
+      } else {
+        alert('Please fill in all required fields');
+      }
+      return;
+    }
+
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      if (window.BraineX?.showNotification) {
+        BraineX.showNotification('Please enter a valid email address', 'error');
+      } else {
+        alert('Please enter a valid email address');
+      }
+      return;
+    }
+
+    // Save registration
+    const registrations = JSON.parse(localStorage.getItem('event_registrations') || '[]');
+    registrations.push({
+      eventId: event.id,
+      eventTitle: event.title,
+      eventDate: event.date,
+      name,
+      email,
+      phone,
+      organization: org,
+      reason,
+      newsletter,
+      registeredAt: new Date().toISOString()
+    });
+    localStorage.setItem('event_registrations', JSON.stringify(registrations));
+
+    // Also save to my_events for backward compatibility
+    saveEventToLocalStorage(event);
+
+    modal.remove();
+    if (window.BraineX?.showNotification) {
+      BraineX.showNotification(`Successfully registered for ${event.title}!`, 'success');
+    } else {
+      alert(`Successfully registered for ${event.title}!`);
+    }
   });
-  modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
 };
 
 window.confirmRegistration = async function (eventId, btn) {
@@ -480,3 +582,238 @@ function saveEventToLocalStorage(event) {
 
   localStorage.setItem('my_events', JSON.stringify(myEvents));
 }
+
+// ===========================================
+// Search Functionality
+// ===========================================
+function setupSearchFunctionality() {
+  const searchInput = document.getElementById('eventSearch') || document.querySelector('.search-input');
+  if (!searchInput) return;
+
+  let searchTimeout;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const query = e.target.value.trim().toLowerCase();
+      searchEvents(query);
+    }, 300);
+  });
+}
+
+function searchEvents(query) {
+  if (!query) {
+    currentEvents = [...allEvents];
+  } else {
+    currentEvents = allEvents.filter(event => {
+      const searchableText = `${event.title} ${event.description} ${event.organizer} ${event.type} ${(event.tags || []).join(' ')}`.toLowerCase();
+      return searchableText.includes(query);
+    });
+  }
+  renderEvents(currentEvents);
+}
+
+// ===========================================
+// Download .ics Calendar File
+// ===========================================
+function downloadICSFile(eventId) {
+  const event = allEvents.find(e => e.id == eventId);
+  if (!event) return;
+
+  const eventDate = new Date(event.date);
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+  };
+
+  const startDate = formatDate(eventDate);
+  const endDate = formatDate(new Date(eventDate.getTime() + 2 * 60 * 60 * 1000)); // +2 hours
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//BraineX//Events//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `DTSTART:${startDate}`,
+    `DTEND:${endDate}`,
+    `DTSTAMP:${formatDate(new Date())}`,
+    `UID:event-${event.id}@brainex.com`,
+    `SUMMARY:${event.title}`,
+    `DESCRIPTION:${event.description || 'BraineX Event'}`,
+    `LOCATION:${event.location || 'Online'}`,
+    `ORGANIZER:CN=${event.organizer || 'BraineX'}`,
+    'STATUS:CONFIRMED',
+    'SEQUENCE:0',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\\r\\n');
+
+  // Create and download file
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${event.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+
+  if (window.BraineX?.showNotification) {
+    BraineX.showNotification('Calendar file downloaded!', 'success');
+  }
+}
+
+// ===========================================
+// Share Event Modal
+// ===========================================
+function openShareModal(eventId) {
+  const event = allEvents.find(e => e.id == eventId);
+  if (!event) return;
+
+  const eventUrl = `${window.location.origin}/events/${event.id}`;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal show';
+  modal.id = 'shareModal';
+  modal.innerHTML = `
+    <div class=\"modal-content\" style=\"max-width: 500px;\">
+      <button class=\"close-modal\" onclick=\"this.closest('.modal').remove()\" style=\"position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 2rem; cursor: pointer; color: #64748b;\">&times;</button>
+      
+      <div style=\"padding-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem;\">
+        <h2 style=\"margin: 0 0 0.5rem 0; color: #1f2937;\">Share Event</h2>
+        <p style=\"margin: 0; color: #64748b;\">${event.title}</p>
+      </div>
+
+      <div style=\"display: flex; flex-direction: column; gap: 1rem;\">
+        <div>
+          <label style=\"display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;\">Event Link</label>
+          <div style=\"display: flex; gap: 0.5rem;\">
+            <input type=\"text\" id=\"shareUrl\" value=\"${eventUrl}\" readonly style=\"flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; background: #f9fafb;\">
+            <button onclick=\"copyToClipboard('${eventUrl}')\" style=\"padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;\">Copy</button>
+          </div>
+        </div>
+
+        <div>
+          <label style=\"display: block; margin-bottom: 0.75rem; font-weight: 600; color: #1f2937;\">Share on Social Media</label>
+          <div style=\"display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;\">
+            <a href=\"https://twitter.com/intent/tweet?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(event.title)}\" target=\"_blank\" style=\"padding: 0.75rem; background: #1da1f2; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600;\">🐦 Twitter</a>
+            <a href=\"https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl)}\" target=\"_blank\" style=\"padding: 0.75rem; background: #1877f2; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600;\">📘 Facebook</a>
+            <a href=\"https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(eventUrl)}\" target=\"_blank\" style=\"padding: 0.75rem; background: #0a66c2; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600;\">💼 LinkedIn</a>
+            <a href=\"mailto:?subject=${encodeURIComponent(event.title)}&body=${encodeURIComponent(`Check out this event: ${eventUrl}`)}\" style=\"padding: 0.75rem; background: #64748b; color: white; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600;\">📧 Email</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (window.BraineX?.showNotification) {
+      BraineX.showNotification('Link copied to clipboard!', 'success');
+    } else {
+      alert('Link copied!');
+    }
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
+}
+
+window.copyToClipboard = copyToClipboard;
+
+// ===========================================
+// View Toggle (List vs Calendar)
+// ===========================================
+function setupViewToggle() {
+  const listViewBtn = document.querySelector('.js-view-list');
+  const calendarViewBtn = document.querySelector('.js-view-calendar');
+  const eventsSection = document.querySelector('.featured-grid');
+  const calendarSection = document.querySelector('.calendar-container');
+
+  if (!listViewBtn || !calendarViewBtn) return;
+
+  listViewBtn.addEventListener('click', () => {
+    listViewBtn.classList.add('active');
+    calendarViewBtn.classList.remove('active');
+    if (eventsSection) eventsSection.style.display = 'grid';
+    if (calendarSection) calendarSection.style.display = 'none';
+  });
+
+  calendarViewBtn.addEventListener('click', () => {
+    calendarViewBtn.classList.add('active');
+    listViewBtn.classList.remove('active');
+    if (eventsSection) eventsSection.style.display = 'none';
+    if (calendarSection) calendarSection.style.display = 'block';
+  });
+}
+
+// ===========================================
+// Date Filter (Upcoming/Past/All)
+// ===========================================
+function setupDateFilter() {
+  const dateFilter = document.getElementById('dateFilter');
+  if (!dateFilter) return;
+
+  dateFilter.addEventListener('change', (e) => {
+    const filter = e.target.value;
+    applyDateFilter(filter);
+  });
+}
+
+function applyDateFilter(filter) {
+  const now = new Date();
+
+  if (filter === 'upcoming') {
+    currentEvents = allEvents.filter(e => new Date(e.date) >= now);
+  } else if (filter === 'past') {
+    currentEvents = allEvents.filter(e => new Date(e.date) < now);
+  } else {
+    currentEvents = [...allEvents];
+  }
+
+  renderEvents(currentEvents);
+}
+
+// Enhanced filter function with date support
+window.filterEventsEnhanced = function (type, field, dateFilter = 'all') {
+  let filtered = allEvents;
+
+  // Type filter
+  if (type && type !== 'all') {
+    filtered = filtered.filter(e => (e.type || '').toLowerCase().includes(type));
+  }
+
+  // Field filter
+  if (field && field !== 'all') {
+    filtered = filtered.filter(e => {
+      const eventTags = (e.tags || []).map(t => t.toLowerCase());
+      return eventTags.some(t => t.includes(field)) || (e.description || '').toLowerCase().includes(field);
+    });
+  }
+
+  // Date filter
+  if (dateFilter === 'upcoming') {
+    filtered = filtered.filter(e => new Date(e.date) >= new Date());
+  } else if (dateFilter === 'past') {
+    filtered = filtered.filter(e => new Date(e.date) < new Date());
+  }
+
+  currentEvents = filtered;
+  renderEvents(currentEvents);
+};
+
+// Call setup on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupDateFilter);
+} else {
+  setupDateFilter();
+}
+

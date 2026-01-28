@@ -395,7 +395,7 @@ html[data-theme='dark'] .events-hero {
   background: var(--card-border);
 }
 
-.calendar-grid>* {
+.calendar-grid > * {
   background: var(--card-bg);
   min-height: 90px;
   padding: 0.75rem;
