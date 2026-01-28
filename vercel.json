@@ -1,69 +1,83 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
+      "src": "server.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/assets/(.*)",
-      "destination": "/frontend/public/assets/$1"
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
     },
     {
-      "source": "/sw.js",
-      "destination": "/frontend/public/sw.js"
+      "src": "/assets/(.*)",
+      "dest": "/frontend/public/assets/$1"
     },
     {
-      "source": "/manifest.json",
-      "destination": "/frontend/manifest.json"
+      "src": "/sw.js",
+      "dest": "/frontend/public/sw.js"
     },
     {
-      "source": "/",
-      "destination": "/frontend/pages/main.html"
+      "src": "/manifest.json",
+      "dest": "/frontend/manifest.json"
     },
     {
-      "source": "/fields",
-      "destination": "/frontend/pages/fields.html"
+      "src": "/favicon.ico",
+      "dest": "/frontend/public/favicon.ico"
     },
     {
-      "source": "/universities",
-      "destination": "/frontend/pages/universities.html"
+      "src": "/",
+      "dest": "/frontend/pages/main.html"
     },
     {
-      "source": "/programs",
-      "destination": "/frontend/pages/programs.html"
+      "src": "/fields",
+      "dest": "/frontend/pages/fields.html"
     },
     {
-      "source": "/scholarships",
-      "destination": "/frontend/pages/scholarships.html"
+      "src": "/universities",
+      "dest": "/frontend/pages/universities.html"
     },
     {
-      "source": "/projects",
-      "destination": "/frontend/pages/projects.html"
+      "src": "/programs",
+      "dest": "/frontend/pages/programs.html"
     },
     {
-      "source": "/roadmaps",
-      "destination": "/frontend/pages/roadmaps.html"
+      "src": "/scholarships",
+      "dest": "/frontend/pages/scholarships.html"
     },
     {
-      "source": "/mentors",
-      "destination": "/frontend/pages/mentors.html"
+      "src": "/projects",
+      "dest": "/frontend/pages/projects.html"
     },
     {
-      "source": "/events",
-      "destination": "/frontend/pages/events.html"
+      "src": "/roadmaps",
+      "dest": "/frontend/pages/roadmaps.html"
     },
     {
-      "source": "/about",
-      "destination": "/frontend/pages/about.html"
+      "src": "/mentors",
+      "dest": "/frontend/pages/mentors.html"
     },
     {
-      "source": "/admin",
-      "destination": "/frontend/pages/admin.html"
+      "src": "/events",
+      "dest": "/frontend/pages/events.html"
     },
     {
-      "source": "/notion",
-      "destination": "/frontend/pages/notion.html"
+      "src": "/about",
+      "dest": "/frontend/pages/about.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/frontend/pages/admin.html"
+    },
+    {
+      "src": "/notion",
+      "dest": "/frontend/pages/notion.html"
     }
   ]
 }
