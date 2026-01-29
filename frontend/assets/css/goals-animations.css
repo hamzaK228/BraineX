@@ -1,0 +1,290 @@
+/* ============================================
+   GOALS PAGE ENHANCEMENTS - NEW ANIMATIONS
+   ============================================ */
+
+/* Confetti Goal Completion Glow */
+@keyframes goal-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(72, 187, 120, 0);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(72, 187, 120, 0.8), 0 0 60px rgba(102, 126, 234, 0.6);
+        transform: scale(1.02);
+    }
+}
+
+.goal-completed-glow {
+    animation: goal-glow 0.6s ease-in-out 3;
+    border: 2px solid #48bb78 !important;
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%) !important;
+}
+
+/* Autosave Indicator */
+.autosave-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.autosave-indicator.saving {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #78350f;
+    opacity: 1;
+    animation: pulse-saving 1.5s ease-in-out infinite;
+}
+
+.autosave-indicator.saved {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    opacity: 1;
+}
+
+.autosave-indicator.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+}
+
+@keyframes pulse-saving {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Slide-in animations for notifications */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Goal card hover effects */
+.goal-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+}
+
+/* Progress bar smooth animation */
+.progress-fill {
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button hover effects */
+.btn-action:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.btn-new:hover,
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+}
+
+/* Keyboard shortcut kbd styling */
+kbd {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+    color: #1a202c;
+    font-weight: 600;
+}
+
+/* Modal entrance animation */
+.modal.show {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Dark mode autosave indicator */
+html[data-theme='dark'] .autosave-indicator.saving {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #451a03;
+}
+
+html[data-theme='dark'] .autosave-indicator.saved {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+}
+
+html[data-theme='dark'] kbd {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: #475569;
+    color: #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Goal card entrance animation */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.goal-card {
+    animation: slideInUp 0.4s ease-out;
+}
+
+/* Progress milestone celebration (subtle) */
+@keyframes milestone-ping {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.progress-text.milestone {
+    animation: milestone-ping 0.3s ease;
+}
+
+/* Empty state styling improvements */
+.empty-state {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .autosave-indicator {
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+
+    .goal-card:hover {
+        transform: none;
+        /* Disable lift on mobile */
+    }
+}
+
+/* Additional notification type styles */
+.notification.achievement {
+    background: linear-gradient(135deg, rgba(159, 122, 234, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border-left: 4px solid #9f7aea;
+    animation: slideIn 0.3s ease-out, pulse-achievement 0.6s ease 0.5s;
+}
+
+@keyframes pulse-achievement {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+}
+
+/* Smooth scroll for modal content */
+.modal-content {
+    scroll-behavior: smooth;
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Loading state for buttons */
+.btn.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roadmaps - BraineX</title>
+  <link rel="stylesheet" href="/assets/css/design-system.css" />
+  <link rel="stylesheet" href="/assets/css/skeleton.css" />
+  <link rel="stylesheet" href="/assets/css/animations.css" />
+  <script src="/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/roadmaps.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav role="navigation">
+        <div class="logo">
+          <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+          <span>BraineX</span>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/fields">Fields</a></li>
+          <li><a href="/universities">Universities</a></li>
+          <li><a href="/programs">Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/roadmaps" class="active">Roadmaps</a></li>
+          <li><a href="/mentors">Mentors</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/notion">My Goals</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <div class="auth-buttons">
+          <a href="#login" class="btn btn-outline">Log In</a>
+          <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <!-- VIEW 1: Overview (List of Roadmaps) -->
+    <div id="roadmapsOverview">
+      <!-- Hero Section -->
+      <section class="roadmaps-hero">
+        <div class="container">
+          <h1 class="gradient-text">🗺️ Choose Your Path</h1>
+          <p class="hero-subtitle">Step-by-step guides for your academic and career journey. Track your progress and
+            master new skills.</p>
+
+          <div class="hero-stats">
+            <div class="h-stat">
+              <span class="h-val">50+</span>
+              <span class="h-lbl">Curated Paths</span>
+            </div>
+            <div class="h-stat">
+              <span class="h-val">25k+</span>
+              <span class="h-lbl">Active Learners</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Category Tabs -->
+      <div class="category-nav">
+        <div class="container cat-scroll">
+          <button class="cat-pill active" data-cat="all"><i class="fas fa-th-large"></i> All</button>
+          <button class="cat-pill" data-cat="career"><i class="fas fa-briefcase"></i> Career</button>
+          <button class="cat-pill" data-cat="academic"><i class="fas fa-university"></i> Academic</button>
+          <button class="cat-pill" data-cat="skills"><i class="fas fa-code"></i> Skills</button>
+        </div>
+      </div>
+
+      <!-- Roadmaps Grid -->
+      <section class="roadmaps-list-section">
+        <div class="container">
+          <div id="roadmapsGrid" class="cards-grid">
+            <!-- Populated by JS -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- VIEW 2: Detail (Interactive Timeline) -->
+    <div id="roadmapDetail" style="display: none;">
+      <!-- Detail Header -->
+      <section class="detail-header">
+        <div class="container header-flex">
+          <button class="btn-back" onclick="window.closeRoadmap()"><i class="fas fa-arrow-left"></i> All
+            Roadmaps</button>
+          <div class="header-info">
+            <h1 id="detailTitle">Roadmap Title</h1>
+            <p id="detailDesc">Roadmap description goes here...</p>
+          </div>
+          <!-- Progress Circular (Desktop) -->
+          <div class="header-progress">
+            <div class="circular-chart" id="overallProgressChart">
+              <svg viewBox="0 0 36 36" class="circular-chart-svg">
+                <path class="circle-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.35" class="percentage">0%</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timeline + Sidebar Layout -->
+      <section class="detail-content">
+        <div class="container layout-grid">
+          <!-- Timeline Container -->
+          <div class="timeline-container" id="timelineContainer">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Right Sidebar (Resources & Progress) -->
+          <aside class="detail-sidebar">
+            <div class="sidebar-panel">
+              <h3><i class="fas fa-info-circle"></i> Info</h3>
+              <div class="d-stats">
+                <div class="d-stat"><i class="far fa-clock"></i> <span id="dDuration">--</span></div>
+                <div class="d-stat"><i class="fas fa-list-ul"></i> <span id="dTopics">--</span> Topics</div>
+              </div>
+            </div>
+
+            <div class="sidebar-panel mt-4 sticky-panel">
+              <h3><i class="fas fa-trophy"></i> Milestones</h3>
+              <ul class="milestone-list" id="milestoneList">
+                <!-- Computed by JS -->
+              </ul>
+              <button class="btn-reset" id="resetProgressBtn">Reset Progress</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/roadmaps.js"></script>
+</body>
+
+</html>

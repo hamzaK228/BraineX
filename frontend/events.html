@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events - BraineX</title>
+  <link rel="stylesheet" href="/assets/css/design-system.css" />
+  <link rel="stylesheet" href="/assets/css/skeleton.css" />
+  <link rel="stylesheet" href="/assets/css/animations.css" />
+  <script src="/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/events.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav role="navigation">
+        <div class="logo">
+          <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+          <span>BraineX</span>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/fields">Fields</a></li>
+          <li><a href="/universities">Universities</a></li>
+          <li><a href="/programs">Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/roadmaps">Roadmaps</a></li>
+          <li><a href="/mentors">Mentors</a></li>
+          <li><a href="/events" class="active">Events</a></li>
+          <li><a href="/notion">My Goals</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <div class="auth-buttons">
+          <a href="#login" class="btn btn-outline">Log In</a>
+          <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <!-- Sticky Banner: Upcoming RSVPs -->
+    <div id="upcomingBanner" class="upcoming-banner" style="display:none;">
+      <div class="container banner-flex">
+        <span><i class="fas fa-calendar-check"></i> <strong>My Upcoming:</strong></span>
+        <div class="mini-events-scroll" id="rsvpList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="events-hero">
+      <div class="container">
+        <h1 class="gradient-text">Discover Tech Events</h1>
+        <p class="hero-subtitle">Conferences, Hackathons, and Workshops to level up your career.</p>
+
+        <div class="hero-search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="eventSearch" placeholder="Search events, topics, or locations...">
+          <button class="btn-hero-search">Search</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Layout -->
+    <section class="events-layout">
+      <div class="container layout-grid">
+
+        <!-- Left: Sidebar Filters -->
+        <aside class="filter-sidebar">
+          <div class="sidebar-header">
+            <h3>Filters</h3>
+            <button id="clearFilters">Clear</button>
+          </div>
+
+          <!-- View Toggle -->
+          <div class="view-toggle-container">
+            <button class="view-btn active" data-view="list"><i class="fas fa-list"></i> List</button>
+            <button class="view-btn" data-view="calendar"><i class="fas fa-calendar-alt"></i> Calendar</button>
+          </div>
+
+          <!-- Date Range -->
+          <div class="filter-group">
+            <label>Date</label>
+            <div class="radio-list">
+              <label class="custom-radio">
+                <input type="radio" name="dateFilter" value="all" checked>
+                <span class="radio-mark"></span> Any Date
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="dateFilter" value="week">
+                <span class="radio-mark"></span> This Week
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="dateFilter" value="month">
+                <span class="radio-mark"></span> This Month
+              </label>
+            </div>
+          </div>
+
+          <!-- Event Type -->
+          <div class="filter-group">
+            <label>Event Type</label>
+            <div class="checkbox-list">
+              <label class="custom-checkbox"><input type="checkbox" name="type" value="Workshop"><span
+                  class="checkmark"></span> 🎓 Workshop</label>
+              <label class="custom-checkbox"><input type="checkbox" name="type" value="Webinar"><span
+                  class="checkmark"></span> 💻 Webinar</label>
+              <label class="custom-checkbox"><input type="checkbox" name="type" value="Conference"><span
+                  class="checkmark"></span> 🏢 Conference</label>
+              <label class="custom-checkbox"><input type="checkbox" name="type" value="Hackathon"><span
+                  class="checkmark"></span> 💡 Hackathon</label>
+              <label class="custom-checkbox"><input type="checkbox" name="type" value="Networking"><span
+                  class="checkmark"></span> 🤝 Networking</label>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="filter-group">
+            <label>Location</label>
+            <div class="checkbox-list">
+              <label class="custom-checkbox"><input type="checkbox" name="location" value="Online"><span
+                  class="checkmark"></span> 🌐 Online</label>
+              <label class="custom-checkbox"><input type="checkbox" name="location" value="In-Person"><span
+                  class="checkmark"></span> 📍 In-Person</label>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="filter-group">
+            <div class="switch-row">
+              <label>Free Only</label>
+              <label class="switch">
+                <input type="checkbox" id="freeOnlyToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- Center Content -->
+        <section class="content-center">
+
+          <!-- Controls -->
+          <div class="list-controls">
+            <div class="count-label"><span id="eventCount">0</span> events found</div>
+            <div class="ctrl-right">
+              <div class="my-events-switch">
+                <span>My Events</span>
+                <label class="switch sm">
+                  <input type="checkbox" id="myEventsToggle">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <select id="sortSelect">
+                <option value="date">Date: Soonest</option>
+                <option value="popular">Popularity</option>
+                <option value="price_low">Price: Low to High</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- VIEW 1: List Grid -->
+          <div id="eventsList" class="events-list-container">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- VIEW 2: Calendar Grid -->
+          <div id="eventsCalendar" class="calendar-container" style="display:none;">
+            <div class="cal-header">
+              <button class="cal-nav" id="prevMonth">&lt;</button>
+              <h3 id="calMonthYear">January 2026</h3>
+              <button class="cal-nav" id="nextMonth">&gt;</button>
+            </div>
+            <div class="cal-grid-header">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="cal-grid-body" id="calendarBody">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div id="emptyState" class="empty-state" style="display:none;">
+            <i class="far fa-calendar-times"></i>
+            <h3>No events found</h3>
+            <p>Try adjusting your filters.</p>
+          </div>
+        </section>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/events.js"></script>
+</body>
+
+</html>

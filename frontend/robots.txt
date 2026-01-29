@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://braine-x.vercel.app/sitemap.xml

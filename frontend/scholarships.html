@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarships - BraineX</title>
+    <link rel="stylesheet" href="/assets/css/design-system.css">
+    <link rel="stylesheet" href="/assets/css/skeleton.css">
+    <link rel="stylesheet" href="/assets/css/animations.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/scholarships.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/assets/js/theme.js"></script>
+</head>
+
+<body>
+    <!-- Urgent Deadline Banner -->
+    <div id="urgentBanner" class="urgent-banner" style="display:none;">
+        <div class="container">
+            <div class="banner-content">
+                <span class="banner-icon">⚠️</span>
+                <span class="banner-text"><strong id="urgentCount">0</strong> scholarships closing in <strong
+                        class="text-danger">7 days</strong>!</span>
+                <div class="urgent-scroller" id="urgentScroller">
+                    <!-- Mini cards injected here -->
+                </div>
+            </div>
+            <button class="close-banner"
+                onclick="this.parentElement.parentElement.style.display='none'">&times;</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav role="navigation">
+                <div class="logo">
+                    <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img">
+                    <span>BraineX</span>
+                </div>
+                <button class="mobile-menu-btn">☰</button>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/fields">Fields</a></li>
+                    <li><a href="/universities">Universities</a></li>
+                    <li><a href="/programs">Programs</a></li>
+                    <li><a href="/scholarships" class="active">Scholarships</a></li>
+                    <li><a href="/projects">Projects</a></li>
+                    <li><a href="/roadmaps">Roadmaps</a></li>
+                    <li><a href="/mentors">Mentors</a></li>
+                    <li><a href="/events">Events</a></li>
+                    <li><a href="/notion">My Goals</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="#login" class="btn btn-outline">Log In</a>
+                    <a href="#signup" class="btn btn-primary">Sign Up</a>
+                </div>
+                <button class="theme-toggle">🌙</button>
+            </nav>
+        </div>
+    </header>
+
+    <main id="mainContent">
+        <!-- Hero Stats Section -->
+        <section class="hero-stats-section">
+            <div class="container">
+                <div class="hero-header">
+                    <h1>🎓 Find Your Funding</h1>
+                    <p>Discover scholarships matched to your profile with full funding transparency.</p>
+                </div>
+                <div class="hero-stats-grid">
+                    <div class="hero-stat-card">
+                        <div class="stat-icon-wrapper gradient-blue">
+                            <i class="fas fa-globe-americas"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="statTotal">--</h3>
+                            <span class="stat-label">Active Scholarships</span>
+                        </div>
+                    </div>
+                    <div class="hero-stat-card">
+                        <div class="stat-icon-wrapper gradient-green">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="statFunding">--</h3>
+                            <span class="stat-label">Full Funding Awards</span>
+                        </div>
+                    </div>
+                    <div class="hero-stat-card">
+                        <div class="stat-icon-wrapper gradient-orange">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="statClosing">--</h3>
+                            <span class="stat-label">Closing Soon</span>
+                        </div>
+                    </div>
+                    <div class="hero-stat-card">
+                        <div class="stat-icon-wrapper gradient-purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="statAvg">--</h3>
+                            <span class="stat-label">Avg. Award Amount</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area (3 Columns) -->
+        <section class="scholarships-main">
+            <div class="container layout-grid">
+
+                <!-- Left: Filter Sidebar -->
+                <aside class="filter-sidebar" id="filterSidebar">
+                    <div class="sidebar-header">
+                        <h3>Filters</h3>
+                        <button id="clearFilters" class="btn-text">Clear All</button>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="filter-group">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search by name, org...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+
+                    <!-- Funding Type -->
+                    <div class="filter-group">
+                        <label>Funding Type</label>
+                        <div class="pill-group" id="fundingFilters">
+                            <button class="filter-pill" data-type="full">Full Funding</button>
+                            <button class="filter-pill" data-type="partial">Partial</button>
+                            <button class="filter-pill" data-type="merit">Merit Based</button>
+                            <button class="filter-pill" data-type="need">Need Based</button>
+                        </div>
+                    </div>
+
+                    <!-- Amount Slider -->
+                    <div class="filter-group">
+                        <label>Min. Award Amount</label>
+                        <div class="range-slider-container">
+                            <input type="range" id="amountSlider" min="0" max="100000" step="1000" value="0">
+                            <div class="slider-values">
+                                <span>$0</span>
+                                <span id="amountDisplay">$50,000+</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Eligibility -->
+                    <div class="filter-group">
+                        <label>Eligibility</label>
+                        <div class="checkbox-list">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="eligibility" value="international">
+                                <span class="checkmark"></span>
+                                International Students
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="eligibility" value="undergrad">
+                                <span class="checkmark"></span>
+                                Undergraduate
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="eligibility" value="grad">
+                                <span class="checkmark"></span>
+                                Graduate / PhD
+                            </label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="eligibility" value="women">
+                                <span class="checkmark"></span>
+                                Women in STEM
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Save Search -->
+                    <button class="btn-save-search">
+                        <i class="fas fa-bell"></i> Get Alerts for this Search
+                    </button>
+                </aside>
+
+                <!-- Center: Scholarship Grid -->
+                <div class="content-center">
+                    <!-- Sort Bar -->
+                    <div class="sort-bar">
+                        <div class="result-count">Showing <span id="resultCount">0</span> scholarships</div>
+                        <div class="sort-controls">
+                            <select id="sortSelect" class="sort-select">
+                                <option value="deadline">Deadline (Soonest)</option>
+                                <option value="amount-desc">Amount (Highest)</option>
+                                <option value="relevance">Relevance</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Grid -->
+                    <div id="scholarshipGrid" class="scholarship-cards-grid">
+                        <!-- Loading Skeletons -->
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+                    <!-- Empty State -->
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="fas fa-search-dollar empty-icon"></i>
+                        <h3>No scholarships found</h3>
+                        <p>Try adjusting your filters or search terms.</p>
+                        <button class="btn-primary" onclick="window.resetFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <!-- Right: Application Tracker -->
+                <aside class="tracker-sidebar">
+                    <div class="tracker-panel">
+                        <div class="tracker-header">
+                            <h3><i class="fas fa-tasks"></i> My Applications</h3>
+                            <span class="badge-count" id="savedCount">0</span>
+                        </div>
+
+                        <div class="tracker-list" id="trackerList">
+                            <!-- JS will populate: Saved items with status -->
+                            <div class="empty-tracker">
+                                <p>Click ❤️ to save scholarships and track your applications here.</p>
+                            </div>
+                        </div>
+
+                        <div class="tracker-stats">
+                            <div class="t-stat">
+                                <span class="val" id="totalSaved">0</span>
+                                <span class="lbl">Saved</span>
+                            </div>
+                            <div class="t-stat">
+                                <span class="val" id="totalApplied">0</span>
+                                <span class="lbl">Applied</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- App Modal (Reusable) -->
+    <div id="scholarshipModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/scholarships.js"></script>
+</body>
+
+</html>

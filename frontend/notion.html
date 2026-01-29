@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Goals - BraineX</title>
+  <link rel="stylesheet" href="/assets/css/design-system.css" />
+  <link rel="stylesheet" href="/assets/css/skeleton.css" />
+  <link rel="stylesheet" href="/assets/css/animations.css" />
+  <script src="/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/notion.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav role="navigation">
+        <div class="logo">
+          <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+          <span>BraineX</span>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/fields">Fields</a></li>
+          <li><a href="/universities">Universities</a></li>
+          <li><a href="/programs">Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/roadmaps">Roadmaps</a></li>
+          <li><a href="/mentors">Mentors</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/notion" class="active">My Goals</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <div class="auth-buttons">
+          <a href="#login" class="btn btn-outline">Log In</a>
+          <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <div class="container page-wrapper">
+
+      <!-- Dashboard Stats -->
+      <section class="dashboard-stats">
+        <div class="stat-card border-purple">
+          <div class="st-icon bg-purple"><i class="fas fa-bullseye"></i></div>
+          <div class="st-info">
+            <span class="st-num" id="statTotal">0</span>
+            <span class="st-label">Total Goals</span>
+            <span class="st-trend text-green"><i class="fas fa-arrow-up"></i> Active</span>
+          </div>
+        </div>
+        <div class="stat-card border-green">
+          <div class="st-icon bg-green"><i class="fas fa-check-circle"></i></div>
+          <div class="st-info">
+            <span class="st-num" id="statCompleted">0</span>
+            <span class="st-label">Completed</span>
+            <span class="st-trend text-green" id="statRate">0%</span>
+          </div>
+        </div>
+        <div class="stat-card border-blue">
+          <div class="st-icon bg-blue"><i class="fas fa-spinner"></i></div>
+          <div class="st-info">
+            <span class="st-num" id="statProgress">0</span>
+            <span class="st-label">In Progress</span>
+            <span class="st-trend text-blue">Keep Going</span>
+          </div>
+        </div>
+        <div class="stat-card border-red">
+          <div class="st-icon bg-red"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="st-info">
+            <span class="st-num" id="statOverdue">0</span>
+            <span class="st-label">Overdue</span>
+            <span class="st-trend text-red">Action Needed</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Controls: View Toggle & Filters -->
+      <section class="controls-section">
+        <div class="controls-left">
+          <div class="view-toggle">
+            <button class="v-btn active" data-view="list"><i class="fas fa-list"></i> List</button>
+            <button class="v-btn" data-view="board"><i class="fas fa-columns"></i> Board</button>
+            <button class="v-btn" data-view="calendar"><i class="fas fa-calendar-alt"></i> Calendar</button>
+          </div>
+          <button class="filter-toggle" id="filterToggle"><i class="fas fa-filter"></i> Filters</button>
+        </div>
+        <div class="controls-right">
+          <select id="sortSelect" class="sort-select">
+            <option value="date">Sort: Due Date</option>
+            <option value="priority">Sort: Priority</option>
+            <option value="created">Sort: Newest</option>
+            <option value="progress">Sort: Progress</option>
+          </select>
+          <button class="btn-add-goal gradient-btn" id="btnAddGoal"><i class="fas fa-plus"></i> New Goal</button>
+        </div>
+      </section>
+
+      <!-- Filter Panel (Collapsible) -->
+      <div class="filter-panel" id="filterPanel" style="display:none;">
+        <div class="filter-group">
+          <label>Priority</label>
+          <div class="f-pills">
+            <button class="fp-btn" data-filter="priority" data-val="high">High</button>
+            <button class="fp-btn" data-filter="priority" data-val="medium">Medium</button>
+            <button class="fp-btn" data-filter="priority" data-val="low">Low</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <div class="f-pills">
+            <button class="fp-btn" data-filter="status" data-val="todo">To Do</button>
+            <button class="fp-btn" data-filter="status" data-val="inprogress">In Progress</button>
+            <button class="fp-btn" data-filter="status" data-val="completed">Done</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Tags</label>
+          <div class="f-pills" id="tagFilters">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <button class="clear-filters" id="clearFilters">Clear All</button>
+      </div>
+
+      <!-- VIEWS CONTENT -->
+
+      <!-- 1. List View -->
+      <div id="viewList" class="view-container active">
+        <div class="goals-list" id="goalsList">
+          <!-- Populated by JS -->
+        </div>
+        <div id="emptyState" class="empty-state" style="display:none;">
+          <div class="es-icon">🎯</div>
+          <h3>No goals found</h3>
+          <p>Create your first goal to get started!</p>
+          <button class="btn-primary-outline" onclick="document.getElementById('btnAddGoal').click()">+ Create
+            Goal</button>
+        </div>
+      </div>
+
+      <!-- 2. Board View -->
+      <div id="viewBoard" class="view-container" style="display:none;">
+        <div class="kanban-board">
+          <div class="kb-col" data-status="todo">
+            <div class="kb-header"><span>To Do</span><span class="kb-count" id="count-todo">0</span></div>
+            <div class="kb-body" id="board-todo"></div>
+          </div>
+          <div class="kb-col" data-status="inprogress">
+            <div class="kb-header"><span>In Progress</span><span class="kb-count" id="count-inprogress">0</span></div>
+            <div class="kb-body" id="board-inprogress"></div>
+          </div>
+          <div class="kb-col" data-status="completed">
+            <div class="kb-header"><span>Completed</span><span class="kb-count" id="count-completed">0</span></div>
+            <div class="kb-body" id="board-completed"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Calendar View -->
+      <div id="viewCalendar" class="view-container" style="display:none;">
+        <div class="calendar-header">
+          <button id="calPrev"><i class="fas fa-chevron-left"></i></button>
+          <h3 id="calTitle">Month Year</h3>
+          <button id="calNext"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Add Goal Modal -->
+  <div class="modal-overlay" id="goalModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-bullseye"></i> Create New Goal</h2>
+        <button class="close-modal" id="closeModal">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="goalForm">
+          <input type="hidden" id="goalId">
+
+          <div class="form-group">
+            <label>Goal Title</label>
+            <input type="text" id="goalTitle" placeholder="What do you want to achieve?" required>
+          </div>
+
+          <div class="form-group">
+            <label>Description (Optional)</label>
+            <textarea id="goalDesc" placeholder="Add details, motivation, or success criteria..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Priority</label>
+              <select id="goalPriority">
+                <option value="high">High Priority</option>
+                <option value="medium" selected>Medium Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Due Date</label>
+              <input type="date" id="goalDate" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Tags (comma separated)</label>
+            <input type="text" id="goalTags" placeholder="e.g. Work, Health, Study">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="cancelGoal">Cancel</button>
+        <button class="btn-save" id="saveGoal">Save Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/notion.js"></script>
+</body>
+
+</html>

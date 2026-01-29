@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects - BraineX</title>
+  <link rel="stylesheet" href="/assets/css/design-system.css" />
+  <link rel="stylesheet" href="/assets/css/skeleton.css" />
+  <link rel="stylesheet" href="/assets/css/animations.css" />
+  <script src="/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/projects.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav role="navigation">
+        <div class="logo">
+          <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+          <span>BraineX</span>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/fields">Fields</a></li>
+          <li><a href="/universities">Universities</a></li>
+          <li><a href="/programs">Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+          <li><a href="/projects" class="active">Projects</a></li>
+          <li><a href="/roadmaps">Roadmaps</a></li>
+          <li><a href="/mentors">Mentors</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/notion">My Goals</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <div class="auth-buttons">
+          <a href="#login" class="btn btn-outline">Log In</a>
+          <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <!-- Hero Section -->
+    <section class="projects-hero">
+      <div class="container">
+        <h1 class="gradient-text">🚀 Launch Your Project</h1>
+        <p class="hero-subtitle">Build your portfolio, gain experience, and find teammates.</p>
+
+        <div class="hero-stats">
+          <div class="h-stat">
+            <i class="fas fa-rocket"></i>
+            <span class="h-val" id="activeProjects">--</span>
+            <span class="h-lbl">Active Projects</span>
+          </div>
+          <div class="h-stat">
+            <i class="fas fa-users-cog"></i>
+            <span class="h-val" id="openPositions">--</span>
+            <span class="h-lbl">Open Roles</span>
+          </div>
+          <div class="h-stat">
+            <i class="fas fa-handshake"></i>
+            <span class="h-val" id="collaborators">--</span>
+            <span class="h-lbl">Collaborators</span>
+          </div>
+        </div>
+
+        <button class="btn-hero" onclick="window.startProject()">Start a Project</button>
+      </div>
+    </section>
+
+    <!-- Category Tabs (Sticky Below Header) -->
+    <div class="category-nav">
+      <div class="container cat-scroll">
+        <button class="cat-pill active" data-cat="all"><i class="fas fa-globe"></i> All</button>
+        <button class="cat-pill" data-cat="web"><i class="fas fa-laptop-code"></i> Web Dev</button>
+        <button class="cat-pill" data-cat="mobile"><i class="fas fa-mobile-alt"></i> Mobile</button>
+        <button class="cat-pill" data-cat="ai"><i class="fas fa-brain"></i> AI / ML</button>
+        <button class="cat-pill" data-cat="data"><i class="fas fa-chart-bar"></i> Data Science</button>
+        <button class="cat-pill" data-cat="design"><i class="fas fa-paint-brush"></i> Design</button>
+        <button class="cat-pill" data-cat="iot"><i class="fas fa-microchip"></i> IoT</button>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <section class="projects-layout">
+      <div class="container layout-grid">
+
+        <!-- Left: Filter Sidebar -->
+        <aside class="filter-sidebar">
+          <div class="sidebar-header">
+            <h3>Filters</h3>
+            <button id="clearFilters">Clear</button>
+          </div>
+
+          <!-- Tech Stack Search -->
+          <div class="filter-group">
+            <label>Tech Stack</label>
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="techSearch" placeholder="Search (e.g. React)...">
+            </div>
+            <div id="techStackPills" class="tech-stack-pills">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="filter-group">
+            <label>Difficulty</label>
+            <div class="checkbox-list">
+              <label class="custom-checkbox">
+                <input type="checkbox" name="difficulty" value="beginner">
+                <span class="checkmark"></span> Beginner <span class="stars">⭐</span>
+              </label>
+              <label class="custom-checkbox">
+                <input type="checkbox" name="difficulty" value="intermediate">
+                <span class="checkmark"></span> Intermediate <span class="stars">⭐⭐</span>
+              </label>
+              <label class="custom-checkbox">
+                <input type="checkbox" name="difficulty" value="advanced">
+                <span class="checkmark"></span> Advanced <span class="stars">⭐⭐⭐</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Looking For -->
+          <div class="filter-group">
+            <label>Looking For</label>
+            <div class="checkbox-list">
+              <label class="custom-checkbox"><input type="checkbox" name="role" value="frontend"><span
+                  class="checkmark"></span> Frontend Dev</label>
+              <label class="custom-checkbox"><input type="checkbox" name="role" value="backend"><span
+                  class="checkmark"></span> Backend Dev</label>
+              <label class="custom-checkbox"><input type="checkbox" name="role" value="design"><span
+                  class="checkmark"></span> UI/UX Designer</label>
+            </div>
+          </div>
+
+          <!-- Remote Toggle -->
+          <div class="filter-group">
+            <div class="switch-row">
+              <label>Remote Only</label>
+              <label class="switch">
+                <input type="checkbox" id="remoteToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Center: Project Grid -->
+        <section class="content-center">
+          <!-- Trending Carousel -->
+          <div class="trending-section">
+            <h4>Trending This Week 🔥</h4>
+            <div class="trending-carousel" id="trendingCarousel">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="list-controls">
+            <div class="count-label"><span id="projectCount">0</span> projects found</div>
+            <div class="ctrl-right">
+              <div class="my-projects-switch">
+                <span>My Projects</span>
+                <label class="switch sm">
+                  <input type="checkbox" id="myProjectsToggle">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <select id="sortSelect">
+                <option value="newest">Newest</option>
+                <option value="stars">Most Stars</option>
+                <option value="active">Most Active</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Grid -->
+          <div id="projectGrid" class="cards-grid">
+            <!-- Skeletons -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+
+          <div id="emptyState" class="empty-state" style="display:none;">
+            <i class="fas fa-rocket"></i>
+            <h3>No projects found</h3>
+            <p>Be the first to start a project in this category!</p>
+            <button class="btn-primary" onclick="window.startProject()">Start Project</button>
+          </div>
+        </section>
+
+        <!-- Right: Collaboration Panel -->
+        <aside class="collab-sidebar">
+          <div class="collab-panel">
+            <h3><i class="fas fa-magic"></i> Quick Match</h3>
+            <p class="panel-desc">Recommended based on your skills.</p>
+            <div id="quickMatchList" class="quick-list">
+              <!-- JS populated -->
+            </div>
+          </div>
+
+          <div class="collab-panel mt-4">
+            <h3><i class="fas fa-paper-plane"></i> Applications</h3>
+            <div id="applicationsList" class="app-list">
+              <!-- JS populated -->
+              <div class="empty-app">No active applications</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div id="projectModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/projects.js"></script>
+</body>
+
+</html>

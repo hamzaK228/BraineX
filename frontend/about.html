@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us - BraineX</title>
+  <link rel="stylesheet" href="/assets/css/design-system.css" />
+  <link rel="stylesheet" href="/assets/css/skeleton.css" />
+  <link rel="stylesheet" href="/assets/css/animations.css" />
+  <script src="/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/about.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav role="navigation">
+        <div class="logo">
+          <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+          <span>BraineX</span>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/fields">Fields</a></li>
+          <li><a href="/universities">Universities</a></li>
+          <li><a href="/programs">Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/roadmaps">Roadmaps</a></li>
+          <li><a href="/mentors">Mentors</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/notion">My Goals</a></li>
+          <li><a href="/about" class="active">About</a></li>
+        </ul>
+        <div class="auth-buttons">
+          <a href="#login" class="btn btn-outline">Log In</a>
+          <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+
+    <!-- Hero Section (Particles) -->
+    <section class="about-hero" id="heroSection">
+      <canvas id="heroParticles"></canvas>
+      <div class="hero-content container">
+        <h1 class="gradient-text reveal">Empowering Students to Achieve Their Dreams</h1>
+        <p class="hero-subtitle reveal delay-200">BraineX connects global ambition with the resources, mentorship, and
+          opportunities needed to succeed. Your all-in-one platform for academic excellence.</p>
+        <div class="hero-actions reveal delay-400">
+          <a href="#story" class="btn-primary-glow">Our Journey</a>
+          <a href="#team" class="btn-outline-glow">Meet the Team</a>
+        </div>
+      </div>
+      <div class="scroll-indicator">
+        <span>Scroll</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </section>
+
+    <!-- Impact Stats -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card reveal">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-number" data-target="10000">0</div>
+            <div class="stat-label">Students Empowered</div>
+          </div>
+          <div class="stat-card reveal delay-100">
+            <div class="stat-icon"><i class="fas fa-university"></i></div>
+            <div class="stat-number" data-target="500">0</div>
+            <div class="stat-label">University Partners</div>
+          </div>
+          <div class="stat-card reveal delay-200">
+            <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="stat-number" data-target="5" data-prefix="$" data-suffix="M+">0</div>
+            <div class="stat-label">Scholarships Found</div>
+          </div>
+          <div class="stat-card reveal delay-300">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-number" data-target="95" data-suffix="%">0</div>
+            <div class="stat-label">Success Rate</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Story (Timeline) -->
+    <section id="story" class="story-section">
+      <div class="container">
+        <h2 class="section-title reveal">Our Journey</h2>
+        <div class="timeline">
+          <div class="timeline-line"></div>
+
+          <div class="timeline-item left reveal">
+            <div class="tl-content">
+              <span class="tl-year">2023</span>
+              <h3>The Beginning</h3>
+              <p>Founded by students, for students. We realized the gap in accessing global opportunities and set out to
+                bridge it.</p>
+            </div>
+            <div class="tl-dot"></div>
+          </div>
+
+          <div class="timeline-item right reveal">
+            <div class="tl-content">
+              <span class="tl-year">2024</span>
+              <h3>First 1,000 Students</h3>
+              <p>Our beta launch demonstrated incredible demand. We helped students secure over $1M in scholarships in
+                our first year.</p>
+            </div>
+            <div class="tl-dot"></div>
+          </div>
+
+          <div class="timeline-item left reveal">
+            <div class="tl-content">
+              <span class="tl-year">2025</span>
+              <h3>Global Partnerships</h3>
+              <p>Partnered with over 100 top universities and organizations to bring exclusive opportunities to the
+                platform.</p>
+            </div>
+            <div class="tl-dot"></div>
+          </div>
+
+          <div class="timeline-item right reveal">
+            <div class="tl-content">
+              <span class="tl-year">Future</span>
+              <h3>Global Expansion</h3>
+              <p>We're building the world's largest digital campus, connecting millions of learners to their dream
+                careers.</p>
+            </div>
+            <div class="tl-dot"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Values -->
+    <section class="values-section">
+      <div class="container">
+        <h2 class="section-title reveal">What We Believe</h2>
+        <div class="values-grid">
+          <div class="value-card reveal">
+            <div class="v-icon v-purple"><i class="fas fa-bullseye"></i></div>
+            <h3>Accessibility</h3>
+            <p>Education should be a right, not a privilege. We strive to make premium resources available to everyone,
+              everywhere.</p>
+          </div>
+          <div class="value-card reveal delay-200">
+            <div class="v-icon v-blue"><i class="fas fa-users"></i></div>
+            <h3>Community</h3>
+            <p>We are stronger together. Our platform thrives on peer-to-peer learning, mentorship, and shared success.
+            </p>
+          </div>
+          <div class="value-card reveal delay-400">
+            <div class="v-icon v-orange"><i class="fas fa-rocket"></i></div>
+            <h3>Innovation</h3>
+            <p>The world is changing fast. We continuously evolve our platform to provide cutting-edge tools for modern
+              learners.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team -->
+    <section id="team" class="team-section">
+      <div class="container">
+        <h2 class="section-title reveal">Meet the Team</h2>
+        <div class="team-grid">
+          <div class="team-member reveal">
+            <div class="tm-photo" style="background-image: url('https://i.pravatar.cc/300?u=a1');"></div>
+            <div class="tm-info">
+              <h3>Alex Kumar</h3>
+              <span>Founder & CEO</span>
+              <p>Passionate about EdTech. Previously at Google.</p>
+              <div class="tm-social">
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="team-member reveal delay-100">
+            <div class="tm-photo" style="background-image: url('https://i.pravatar.cc/300?u=a2');"></div>
+            <div class="tm-info">
+              <h3>Sarah Lee</h3>
+              <span>Head of Product</span>
+              <p>Designing the future of learning experiences.</p>
+              <div class="tm-social">
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="team-member reveal delay-200">
+            <div class="tm-photo" style="background-image: url('https://i.pravatar.cc/300?u=a3');"></div>
+            <div class="tm-info">
+              <h3>David Chen</h3>
+              <span>CTO</span>
+              <p>Building scalable systems for millions.</p>
+              <div class="tm-social">
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="team-member reveal delay-300">
+            <div class="tm-photo" style="background-image: url('https://i.pravatar.cc/300?u=a4');"></div>
+            <div class="tm-info">
+              <h3>Emily Davis</h3>
+              <span>Head of Growth</span>
+              <p>Connecting students with opportunities.</p>
+              <div class="tm-social">
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="final-cta">
+      <div class="container reveal">
+        <h2>Ready to Start Your Journey?</h2>
+        <p>Join thousands of students who are already achieving their goals with BraineX.</p>
+        <div class="cta-buttons">
+          <button class="btn-white-glow">Get Started Free</button>
+          <a href="#contact" class="link-white">Talk to our team</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/about.js"></script>
+</body>
+
+</html>

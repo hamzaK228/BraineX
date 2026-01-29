@@ -1,0 +1,440 @@
+/* 
+===================================================================
+BRAINEX FIELDS PAGE VISUAL OVERHAUL
+Role: Principal Frontend Engineer
+Goal: Investor-Ready Quality
+===================================================================
+*/
+
+/* 
+===================================================================
+1. VARIABLES (INHERITED + LOCAL)
+===================================================================
+*/
+:root {
+  --primary: #667eea;
+  --secondary: #764ba2;
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  --text-primary: #2d3748;
+  --text-secondary: #4a5568;
+  --text-tertiary: #718096;
+
+  --bg-page: #f7fafc;
+  --bg-card: #ffffff;
+  --bg-hover: #edf2f7;
+
+  --border-light: #e2e8f0;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Overrides */
+html[data-theme='dark'] body {
+  background: #1a202c;
+  color: #f7fafc;
+}
+
+html[data-theme='dark'] .field-card,
+html[data-theme='dark'] .resource-card,
+html[data-theme='dark'] .pathway-card {
+  background: #2d3748 !important;
+  border-color: #4a5568 !important;
+}
+
+html[data-theme='dark'] .field-card h4,
+html[data-theme='dark'] .resource-card h3,
+html[data-theme='dark'] .pathway-card h3 {
+  color: #f7fafc !important;
+}
+
+html[data-theme='dark'] .field-card p,
+html[data-theme='dark'] .resource-card p,
+html[data-theme='dark'] .pathway-card p {
+  color: #cbd5e1 !important;
+}
+
+/* 
+===================================================================
+2. HEADER & HERO
+===================================================================
+*/
+.fields-hero {
+  padding: 120px 0 80px;
+  text-align: center;
+  background: white;
+}
+
+html[data-theme='dark'] .fields-hero {
+  background: #1a202c;
+}
+
+.fields-hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.fields-hero p {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+html[data-theme='dark'] .fields-hero p {
+  color: #cbd5e1;
+}
+
+/* Search Bar */
+.field-search-container {
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  position: relative;
+}
+
+.field-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 100%;
+  height: 56px;
+  padding: 0 2rem 0 4rem;
+  /* Left padding for icon */
+  border: 2px solid var(--border-light);
+  border-radius: 50px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+html[data-theme='dark'] .search-input {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: white;
+}
+
+.search-input:focus {
+  border-color: transparent;
+  background: white padding-box;
+  /* Trick for gradient border */
+  box-shadow: 0 0 0 2px #667eea, 0 10px 25px rgba(102, 126, 234, 0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.5rem;
+  color: var(--primary);
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+/* Stats */
+.quick-stats {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 3rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: block;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+html[data-theme='dark'] .stat-number {
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* 
+===================================================================
+3. FILTER TABS
+===================================================================
+*/
+.filter-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  background: white;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+html[data-theme='dark'] .filter-tab {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e1;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+  background: var(--gradient) !important;
+  color: white !important;
+  border-color: transparent !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 
+===================================================================
+4. FIELD CARDS (GRID)
+===================================================================
+*/
+.detailed-fields {
+  padding: 0 0 80px;
+  background: var(--bg-page);
+}
+
+html[data-theme='dark'] .detailed-fields {
+  background: #1a202c;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.field-card {
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-2xl);
+  padding: 2.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.field-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary);
+}
+
+/* Card Icon */
+.field-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: var(--gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.field-card h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.field-card p {
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.6;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+/* Card Stats */
+.field-stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+html[data-theme='dark'] .field-stats-row {
+  border-color: #4a5568;
+}
+
+.card-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+html[data-theme='dark'] .card-stat {
+  color: #a0aec0;
+}
+
+/* Card Tags */
+.field-tags {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.card-tag {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  padding: 0.375rem 0.875rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+html[data-theme='dark'] .card-tag {
+  background: #4a5568;
+  color: #e2e8f0;
+}
+
+/* Explore Button */
+.btn-card-explore {
+  width: 100%;
+  background: var(--gradient);
+  color: white;
+  border: none;
+  padding: 0.875rem;
+  border-radius: var(--radius-xl);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.field-card:hover .btn-card-explore {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 
+===================================================================
+5. EMPTY & LOADING STATES
+===================================================================
+*/
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-light);
+  margin-top: 2rem;
+}
+
+html[data-theme='dark'] .empty-state {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.btn-reset-filters {
+  margin-top: 1rem;
+  background: var(--text-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+/* 
+===================================================================
+6. RESPONSIVE
+===================================================================
+*/
+@media (max-width: 768px) {
+  .fields-hero {
+    padding: 80px 0 40px;
+  }
+
+  .fields-hero h1 {
+    font-size: 2rem;
+  }
+
+  .filter-tabs {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  .filter-tab {
+    flex-shrink: 0;
+  }
+
+  .quick-stats {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .btn-card-explore {
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 1rem;
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+}

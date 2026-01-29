@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentors - BraineX</title>
+  <link rel="stylesheet" href="/assets/css/design-system.css" />
+  <link rel="stylesheet" href="/assets/css/skeleton.css" />
+  <link rel="stylesheet" href="/assets/css/animations.css" />
+  <script src="/assets/js/theme.js"></script>
+  <link rel="stylesheet" href="/assets/css/main.css" />
+  <link rel="stylesheet" href="/assets/css/mentors.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav role="navigation">
+        <div class="logo">
+          <img src="/assets/images/logo.png" alt="BraineX Logo" class="logo-img" />
+          <span>BraineX</span>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/fields">Fields</a></li>
+          <li><a href="/universities">Universities</a></li>
+          <li><a href="/programs">Programs</a></li>
+          <li><a href="/scholarships">Scholarships</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/roadmaps">Roadmaps</a></li>
+          <li><a href="/mentors" class="active">Mentors</a></li>
+          <li><a href="/events">Events</a></li>
+          <li><a href="/notion">My Goals</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <div class="auth-buttons">
+          <a href="#login" class="btn btn-outline">Log In</a>
+          <a href="#signup" class="btn btn-primary">Sign Up</a>
+        </div>
+        <button class="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <!-- Hero Section -->
+    <section class="mentors-hero">
+      <div class="container">
+        <h1 class="gradient-text">Master Your Craft</h1>
+        <p class="hero-subtitle">Connect with world-class mentors from top companies and universities.</p>
+
+        <div class="hero-stats">
+          <div class="h-stat">
+            <span class="h-val">500+</span>
+            <span class="h-lbl">Expert Mentors</span>
+          </div>
+          <div class="h-stat">
+            <span class="h-val">10k+</span>
+            <span class="h-lbl">Sessions Booked</span>
+          </div>
+          <div class="h-stat">
+            <span class="h-val">4.9/5</span>
+            <span class="h-lbl">Average Rating</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Rated Carousel (Featured) -->
+    <section class="featured-carousel-section">
+      <div class="container">
+        <h3 class="section-title"><i class="fas fa-star" style="color:#ecc94b;"></i> Top Rated This Month</h3>
+        <div class="carousel-container" id="featuredCarousel">
+          <!-- Populated by JS -->
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <section class="mentors-layout">
+      <div class="container layout-grid">
+
+        <!-- Left: Filter Sidebar -->
+        <aside class="filter-sidebar">
+          <div class="sidebar-header">
+            <h3>Filters</h3>
+            <button id="clearFilters">Clear</button>
+          </div>
+
+          <!-- Verified Toggle -->
+          <div class="filter-group">
+            <div class="switch-row">
+              <label class="verified-label"><i class="fas fa-check-circle"></i> Verified Only</label>
+              <label class="switch">
+                <input type="checkbox" id="verifiedToggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Expertise (Multi-select) -->
+          <div class="filter-group">
+            <label>Expertise</label>
+            <div class="checkbox-list" id="expertiseFilters">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Price Range -->
+          <div class="filter-group">
+            <label>Price / Session</label>
+            <div class="price-slider-container">
+              <input type="range" min="0" max="300" value="300" id="priceRange" class="slider-input">
+              <div class="price-labels">
+                <span>$0</span>
+                <span id="priceValue">Max $300</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Availability -->
+          <div class="filter-group">
+            <label>Availability</label>
+            <div class="radio-list">
+              <label class="custom-radio">
+                <input type="radio" name="availability" value="all" checked>
+                <span class="radio-mark"></span> Any Time
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="availability" value="today">
+                <span class="radio-mark"></span> Available Today
+              </label>
+              <label class="custom-radio">
+                <input type="radio" name="availability" value="week">
+                <span class="radio-mark"></span> This Week
+              </label>
+            </div>
+          </div>
+
+          <!-- Languages -->
+          <div class="filter-group">
+            <label>Language</label>
+            <div class="checkbox-list">
+              <label class="custom-checkbox"><input type="checkbox" name="lang" value="en"><span
+                  class="checkmark"></span> English 🇺🇸</label>
+              <label class="custom-checkbox"><input type="checkbox" name="lang" value="es"><span
+                  class="checkmark"></span> Spanish 🇪🇸</label>
+              <label class="custom-checkbox"><input type="checkbox" name="lang" value="fr"><span
+                  class="checkmark"></span> French 🇫🇷</label>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- Center: Mentor Grid -->
+        <section class="content-center">
+
+          <!-- Controls -->
+          <div class="list-controls">
+            <div class="count-label"><span id="mentorCount">0</span> mentors found</div>
+            <div class="ctrl-right">
+              <div class="my-mentors-switch">
+                <span>My Mentors</span>
+                <label class="switch sm">
+                  <input type="checkbox" id="myMentorsToggle">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <select id="sortSelect">
+                <option value="recommended">Recommended</option>
+                <option value="rating">Top Rated</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Grid -->
+          <div id="mentorsGrid" class="cards-grid">
+            <!-- Populated JS -->
+          </div>
+
+          <div class="load-more-container">
+            <button class="btn-load" id="loadMoreBtn">Load More</button>
+          </div>
+
+          <div id="emptyState" class="empty-state" style="display:none;">
+            <i class="fas fa-search"></i>
+            <h3>No mentors found</h3>
+            <p>Try adjusting your filters to find more experts.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Become Mentor CTA -->
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-box">
+          <h2>Become a Mentor</h2>
+          <p>Share your expertise and earn money while helping others succeed.</p>
+          <button class="btn-cta" onclick="window.location.href='/apply-mentor'">Apply Now</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Booking Modal -->
+  <div id="bookingModal" class="modal">
+    <div class="modal-content booking-content">
+      <span class="close-modal">&times;</span>
+      <div id="bookingBody">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/mentors.js"></script>
+</body>
+
+</html>
