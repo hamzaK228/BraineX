@@ -1,0 +1,4 @@
+﻿
+> brainex-platform@2.0.0 lint
+> eslint . --ext .js,.jsx
+

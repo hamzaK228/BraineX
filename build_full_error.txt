@@ -1,0 +1,465 @@
+﻿
+> brainex-platform@2.0.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+node.exe : <script s
+rc="/assets/js/theme
+.js"> in 
+"/404.html" can't 
+be bundled without 
+type="module" 
+attribute
+At line:1 char:1
++ & "C:\Program File
+s\nodejs/node.exe" 
+"C:\Program Files\no
+dejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo  
+            : NotS  
+  pecified: (<scr   
+ ipt src="/a...d    
+ule" attribute:    
+String) [], Rem    
+oteException
+    + FullyQualifie 
+   dErrorId : Nati  
+  veCommandError
+ 
+transforming...
+<script src="/assets
+/js/theme.js"> in 
+"/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/auth-api.js"> 
+in "/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/global.js"> in 
+"/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/navigation.js"> 
+in "/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/forms.js"> in 
+"/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/main.js"> in 
+"/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/performance.js">
+ in "/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/interactions.js"
+> in "/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/functionality-fi
+xes.js"> in 
+"/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/fields.js"> in 
+"/fields.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/theme.js"> in "/
+scholarships.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/auth-api.js"> 
+in "/scholarships.ht
+ml" can't be 
+bundled without 
+type="module" 
+attribute
+<script src="/assets
+/js/global.js"> in "
+/scholarships.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/navigation.js"> 
+in "/scholarships.ht
+ml" can't be 
+bundled without 
+type="module" 
+attribute
+<script src="/assets
+/js/forms.js"> in "/
+scholarships.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/main.js"> in "/s
+cholarships.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/scholarships.js"
+> in "/scholarships.
+html" can't be 
+bundled without 
+type="module" 
+attribute
+<script src="/assets
+/js/theme.js"> in 
+"/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/auth-api.js"> 
+in "/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/global.js"> in 
+"/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/navigation.js"> 
+in "/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/forms.js"> in 
+"/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/main.js"> in 
+"/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/projects.js"> 
+in "/projects.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/theme.js"> in 
+"/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/auth-api.js"> 
+in "/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/global.js"> in 
+"/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/navigation.js"> 
+in "/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/forms.js"> in 
+"/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/main.js"> in 
+"/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/mentors.js"> in 
+"/mentors.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/theme.js"> in 
+"/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/auth-api.js"> 
+in "/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/global.js"> in 
+"/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/navigation.js"> 
+in "/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/forms.js"> in 
+"/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/main.js"> in 
+"/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/roadmaps.js"> 
+in "/roadmaps.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/theme.js"> in 
+"/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/auth-api.js"> 
+in "/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/global.js"> in 
+"/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/navigation.js"> 
+in "/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/forms.js"> in 
+"/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/main.js"> in 
+"/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+<script src="/assets
+/js/events.js"> in 
+"/events.html" 
+can't be bundled 
+without 
+type="module" 
+attribute
+[32mΓ£ô[39m 1 modules transformed.
+[31mx[39m Build 
+failed in 241ms
+[31merror during 
+build:
+[31m[vite:build-htm
+l] Unable to parse 
+HTML; parse5 error 
+code invalid-first-c
+haracter-of-tag-name
+ at C:/Users/MMM/Des
+ktop/BraineX-main/fr
+ontend/index.html:11
+83:6
+1202|               
+           <label st
+yle="display:block; 
+margin-bottom:0.5rem
+;">Email</label>
+1203|               
+           <input 
+type="email" 
+id="loginEmail" 
+required
+1204|               
+               
+style="width:100%; 
+padding:0.8rem; 
+border:1px solid 
+#ddd; 
+border-radius:6px;" 
+/>
+   |                
+                    
+                    
+                ^
+1205|               
+       </div>
+1206|               
+       <div style="m
+argin-bottom:1rem;">
+[31m
+file: [36mC:/Users/
+MMM/Desktop/BraineX-
+main/frontend/index.
+html[31m
+    at 
+handleParseError (fi
+le:///C:/Users/MMM/D
+esktop/BraineX-main/
+node_modules/vite/di
+st/node/chunks/dep-B
+K3b2jBa.js:35172:9)
+    at 
+Parser.onParseError 
+(file:///C:/Users/MM
+M/Desktop/BraineX-ma
+in/node_modules/vite
+/dist/node/chunks/de
+p-BK3b2jBa.js:35097:
+7)
+    at 
+Tokenizer._err (file
+:///C:/Users/MMM/Des
+ktop/BraineX-main/no
+de_modules/vite/dist
+/node/chunks/dep-D-7
+KCb9p.js:1155:89)
+    at Tokenizer._st
+ateTagOpen (file:///
+C:/Users/MMM/Desktop
+/BraineX-main/node_m
+odules/vite/dist/nod
+e/chunks/dep-D-7KCb9
+p.js:1983:26)
+    at Tokenizer._ca
+llState (file:///C:/
+Users/MMM/Desktop/Br
+aineX-main/node_modu
+les/vite/dist/node/c
+hunks/dep-D-7KCb9p.j
+s:1534:22)
+    at Tokenizer._ru
+nParsingLoop (file:/
+//C:/Users/MMM/Deskt
+op/BraineX-main/node
+_modules/vite/dist/n
+ode/chunks/dep-D-7KC
+b9p.js:1179:22)
+    at 
+Tokenizer.write (fil
+e:///C:/Users/MMM/De
+sktop/BraineX-main/n
+ode_modules/vite/dis
+t/node/chunks/dep-D-
+7KCb9p.js:1204:14)
+    at Parser.parse 
+(file:///C:/Users/MM
+M/Desktop/BraineX-ma
+in/node_modules/vite
+/dist/node/chunks/de
+p-D-7KCb9p.js:4886:2
+6)
+    at parse (file:/
+//C:/Users/MMM/Deskt
+op/BraineX-main/node
+_modules/vite/dist/n
+ode/chunks/dep-D-7KC
+b9p.js:7957:19)
+    at traverseHtml 
+(file:///C:/Users/MM
+M/Desktop/BraineX-ma
+in/node_modules/vite
+/dist/node/chunks/de
+p-BK3b2jBa.js:35092:
+15)[39m

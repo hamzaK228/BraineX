@@ -203,8 +203,9 @@ const InteractionHandler = (function () {
   function setupModalHandlers() {
     // Close modal on backdrop click - must click directly on the modal background, not content
     document.addEventListener('click', function (e) {
-      // Only close if click is directly on the modal element (the backdrop), not on its children
-      if (e.target.classList.contains('modal') && !e.target.closest('.modal-content')) {
+      // Only close if the actual clicked element (e.target) is the .modal itself
+      // This means clicking on modal-content or any children won't close it
+      if (e.target.classList.contains('modal')) {
         closeActiveModal();
       }
     });
@@ -305,25 +306,24 @@ const InteractionHandler = (function () {
         <button class="close-modal" aria-label="Close modal">&times;</button>
         ${title ? `<h2 class="modal-title">${title}</h2>` : ''}
         <div class="modal-body">${content}</div>
-        ${
-          actions.length > 0
-            ? `
+        ${actions.length > 0
+        ? `
           <div class="modal-actions">
             ${actions
-              .map(
-                (action) => `
+          .map(
+            (action) => `
               <button class="btn ${action.primary ? 'btn-primary' : 'btn-secondary'}" 
                       data-action="${action.id || ''}"
                       ${action.href ? `onclick="window.open('${action.href}', '_blank')"` : ''}>
                 ${action.label}
               </button>
             `
-              )
-              .join('')}
+          )
+          .join('')}
           </div>
         `
-            : ''
-        }
+        : ''
+      }
       </div>
     `;
 

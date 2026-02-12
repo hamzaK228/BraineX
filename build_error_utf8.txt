@@ -1,0 +1,184 @@
+﻿
+> brainex-platform@2.0.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+node.exe : <script src
+="/assets/js/theme.js"
+> in "/404.html" 
+can't be bundled 
+without type="module" 
+attribute
+At line:1 char:1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (<script sr   
+ c="/a...dule" att    
+ribute:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+transforming...
+<script src="/assets/j
+s/theme.js"> in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+<script src="/assets/j
+s/auth-api.js"> in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+<script src="/assets/j
+s/global.js"> in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+<script src="/assets/j
+s/navigation.js"> in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+<script src="/assets/j
+s/forms.js"> in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+<script src="/assets/j
+s/main.js"> in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+<script src="/assets/j
+s/scholarships.js"> 
+in 
+"/scholarships.html" 
+can't be bundled 
+without type="module" 
+attribute
+[32mΓ£ô[39m 1 modules transformed.
+[31mx[39m Build 
+failed in 203ms
+[31merror during 
+build:
+[31m[vite:build-html]
+ Unable to parse 
+HTML; parse5 error 
+code invalid-first-cha
+racter-of-tag-name
+ at C:/Users/MMM/Deskt
+op/BraineX-main/fronte
+nd/index.html:1183:6
+1202|                 
+         <label 
+style="display:block; 
+margin-bottom:0.5rem;"
+>Email</label>
+1203|                 
+         <input 
+type="email" 
+id="loginEmail" 
+required
+1204|                 
+             
+style="width:100%; 
+padding:0.8rem; 
+border:1px solid 
+#ddd; 
+border-radius:6px;">
+   |                  
+                      
+                      
+          ^
+1205|                 
+     </div>
+1206|                 
+     <div style="margi
+n-bottom:1rem;">[31m
+file: [36mC:/Users/MM
+M/Desktop/BraineX-main
+/frontend/index.html[
+31m
+    at 
+handleParseError (file
+:///C:/Users/MMM/Deskt
+op/BraineX-main/node_m
+odules/vite/dist/node/
+chunks/dep-BK3b2jBa.js
+:35172:9)
+    at 
+Parser.onParseError (f
+ile:///C:/Users/MMM/De
+sktop/BraineX-main/nod
+e_modules/vite/dist/no
+de/chunks/dep-BK3b2jBa
+.js:35097:7)
+    at Tokenizer._err 
+(file:///C:/Users/MMM/
+Desktop/BraineX-main/n
+ode_modules/vite/dist/
+node/chunks/dep-D-7KCb
+9p.js:1155:89)
+    at Tokenizer._stat
+eTagOpen (file:///C:/U
+sers/MMM/Desktop/Brain
+eX-main/node_modules/v
+ite/dist/node/chunks/d
+ep-D-7KCb9p.js:1983:26
+)
+    at 
+Tokenizer._callState (
+file:///C:/Users/MMM/D
+esktop/BraineX-main/no
+de_modules/vite/dist/n
+ode/chunks/dep-D-7KCb9
+p.js:1534:22)
+    at Tokenizer._runP
+arsingLoop (file:///C:
+/Users/MMM/Desktop/Bra
+ineX-main/node_modules
+/vite/dist/node/chunks
+/dep-D-7KCb9p.js:1179:
+22)
+    at 
+Tokenizer.write (file:
+///C:/Users/MMM/Deskto
+p/BraineX-main/node_mo
+dules/vite/dist/node/c
+hunks/dep-D-7KCb9p.js:
+1204:14)
+    at Parser.parse (f
+ile:///C:/Users/MMM/De
+sktop/BraineX-main/nod
+e_modules/vite/dist/no
+de/chunks/dep-D-7KCb9p
+.js:4886:26)
+    at parse (file:///
+C:/Users/MMM/Desktop/B
+raineX-main/node_modul
+es/vite/dist/node/chun
+ks/dep-D-7KCb9p.js:795
+7:19)
+    at traverseHtml (f
+ile:///C:/Users/MMM/De
+sktop/BraineX-main/nod
+e_modules/vite/dist/no
+de/chunks/dep-BK3b2jBa
+.js:35092:15)[39m

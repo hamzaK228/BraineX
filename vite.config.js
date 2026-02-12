@@ -19,6 +19,8 @@ export default defineConfig({
         about: path.resolve(__dirname, 'frontend/pages/about.html'),
         admin: path.resolve(__dirname, 'frontend/pages/admin.html'),
         notion: path.resolve(__dirname, 'frontend/pages/notion.html'),
+        universities: path.resolve(__dirname, 'frontend/pages/universities.html'),
+        programs: path.resolve(__dirname, 'frontend/pages/programs.html'),
       },
       output: {},
     },
