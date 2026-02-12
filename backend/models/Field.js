@@ -1,37 +1,54 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const fieldSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-    unique: true,
+const fieldSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Field name is required'],
+      unique: true,
+      trim: true,
+    },
+    category: {
+      type: String,
+      required: [true, 'Category is required'],
+    },
+    description: {
+      type: String,
+      required: [true, 'Description is required'],
+    },
+    icon: {
+      type: String,
+      default: '🎓',
+    },
+    color: {
+      type: String,
+      default: '#667eea',
+    },
+    salary: String,
+    careers: [String],
+    scholarshipCount: {
+      type: Number,
+      default: 0,
+    },
+    roadmapCount: {
+      type: Number,
+      default: 0,
+    },
+    mentorCount: {
+      type: Number,
+      default: 0,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
-  name: {
-    type: String,
-    required: [true, 'Please add a field name'],
-    unique: true,
-    trim: true,
-  },
-  category: {
-    type: String,
-    required: [true, 'Please add a category'],
-    enum: ['stem', 'humanities', 'business', 'arts', 'other'],
-  },
-  description: {
-    type: String,
-    required: [true, 'Please add a description'],
-  },
-  icon: {
-    type: String,
-    default: '🎓',
-  },
-  salary: {
-    type: String,
-  },
-  careers: [String],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
-module.exports = mongoose.model('Field', fieldSchema);
+fieldSchema.index({ name: 1 });
+fieldSchema.index({ category: 1 });
+
+export default mongoose.model('Field', fieldSchema);

@@ -16,8 +16,8 @@ router.get('/', getScholarships);
 router.get('/:id', validateId, getScholarshipById);
 
 // Admin routes
-router.post('/', authenticate, authorize('admin'), validate(scholarshipSchema), createScholarship);
-router.put('/:id', authenticate, authorize('admin'), validateId, updateScholarship);
-router.delete('/:id', authenticate, authorize('admin'), validateId, deleteScholarship);
+router.post('/', authenticate, authorize('super_admin', 'moderator', 'content_manager'), validate(scholarshipSchema), createScholarship);
+router.put('/:id', authenticate, authorize('super_admin', 'moderator', 'content_manager'), validateId, updateScholarship);
+router.delete('/:id', authenticate, authorize('super_admin', 'moderator', 'content_manager'), validateId, deleteScholarship);
 
 export default router;

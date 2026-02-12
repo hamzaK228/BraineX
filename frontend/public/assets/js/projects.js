@@ -22,6 +22,26 @@ function initializeProjectsPage() {
   updateProjectStats(projects);
 }
 
+async function loadProjectsData() {
+  try {
+    const response = await fetch('/api/projects');
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && Array.isArray(result.data)) {
+        const apiProjects = result.data.map((p) => ({
+          ...p,
+          id: p.id || p._id,
+        }));
+        localStorage.setItem('projects', JSON.stringify(apiProjects));
+        displayProjects(apiProjects);
+        updateProjectStats(apiProjects);
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to load projects from API, using local data', e);
+  }
+}
+
 // Function to view project details
 window.viewProjectDetails = function (id) {
   const projects = JSON.parse(localStorage.getItem('projects')) || getSampleProjects();
@@ -484,15 +504,14 @@ function createProjectCard(project) {
   return `
         <div class=\"project-card enhanced\" data-project-id=\"${project.id}\" data-category=\"${project.category}\" data-status=\"${project.status}\">
             <div class="project-badge ${project.status}">
-                ${
-                  project.status === 'recruiting'
-                    ? '🔍 Recruiting'
-                    : project.status === 'active'
-                      ? '⚡ Active'
-                      : project.status === 'completed'
-                        ? '✅ Completed'
-                        : '📋 Planning'
-                }
+                ${project.status === 'recruiting'
+      ? '🔍 Recruiting'
+      : project.status === 'active'
+        ? '⚡ Active'
+        : project.status === 'completed'
+          ? '✅ Completed'
+          : '📋 Planning'
+    }
             </div>
             
             <div class="project-header">
@@ -539,9 +558,9 @@ function createProjectCard(project) {
                 
                 <div class="project-skills">
                     ${project.skills
-                      .slice(0, 4)
-                      .map((skill) => `<span class="skill-tag">${skill}</span>`)
-                      .join('')}
+      .slice(0, 4)
+      .map((skill) => `<span class="skill-tag">${skill}</span>`)
+      .join('')}
                 </div>
                 
                 <div class="project-tags">

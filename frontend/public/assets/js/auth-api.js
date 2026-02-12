@@ -200,6 +200,13 @@ class AuthAPI {
   }
 
   /**
+   * Check if user is admin
+   */
+  isAdmin() {
+    return this.hasRole('admin');
+  }
+
+  /**
    * Save authentication state to localStorage
    */
   saveAuthState() {

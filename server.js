@@ -9,6 +9,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import passport from 'passport';
 
 // Import middleware
 import {
@@ -35,11 +36,11 @@ import adminRoutes from './backend/routes/admin.js';
 import universityRoutes from './backend/routes/universities.js';
 import programRoutes from './backend/routes/programs.js';
 
-// Import database and logger
-import { testConnection, closePool } from './backend/config/database.js';
+// Import database (MongoDB), logger, passport config
+import { connectDB, closeDB } from './backend/config/database.js';
+import configurePassport from './backend/config/passport.js';
 import logger from './backend/config/logger.js';
 import { initializeSocketIO } from './backend/config/socket.js';
-// import { closeQueues } from './backend/config/queue.js';
 import http from 'http';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,11 +55,10 @@ try {
   validateEnvironment();
 } catch (error) {
   logger.warn('Environment validation failed, but proceeding for fallback mode:', error);
-  // process.exit(1);
 }
 
 const app = express();
-const PORT = 3001; // Forced for stability
+const PORT = process.env.PORT || 3001;
 
 // Trust proxy (for rate limiting behind reverse proxy)
 app.set('trust proxy', 1);
@@ -81,6 +81,10 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Passport initialization (stateless — no sessions needed for JWT)
+app.use(passport.initialize());
+configurePassport();
 
 // Input sanitization
 app.use(sanitize);
@@ -222,12 +226,11 @@ app.use(errorHandler);
 // Start server
 async function startServer() {
   try {
-    // Test database connection
-    const dbConnected = await testConnection();
+    // Connect to MongoDB
+    const dbConnected = await connectDB();
 
     if (!dbConnected) {
-      logger.warn('Failed to connect to database. API endpoints will use JSON fallback mode.');
-      // Do not exit, allow server to verify JSON fallbacks
+      logger.warn('Failed to connect to MongoDB. Some endpoints may not function correctly.');
     }
 
     // Start listening
@@ -236,6 +239,7 @@ async function startServer() {
       logger.info(`🔗 URL: http://localhost:${PORT}`);
       logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`🔒 Security: Helmet, CORS, Rate Limiting, XSS Protection enabled`);
+      logger.info(`🗄️  Database: MongoDB (Mongoose)`);
 
       // Initialize Socket.IO
       try {
@@ -262,8 +266,7 @@ async function startServer() {
       server.close(async () => {
         logger.info('HTTP server closed');
 
-        await closePool();
-        // await closeQueues(); // Disabled for verification
+        await closeDB();
 
         logger.info('Graceful shutdown complete');
         process.exit(0);
@@ -299,6 +302,5 @@ async function startServer() {
 if (process.env.VERCEL !== '1') {
   startServer();
 }
-// console.log('Server file loaded successfully, but startServer disabled.');
 
 export default app;

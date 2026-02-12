@@ -1,56 +1,101 @@
-import { pool } from '../config/database.js';
+import Field from '../models/Field.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { readJson } from '../utils/jsonHelper.js';
 
+/**
+ * Get all fields
+ * @route GET /api/fields
+ */
 export const getFields = asyncHandler(async (req, res) => {
-  try {
-    const [fields] = await pool.query('SELECT * FROM fields ORDER BY name ASC');
-    res.json({
-      success: true,
-      data: fields,
-    });
-  } catch (error) {
-    console.warn('Database error in getFields, using fallback JSON:', error.message);
-    const fields = await readJson('fields.json');
-    res.json({
-      success: true,
-      data: fields,
-    });
+  const { category, search } = req.query;
+
+  const query = {};
+  if (category) query.category = { $regex: category, $options: 'i' };
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
   }
+
+  const fields = await Field.find(query).sort({ name: 1 });
+
+  res.json({
+    success: true,
+    data: fields,
+    total: fields.length,
+  });
 });
 
+/**
+ * Get field by ID
+ * @route GET /api/fields/:id
+ */
 export const getFieldById = asyncHandler(async (req, res) => {
-  try {
-    const [fields] = await pool.query('SELECT * FROM fields WHERE id = ?', [req.params.id]);
+  const field = await Field.findById(req.params.id);
 
-    if (fields.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Field not found',
-      });
-    }
-
-    res.json({
-      success: true,
-      data: fields[0],
-    });
-  } catch (error) {
-    console.warn('Database error in getFieldById, using fallback JSON:', error.message);
-    const fields = await readJson('fields.json');
-    const field = fields.find((f) => f.id == req.params.id);
-
-    if (!field) {
-      return res.status(404).json({
-        success: false,
-        error: 'Field not found',
-      });
-    }
-
-    res.json({
-      success: true,
-      data: field,
-    });
+  if (!field) {
+    return res.status(404).json({ success: false, error: 'Field not found' });
   }
+
+  res.json({ success: true, data: field });
 });
 
-export default { getFields, getFieldById };
+/**
+ * Create field
+ * @route POST /api/fields
+ */
+export const createField = asyncHandler(async (req, res) => {
+  const field = await Field.create(req.body);
+
+  res.status(201).json({
+    success: true,
+    message: 'Field created successfully',
+    data: field,
+  });
+});
+
+/**
+ * Update field
+ * @route PUT /api/fields/:id
+ */
+export const updateField = asyncHandler(async (req, res) => {
+  const field = await Field.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!field) {
+    return res.status(404).json({ success: false, error: 'Field not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Field updated successfully',
+    data: field,
+  });
+});
+
+/**
+ * Delete field
+ * @route DELETE /api/fields/:id
+ */
+export const deleteField = asyncHandler(async (req, res) => {
+  const field = await Field.findByIdAndDelete(req.params.id);
+
+  if (!field) {
+    return res.status(404).json({ success: false, error: 'Field not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Field deleted successfully',
+  });
+});
+
+export default {
+  getFields,
+  getFieldById,
+  createField,
+  updateField,
+  deleteField,
+};

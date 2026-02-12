@@ -402,59 +402,66 @@ function setupFormValidation() { }
 
 // --- Data Loading (Mock) ---
 
-function loadData() {
-  // Mock Fields
-  window.appState.fields = [
-    {
-      name: 'Artificial Intelligence',
-      icon: '🤖',
-      description: 'Explore AI, Machine Learning, and Data Science.',
-    },
-    { name: 'Entrepreneurship', icon: '💡', description: 'Start your own business.' },
-    { name: 'Social Impact', icon: '🌍', description: 'Make a difference properly.' },
-    { name: 'Digital Media', icon: '🎨', description: 'Creative arts and design.' },
-    { name: 'Economics', icon: '💰', description: 'Finance and global markets.' },
-    { name: 'Health', icon: '🧬', description: 'Medical research and biotech.' },
-    { name: 'Climate', icon: '🌱', description: 'Sustainable solutions.' },
-  ];
+async function loadFeaturedScholarships() {
+  const container = document.querySelector('#scholarships .scholarship-grid');
+  if (!container) return;
 
-  // Mock Scholarships
-  window.appState.scholarships = [
-    {
-      name: 'Gates Cambridge Scholarship',
-      university: 'University of Cambridge',
-      level: 'Graduate',
-      amount: 'Full Funding',
-      description: 'Prestigious scholarship for outstanding applicants from outside the UK.',
-    },
-    {
-      name: 'NSF Graduate Research Fellowship',
-      university: 'NSF',
-      level: 'Graduate',
-      amount: '$37,000/year',
-      description: 'Support for graduate research in STEM.',
-    },
-    {
-      name: 'Rhodes Scholarship',
-      university: 'University of Oxford',
-      level: 'Graduate',
-      amount: 'Full Funding',
-      description: "World's oldest graduate scholarship.",
-    },
-    {
-      name: "Erasmus+ Master's Programme",
-      university: 'Various (EU)',
-      level: "Master's",
-      amount: '€1,400/month',
-      description: "Joint master's programmes in Europe.",
-    },
-  ];
+  try {
+    const response = await fetch('/api/scholarships');
+    const data = await response.json();
+
+    if (data.success && data.data && data.data.length > 0) {
+      container.innerHTML = '';
+      // Take first 4 items
+      const featured = data.data.slice(0, 4);
+
+      featured.forEach(scholarship => {
+        const card = document.createElement('div');
+        card.className = 'scholarship-card';
+        card.dataset.category = scholarship.category || 'general';
+        // Add data-id for click handling
+        card.innerHTML = `
+            <div class="scholarship-header">
+                <h3>${escapeHtml(scholarship.name)}</h3>
+                <span class="scholarship-amount">${escapeHtml(scholarship.amount || 'See Details')}</span>
+            </div>
+            <div class="scholarship-details">
+                <p><strong>Organization:</strong> ${escapeHtml(scholarship.university || 'Various')}</p>
+                <p><strong>Field:</strong> ${escapeHtml(scholarship.field || 'General')}</p>
+                <p><strong>Deadline:</strong> ${scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'Open'}</p>
+                <p><strong>Level:</strong> ${escapeHtml(scholarship.level || 'All Levels')}</p>
+            </div>
+            <p class="scholarship-description">${escapeHtml(scholarship.description || '')}</p>
+            <div class="scholarship-tags">
+                ${(scholarship.tags || ['Scholarship']).slice(0, 3).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <a href="/pages/scholarships.html?id=${scholarship._id || scholarship.id}" class="btn-apply" style="text-decoration: none; text-align: center;">View Details</a>
+        `;
+        container.appendChild(card);
+      });
+    }
+  } catch (error) {
+    console.warn('Failed to load featured scholarships, using static fallback.', error);
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/[&<>"']/g, function (m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    }[m];
+  });
 }
 
 // --- Initialization ---
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadData();
+  loadFeaturedScholarships();
   setupScholarshipFilters();
   setupRoadmapTabs();
   setupTracksSlider();
@@ -578,4 +585,76 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   console.log('Main.js initialized successfully.');
+
+  updateNavigation();
 });
+
+// --- Navigation & Auth UI Updates ---
+window.updateNavigation = async function () {
+  const authAPI = window.authAPI;
+  if (!authAPI) return;
+
+  // Wait for auth check if needed
+  if (!authAPI.user && localStorage.getItem('accessToken')) {
+    try {
+      await authAPI.getCurrentUser();
+    } catch (e) {
+      console.warn('Failed to restore session');
+    }
+  }
+
+  const isLoggedIn = authAPI.isAuthenticated();
+  const isAdmin = authAPI.isAdmin();
+  const user = authAPI.user;
+
+  // Update Auth Buttons
+  const authButtons = document.querySelector('.auth-buttons');
+  if (authButtons) {
+    if (isLoggedIn) {
+      authButtons.innerHTML = `
+                <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="color: var(--text-primary); font-weight: 500;">Hi, ${escapeHtml(user.firstName || 'User')}</span>
+                    ${isAdmin ? '<a href="/admin" class="btn btn-sm btn-outline" style="border-radius: 20px;">Admin Panel</a>' : ''}
+                    <button onclick="window.authAPI.logout()" class="btn btn-sm btn-primary" style="padding: 0.5rem 1rem;">Logout</button>
+                </div>
+            `;
+    } else {
+      authButtons.innerHTML = `
+                <a href="#login" class="btn btn-outline" onclick="openModal('loginModal')">Log In</a>
+                <a href="#signup" class="btn btn-primary" onclick="openModal('signupModal')">Sign Up</a>
+            `;
+    }
+  }
+
+  // Update Mobile Menu
+  const mobileNav = document.getElementById('navMenu');
+  if (mobileNav) {
+    // Remove existing dynamic items first to prevent duplicates if called multiple times
+    const existingDynamic = mobileNav.querySelectorAll('.dynamic-nav-item');
+    existingDynamic.forEach(el => el.remove());
+
+    if (isLoggedIn) {
+      if (isAdmin) {
+        const adminLi = document.createElement('li');
+        adminLi.className = 'dynamic-nav-item';
+        adminLi.innerHTML = '<a href="/admin" style="color: var(--primary-color); font-weight: bold;">Admin Panel</a>';
+        mobileNav.appendChild(adminLi);
+      }
+
+      const logoutLi = document.createElement('li');
+      logoutLi.className = 'dynamic-nav-item mobile-only'; // Hide on desktop if using auth-buttons
+      logoutLi.innerHTML = '<a href="#" onclick="window.authAPI.logout(); return false;">Logout</a>';
+      mobileNav.appendChild(logoutLi);
+    } else {
+      const loginLi = document.createElement('li');
+      loginLi.className = 'dynamic-nav-item mobile-only';
+      loginLi.innerHTML = '<a href="#login" onclick="openModal(\'loginModal\'); return false;">Log In</a>';
+      mobileNav.appendChild(loginLi);
+
+      const signupLi = document.createElement('li');
+      signupLi.className = 'dynamic-nav-item mobile-only';
+      signupLi.innerHTML = '<a href="#signup" onclick="openModal(\'signupModal\'); return false;">Sign Up</a>';
+      mobileNav.appendChild(signupLi);
+    }
+  }
+};

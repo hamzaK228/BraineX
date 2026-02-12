@@ -7,11 +7,7 @@ export const validateEnvironment = () => {
   const requiredVars = [
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
-    'DB_HOST',
-    'DB_PORT',
-    'DB_NAME',
-    'DB_USER',
-    'DB_PASSWORD',
+    'MONGODB_URI',
   ];
 
   const missingVars = requiredVars.filter((varName) => !process.env[varName]);

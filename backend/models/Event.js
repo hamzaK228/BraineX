@@ -1,44 +1,67 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const eventSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-    trim: true,
+const eventSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, 'Event title is required'],
+      trim: true,
+    },
+    description: String,
+    eventType: {
+      type: String,
+      enum: ['webinar', 'workshop', 'deadline', 'conference', 'meetup', 'hackathon'],
+      default: 'webinar',
+    },
+    // Keep 'type' for backward-compatibility with existing data
+    type: {
+      type: String,
+      default: 'Webinar',
+    },
+    date: {
+      type: Date,
+      required: [true, 'Event date is required'],
+    },
+    endDate: Date,
+    time: String,
+    location: {
+      type: String,
+      default: 'Online',
+    },
+    format: {
+      type: String,
+      enum: ['virtual', 'in-person', 'hybrid'],
+      default: 'virtual',
+    },
+    organizer: String,
+    registrationLink: String,
+    link: String,
+    maxParticipants: Number,
+    attendees: {
+      type: Number,
+      default: 0,
+    },
+    speakers: [String],
+    tags: [String],
+    image: String,
+    status: {
+      type: String,
+      enum: ['upcoming', 'ongoing', 'past', 'cancelled'],
+      default: 'upcoming',
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
-  date: {
-    type: Date,
-    required: true,
-  },
-  location: {
-    type: String,
-    default: 'Online',
-  },
-  type: {
-    // e.g., 'Webinar', 'Workshop', 'Conference'
-    type: String,
-    default: 'Webinar',
-  },
-  description: String,
-  image: String,
-  link: String,
-  speakers: [String],
-  attendees: {
-    type: Number,
-    default: 0,
-  },
-  status: {
-    type: String,
-    enum: ['upcoming', 'past', 'cancelled'],
-    default: 'upcoming',
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
-// Index for easier searching
-eventSchema.index({ title: 'text', description: 'text', type: 1 });
+// Index for search and filtering
+eventSchema.index({ title: 'text', description: 'text' });
+eventSchema.index({ date: 1, status: 1 });
+eventSchema.index({ eventType: 1 });
 
-module.exports = mongoose.model('Event', eventSchema);
+export default mongoose.model('Event', eventSchema);

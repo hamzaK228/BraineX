@@ -87,7 +87,7 @@ async function loadScholarships() {
     const data = await response.json();
 
     if (data.success && data.data && data.data.length > 0) {
-      allScholarships = data.data;
+      allScholarships = data.data.map(item => ({ ...item, id: item.id || item._id }));
     } else {
       if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
         console.warn('API returned no scholarships, using fallback data.');

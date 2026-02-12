@@ -1,67 +1,74 @@
-// Admin Routes - JSON Fallback Mode
+// Admin Routes - MongoDB/Mongoose
 import express from 'express';
 import { authenticate, authorize } from '../middleware/auth.js';
-import { readJson, writeJson } from '../utils/jsonHelper.js';
+import User from '../models/User.js';
+import Scholarship from '../models/Scholarship.js';
+import Mentor from '../models/Mentor.js';
+import Field from '../models/Field.js';
+import Event from '../models/Event.js';
+import University from '../models/University.js';
+import Program from '../models/Program.js';
+import Project from '../models/Project.js';
+import Roadmap from '../models/Roadmap.js';
 
 const router = express.Router();
 
-// Apply authentication and admin authorization to all routes
+// Apply auth to all admin routes
 router.use(authenticate);
-router.use(authorize('admin'));
+router.use(authorize('super_admin', 'moderator', 'content_manager'));
 
-// JSON file paths
-const DATA_DIR = new URL('../data/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+// ==================== DASHBOARD STATS ====================
 
-// Helper to load JSON data
-async function loadData(type) {
-  try {
-    const data = await readJson(type);
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.warn(`Failed to load ${type} data:`, error.message);
-    return [];
-  }
-}
-
-// @desc    Get admin dashboard stats
-// @route   GET /api/admin/stats
 router.get('/stats', async (req, res) => {
   try {
-    const [scholarships, mentors, fields, events] = await Promise.all([
-      loadData('scholarships'),
-      loadData('mentors'),
-      loadData('fields'),
-      loadData('events'),
+    const [
+      totalUsers,
+      totalScholarships,
+      activeScholarships,
+      totalMentors,
+      verifiedMentors,
+      totalFields,
+      totalEvents,
+      totalUniversities,
+      totalPrograms,
+      totalProjects,
+      totalRoadmaps,
+    ] = await Promise.all([
+      User.countDocuments(),
+      Scholarship.countDocuments(),
+      Scholarship.countDocuments({ status: 'active' }),
+      Mentor.countDocuments(),
+      Mentor.countDocuments({ status: 'verified' }),
+      Field.countDocuments(),
+      Event.countDocuments(),
+      University.countDocuments(),
+      Program.countDocuments(),
+      Project.countDocuments(),
+      Roadmap.countDocuments(),
     ]);
 
-    const stats = {
-      totalUsers: 5, // Mock for JSON mode
-      activeStudents: 3,
-      activeMentors: mentors.filter((m) => m.status === 'verified').length,
-      totalScholarships: scholarships.length,
-      activeScholarships: scholarships.filter((s) => s.status === 'active').length,
-      totalMentors: mentors.length,
-      verifiedMentors: mentors.filter((m) => m.status === 'verified').length,
-      totalFields: fields.length,
-      totalEvents: events.length,
-    };
+    const students = await User.countDocuments({ role: 'user' });
+    const admins = await User.countDocuments({ role: { $in: ['super_admin', 'moderator', 'content_manager'] } });
 
     res.json({
       success: true,
       data: {
         users: {
-          total: stats.totalUsers,
-          students: stats.activeStudents,
-          mentors: stats.activeMentors,
-          admins: 1,
+          total: totalUsers,
+          students,
+          mentors: verifiedMentors,
+          admins,
         },
-        totalScholarships: stats.totalScholarships,
-        activeScholarships: stats.activeScholarships,
-        totalMentors: stats.totalMentors,
-        verifiedMentors: stats.verifiedMentors,
-        totalFields: stats.totalFields,
-        totalEvents: stats.totalEvents,
-        monthlyRevenue: 45250,
+        totalScholarships,
+        activeScholarships,
+        totalMentors,
+        verifiedMentors,
+        totalFields,
+        totalEvents,
+        totalUniversities,
+        totalPrograms,
+        totalProjects,
+        totalRoadmaps,
       },
     });
   } catch (error) {
@@ -70,103 +77,151 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// @desc    Get all users (mock for JSON mode)
-// @route   GET /api/admin/users
+// ==================== USERS ====================
+
 router.get('/users', async (req, res) => {
-  res.json({
-    success: true,
-    data: {
-      users: [
-        {
-          id: 1,
-          firstName: 'Admin',
-          lastName: 'User',
-          email: 'admin@brainex.com',
-          role: 'admin',
-          isActive: true,
+  try {
+    const { role, search, page = 1, limit = 20 } = req.query;
+    const query = {};
+
+    if (role) query.role = role;
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .select('-password -refreshTokens -emailVerificationToken -passwordResetToken')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      User.countDocuments(query),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / parseInt(limit)),
         },
-        {
-          id: 2,
-          firstName: 'Test',
-          lastName: 'Student',
-          email: 'student@test.com',
-          role: 'student',
-          isActive: true,
-        },
-        {
-          id: 3,
-          firstName: 'Demo',
-          lastName: 'Mentor',
-          email: 'mentor@test.com',
-          role: 'mentor',
-          isActive: true,
-        },
-      ],
-      pagination: { page: 1, limit: 10, total: 3, pages: 1 },
-    },
-  });
+      },
+    });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch users' });
+  }
+});
+
+router.put('/users/:id/role', async (req, res) => {
+  try {
+    const { role } = req.body;
+    const validRoles = ['user', 'moderator', 'content_manager', 'super_admin'];
+
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ success: false, error: 'Invalid role' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true }
+    ).select('-password -refreshTokens');
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({ success: true, data: user, message: 'User role updated' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update user role' });
+  }
+});
+
+router.put('/users/:id/status', async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive },
+      { new: true }
+    ).select('-password -refreshTokens');
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({ success: true, data: user, message: `User ${isActive ? 'activated' : 'deactivated'}` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to update user status' });
+  }
+});
+
+router.delete('/users/:id', async (req, res) => {
+  try {
+    // Prevent self-deletion
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({ success: false, error: 'Cannot delete your own account' });
+    }
+
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({ success: true, message: 'User deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to delete user' });
+  }
 });
 
 // ==================== SCHOLARSHIPS ====================
 
-// @desc    Get all scholarships for admin
-// @route   GET /api/admin/scholarships
 router.get('/scholarships', async (req, res) => {
   try {
-    const scholarships = await loadData('scholarships');
+    const scholarships = await Scholarship.find().sort({ createdAt: -1 });
     res.json({ success: true, data: scholarships, count: scholarships.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch scholarships' });
   }
 });
 
-// @desc    Create scholarship
-// @route   POST /api/admin/scholarships
 router.post('/scholarships', async (req, res) => {
   try {
-    const scholarships = await loadData('scholarships');
-    const newScholarship = {
-      id: Date.now(),
-      ...req.body,
-      status: 'active',
-      createdAt: new Date().toISOString(),
-    };
-    scholarships.push(newScholarship);
-    await writeJson('scholarships', scholarships);
-    res.status(201).json({ success: true, data: newScholarship });
+    const data = { ...req.body, createdBy: req.user.id };
+    const scholarship = await Scholarship.create(data);
+    res.status(201).json({ success: true, data: scholarship });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create scholarship' });
   }
 });
 
-// @desc    Update scholarship
-// @route   PUT /api/admin/scholarships/:id
 router.put('/scholarships/:id', async (req, res) => {
   try {
-    const scholarships = await loadData('scholarships');
-    const index = scholarships.findIndex((s) => s.id == req.params.id);
-    if (index === -1) {
-      return res.status(404).json({ success: false, error: 'Scholarship not found' });
-    }
-    scholarships[index] = { ...scholarships[index], ...req.body };
-    await writeJson('scholarships', scholarships);
-    res.json({ success: true, data: scholarships[index] });
+    const scholarship = await Scholarship.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!scholarship) return res.status(404).json({ success: false, error: 'Scholarship not found' });
+    res.json({ success: true, data: scholarship });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update scholarship' });
   }
 });
 
-// @desc    Delete scholarship
-// @route   DELETE /api/admin/scholarships/:id
 router.delete('/scholarships/:id', async (req, res) => {
   try {
-    let scholarships = await loadData('scholarships');
-    const index = scholarships.findIndex((s) => s.id == req.params.id);
-    if (index === -1) {
-      return res.status(404).json({ success: false, error: 'Scholarship not found' });
-    }
-    scholarships.splice(index, 1);
-    await writeJson('scholarships', scholarships);
+    const scholarship = await Scholarship.findByIdAndDelete(req.params.id);
+    if (!scholarship) return res.status(404).json({ success: false, error: 'Scholarship not found' });
     res.json({ success: true, message: 'Scholarship deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete scholarship' });
@@ -177,7 +232,7 @@ router.delete('/scholarships/:id', async (req, res) => {
 
 router.get('/mentors', async (req, res) => {
   try {
-    const mentors = await loadData('mentors');
+    const mentors = await Mentor.find().sort({ createdAt: -1 });
     res.json({ success: true, data: mentors, count: mentors.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch mentors' });
@@ -186,11 +241,9 @@ router.get('/mentors', async (req, res) => {
 
 router.post('/mentors', async (req, res) => {
   try {
-    const mentors = await loadData('mentors');
-    const newMentor = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
-    mentors.push(newMentor);
-    await writeJson('mentors', mentors);
-    res.status(201).json({ success: true, data: newMentor });
+    const data = { ...req.body, createdBy: req.user.id };
+    const mentor = await Mentor.create(data);
+    res.status(201).json({ success: true, data: mentor });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create mentor' });
   }
@@ -198,12 +251,9 @@ router.post('/mentors', async (req, res) => {
 
 router.put('/mentors/:id', async (req, res) => {
   try {
-    const mentors = await loadData('mentors');
-    const index = mentors.findIndex((m) => m.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Mentor not found' });
-    mentors[index] = { ...mentors[index], ...req.body };
-    await writeJson('mentors', mentors);
-    res.json({ success: true, data: mentors[index] });
+    const mentor = await Mentor.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!mentor) return res.status(404).json({ success: false, error: 'Mentor not found' });
+    res.json({ success: true, data: mentor });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update mentor' });
   }
@@ -211,11 +261,8 @@ router.put('/mentors/:id', async (req, res) => {
 
 router.delete('/mentors/:id', async (req, res) => {
   try {
-    let mentors = await loadData('mentors');
-    const index = mentors.findIndex((m) => m.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Mentor not found' });
-    mentors.splice(index, 1);
-    await writeJson('mentors', mentors);
+    const mentor = await Mentor.findByIdAndDelete(req.params.id);
+    if (!mentor) return res.status(404).json({ success: false, error: 'Mentor not found' });
     res.json({ success: true, message: 'Mentor deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete mentor' });
@@ -226,7 +273,7 @@ router.delete('/mentors/:id', async (req, res) => {
 
 router.get('/fields', async (req, res) => {
   try {
-    const fields = await loadData('fields');
+    const fields = await Field.find().sort({ name: 1 });
     res.json({ success: true, data: fields, count: fields.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch fields' });
@@ -235,11 +282,8 @@ router.get('/fields', async (req, res) => {
 
 router.post('/fields', async (req, res) => {
   try {
-    const fields = await loadData('fields');
-    const newField = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
-    fields.push(newField);
-    await writeJson('fields', fields);
-    res.status(201).json({ success: true, data: newField });
+    const field = await Field.create(req.body);
+    res.status(201).json({ success: true, data: field });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create field' });
   }
@@ -247,12 +291,9 @@ router.post('/fields', async (req, res) => {
 
 router.put('/fields/:id', async (req, res) => {
   try {
-    const fields = await loadData('fields');
-    const index = fields.findIndex((f) => f.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Field not found' });
-    fields[index] = { ...fields[index], ...req.body };
-    await writeJson('fields', fields);
-    res.json({ success: true, data: fields[index] });
+    const field = await Field.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!field) return res.status(404).json({ success: false, error: 'Field not found' });
+    res.json({ success: true, data: field });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update field' });
   }
@@ -260,11 +301,8 @@ router.put('/fields/:id', async (req, res) => {
 
 router.delete('/fields/:id', async (req, res) => {
   try {
-    let fields = await loadData('fields');
-    const index = fields.findIndex((f) => f.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Field not found' });
-    fields.splice(index, 1);
-    await writeJson('fields', fields);
+    const field = await Field.findByIdAndDelete(req.params.id);
+    if (!field) return res.status(404).json({ success: false, error: 'Field not found' });
     res.json({ success: true, message: 'Field deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete field' });
@@ -275,7 +313,7 @@ router.delete('/fields/:id', async (req, res) => {
 
 router.get('/events', async (req, res) => {
   try {
-    const events = await loadData('events');
+    const events = await Event.find().sort({ date: 1 });
     res.json({ success: true, data: events, count: events.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch events' });
@@ -284,11 +322,8 @@ router.get('/events', async (req, res) => {
 
 router.post('/events', async (req, res) => {
   try {
-    const events = await loadData('events');
-    const newEvent = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
-    events.push(newEvent);
-    await writeJson('events', events);
-    res.status(201).json({ success: true, data: newEvent });
+    const event = await Event.create(req.body);
+    res.status(201).json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create event' });
   }
@@ -296,12 +331,9 @@ router.post('/events', async (req, res) => {
 
 router.put('/events/:id', async (req, res) => {
   try {
-    const events = await loadData('events');
-    const index = events.findIndex((e) => e.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Event not found' });
-    events[index] = { ...events[index], ...req.body };
-    await writeJson('events', events);
-    res.json({ success: true, data: events[index] });
+    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!event) return res.status(404).json({ success: false, error: 'Event not found' });
+    res.json({ success: true, data: event });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update event' });
   }
@@ -309,11 +341,8 @@ router.put('/events/:id', async (req, res) => {
 
 router.delete('/events/:id', async (req, res) => {
   try {
-    let events = await loadData('events');
-    const index = events.findIndex((e) => e.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Event not found' });
-    events.splice(index, 1);
-    await writeJson('events', events);
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) return res.status(404).json({ success: false, error: 'Event not found' });
     res.json({ success: true, message: 'Event deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete event' });
@@ -324,7 +353,7 @@ router.delete('/events/:id', async (req, res) => {
 
 router.get('/universities', async (req, res) => {
   try {
-    const universities = await loadData('universities');
+    const universities = await University.find().sort({ ranking: 1 });
     res.json({ success: true, data: universities, count: universities.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch universities' });
@@ -333,11 +362,8 @@ router.get('/universities', async (req, res) => {
 
 router.post('/universities', async (req, res) => {
   try {
-    const universities = await loadData('universities');
-    const newUniversity = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
-    universities.push(newUniversity);
-    await writeJson('universities', universities);
-    res.status(201).json({ success: true, data: newUniversity });
+    const university = await University.create(req.body);
+    res.status(201).json({ success: true, data: university });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create university' });
   }
@@ -345,13 +371,9 @@ router.post('/universities', async (req, res) => {
 
 router.put('/universities/:id', async (req, res) => {
   try {
-    const universities = await loadData('universities');
-    const index = universities.findIndex((u) => u.id == req.params.id);
-    if (index === -1)
-      return res.status(404).json({ success: false, error: 'University not found' });
-    universities[index] = { ...universities[index], ...req.body };
-    await writeJson('universities', universities);
-    res.json({ success: true, data: universities[index] });
+    const university = await University.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!university) return res.status(404).json({ success: false, error: 'University not found' });
+    res.json({ success: true, data: university });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update university' });
   }
@@ -359,12 +381,8 @@ router.put('/universities/:id', async (req, res) => {
 
 router.delete('/universities/:id', async (req, res) => {
   try {
-    let universities = await loadData('universities');
-    const index = universities.findIndex((u) => u.id == req.params.id);
-    if (index === -1)
-      return res.status(404).json({ success: false, error: 'University not found' });
-    universities.splice(index, 1);
-    await writeJson('universities', universities);
+    const university = await University.findByIdAndDelete(req.params.id);
+    if (!university) return res.status(404).json({ success: false, error: 'University not found' });
     res.json({ success: true, message: 'University deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete university' });
@@ -375,7 +393,7 @@ router.delete('/universities/:id', async (req, res) => {
 
 router.get('/programs', async (req, res) => {
   try {
-    const programs = await loadData('programs');
+    const programs = await Program.find().sort({ createdAt: -1 });
     res.json({ success: true, data: programs, count: programs.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch programs' });
@@ -384,15 +402,8 @@ router.get('/programs', async (req, res) => {
 
 router.post('/programs', async (req, res) => {
   try {
-    const programs = await loadData('programs');
-    const newProgram = {
-      id: Date.now().toString(),
-      ...req.body,
-      createdAt: new Date().toISOString(),
-    };
-    programs.push(newProgram);
-    await writeJson('programs', programs);
-    res.status(201).json({ success: true, data: newProgram });
+    const program = await Program.create(req.body);
+    res.status(201).json({ success: true, data: program });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create program' });
   }
@@ -400,12 +411,9 @@ router.post('/programs', async (req, res) => {
 
 router.put('/programs/:id', async (req, res) => {
   try {
-    const programs = await loadData('programs');
-    const index = programs.findIndex((p) => p.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Program not found' });
-    programs[index] = { ...programs[index], ...req.body };
-    await writeJson('programs', programs);
-    res.json({ success: true, data: programs[index] });
+    const program = await Program.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!program) return res.status(404).json({ success: false, error: 'Program not found' });
+    res.json({ success: true, data: program });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update program' });
   }
@@ -413,11 +421,8 @@ router.put('/programs/:id', async (req, res) => {
 
 router.delete('/programs/:id', async (req, res) => {
   try {
-    let programs = await loadData('programs');
-    const index = programs.findIndex((p) => p.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Program not found' });
-    programs.splice(index, 1);
-    await writeJson('programs', programs);
+    const program = await Program.findByIdAndDelete(req.params.id);
+    if (!program) return res.status(404).json({ success: false, error: 'Program not found' });
     res.json({ success: true, message: 'Program deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete program' });
@@ -428,7 +433,7 @@ router.delete('/programs/:id', async (req, res) => {
 
 router.get('/projects', async (req, res) => {
   try {
-    const projects = await loadData('projects');
+    const projects = await Project.find().sort({ createdAt: -1 });
     res.json({ success: true, data: projects, count: projects.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch projects' });
@@ -437,11 +442,8 @@ router.get('/projects', async (req, res) => {
 
 router.post('/projects', async (req, res) => {
   try {
-    const projects = await loadData('projects');
-    const newProject = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
-    projects.push(newProject);
-    await writeJson('projects', projects);
-    res.status(201).json({ success: true, data: newProject });
+    const project = await Project.create(req.body);
+    res.status(201).json({ success: true, data: project });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create project' });
   }
@@ -449,12 +451,9 @@ router.post('/projects', async (req, res) => {
 
 router.put('/projects/:id', async (req, res) => {
   try {
-    const projects = await loadData('projects');
-    const index = projects.findIndex((p) => p.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Project not found' });
-    projects[index] = { ...projects[index], ...req.body };
-    await writeJson('projects', projects);
-    res.json({ success: true, data: projects[index] });
+    const project = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!project) return res.status(404).json({ success: false, error: 'Project not found' });
+    res.json({ success: true, data: project });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update project' });
   }
@@ -462,11 +461,8 @@ router.put('/projects/:id', async (req, res) => {
 
 router.delete('/projects/:id', async (req, res) => {
   try {
-    let projects = await loadData('projects');
-    const index = projects.findIndex((p) => p.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Project not found' });
-    projects.splice(index, 1);
-    await writeJson('projects', projects);
+    const project = await Project.findByIdAndDelete(req.params.id);
+    if (!project) return res.status(404).json({ success: false, error: 'Project not found' });
     res.json({ success: true, message: 'Project deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete project' });
@@ -477,7 +473,7 @@ router.delete('/projects/:id', async (req, res) => {
 
 router.get('/roadmaps', async (req, res) => {
   try {
-    const roadmaps = await loadData('roadmaps');
+    const roadmaps = await Roadmap.find().sort({ createdAt: -1 });
     res.json({ success: true, data: roadmaps, count: roadmaps.length });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch roadmaps' });
@@ -486,11 +482,8 @@ router.get('/roadmaps', async (req, res) => {
 
 router.post('/roadmaps', async (req, res) => {
   try {
-    const roadmaps = await loadData('roadmaps');
-    const newRoadmap = { id: Date.now(), ...req.body, createdAt: new Date().toISOString() };
-    roadmaps.push(newRoadmap);
-    await writeJson('roadmaps', roadmaps);
-    res.status(201).json({ success: true, data: newRoadmap });
+    const roadmap = await Roadmap.create(req.body);
+    res.status(201).json({ success: true, data: roadmap });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to create roadmap' });
   }
@@ -498,12 +491,9 @@ router.post('/roadmaps', async (req, res) => {
 
 router.put('/roadmaps/:id', async (req, res) => {
   try {
-    const roadmaps = await loadData('roadmaps');
-    const index = roadmaps.findIndex((r) => r.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Roadmap not found' });
-    roadmaps[index] = { ...roadmaps[index], ...req.body };
-    await writeJson('roadmaps', roadmaps);
-    res.json({ success: true, data: roadmaps[index] });
+    const roadmap = await Roadmap.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!roadmap) return res.status(404).json({ success: false, error: 'Roadmap not found' });
+    res.json({ success: true, data: roadmap });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to update roadmap' });
   }
@@ -511,11 +501,8 @@ router.put('/roadmaps/:id', async (req, res) => {
 
 router.delete('/roadmaps/:id', async (req, res) => {
   try {
-    let roadmaps = await loadData('roadmaps');
-    const index = roadmaps.findIndex((r) => r.id == req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Roadmap not found' });
-    roadmaps.splice(index, 1);
-    await writeJson('roadmaps', roadmaps);
+    const roadmap = await Roadmap.findByIdAndDelete(req.params.id);
+    if (!roadmap) return res.status(404).json({ success: false, error: 'Roadmap not found' });
     res.json({ success: true, message: 'Roadmap deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to delete roadmap' });

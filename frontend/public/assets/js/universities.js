@@ -53,7 +53,8 @@
         clearTimeout(apiTimeout);
 
         if (response.ok) {
-          data = await response.json();
+          const result = await response.json();
+          data = (result.data || result).map(u => ({ ...u, id: u.id || u._id }));
         } else {
           throw new Error('API not available');
         }
@@ -494,44 +495,44 @@
     const applicationSteps =
       uni.type === 'Private'
         ? [
-            {
-              step: 'Research Programs',
-              desc: 'Explore available programs and requirements',
-              icon: '🔍',
-            },
-            {
-              step: 'Prepare Standardized Tests',
-              desc: 'Take SAT/ACT and subject tests if required',
-              icon: '📝',
-            },
-            {
-              step: 'Gather Documents',
-              desc: 'Transcripts, recommendations, and essays',
-              icon: '📋',
-            },
-            {
-              step: 'Submit Application',
-              desc: 'Complete Common App or university portal',
-              icon: '📤',
-            },
-            { step: 'Financial Aid', desc: 'Apply for scholarships and aid packages', icon: '💰' },
-            { step: 'Interview', desc: 'Prepare for alumni or admissions interviews', icon: '🎤' },
-          ]
+          {
+            step: 'Research Programs',
+            desc: 'Explore available programs and requirements',
+            icon: '🔍',
+          },
+          {
+            step: 'Prepare Standardized Tests',
+            desc: 'Take SAT/ACT and subject tests if required',
+            icon: '📝',
+          },
+          {
+            step: 'Gather Documents',
+            desc: 'Transcripts, recommendations, and essays',
+            icon: '📋',
+          },
+          {
+            step: 'Submit Application',
+            desc: 'Complete Common App or university portal',
+            icon: '📤',
+          },
+          { step: 'Financial Aid', desc: 'Apply for scholarships and aid packages', icon: '💰' },
+          { step: 'Interview', desc: 'Prepare for alumni or admissions interviews', icon: '🎤' },
+        ]
         : [
-            {
-              step: 'Check Eligibility',
-              desc: 'Review admission requirements and deadlines',
-              icon: '✅',
-            },
-            { step: 'Prepare Documents', desc: 'Gather transcripts and test scores', icon: '📋' },
-            {
-              step: 'Apply Online',
-              desc: 'Complete the university application portal',
-              icon: '💻',
-            },
-            { step: 'Submit Requirements', desc: 'Send supporting documents and fees', icon: '📤' },
-            { step: 'Wait for Decision', desc: 'Track application status online', icon: '⏳' },
-          ];
+          {
+            step: 'Check Eligibility',
+            desc: 'Review admission requirements and deadlines',
+            icon: '✅',
+          },
+          { step: 'Prepare Documents', desc: 'Gather transcripts and test scores', icon: '📋' },
+          {
+            step: 'Apply Online',
+            desc: 'Complete the university application portal',
+            icon: '💻',
+          },
+          { step: 'Submit Requirements', desc: 'Send supporting documents and fees', icon: '📤' },
+          { step: 'Wait for Decision', desc: 'Track application status online', icon: '⏳' },
+        ];
 
     const guideContent = document.getElementById('guideContent');
     guideContent.innerHTML = `
@@ -561,8 +562,8 @@
           <h4 style="margin-bottom: 1rem; color: var(--text-primary);">📍 Application Steps</h4>
           <div style="position: relative; padding-left: 2rem;">
             ${applicationSteps
-              .map(
-                (item, index) => `
+        .map(
+          (item, index) => `
               <div style="position: relative; padding-bottom: 1rem; ${index < applicationSteps.length - 1 ? 'border-left: 2px solid #667eea; margin-left: 8px;' : ''}">
                 <div style="position: absolute; left: -2rem; top: 0; width: 24px; height: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">${item.icon}</div>
                 <div style="padding: 0.75rem 1rem; background: var(--bg-secondary, #f3f4f6); border-radius: 8px; margin-left: 1rem;">
@@ -571,8 +572,8 @@
                 </div>
               </div>
             `
-              )
-              .join('')}
+        )
+        .join('')}
           </div>
         </div>
 

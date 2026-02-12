@@ -1,53 +1,67 @@
 // Roadmaps Page Functionality
 document.addEventListener('DOMContentLoaded', function () {
   // 1. Roadmap Data (Sample)
-  const roadmaps = [
-    {
-      title: 'Software Engineering Career',
-      category: 'career',
-      icon: '💻',
-      description: 'From basics to senior engineer in the tech industry',
-      duration: '12-24 months',
-      milestones: '20 milestones',
-      followers: '15.4k',
-    },
-    {
-      title: 'Study Abroad Excellence',
-      category: 'academic',
-      icon: '🌎',
-      description: "Step-by-step guide to securing master's abroad",
-      duration: '12 months',
-      milestones: '12 milestones',
-      followers: '8.2k',
-    },
-    {
-      title: 'Data Science Specialization',
-      category: 'skills',
-      icon: '📊',
-      description: 'Master Python, Math and Machine Learning',
-      duration: '9-15 months',
-      milestones: '18 milestones',
-      followers: '11.1k',
-    },
-    {
-      title: 'Research Publication Pro',
-      category: 'research',
-      icon: '📝',
-      description: 'How to write and publish in top tier journals',
-      duration: '6-12 months',
-      milestones: '10 milestones',
-      followers: '5.7k',
-    },
-    {
-      title: 'E-commerce Startup Guide',
-      category: 'business',
-      icon: '🚀',
-      description: 'Launch your first online business from scratch',
-      duration: '3-6 months',
-      milestones: '15 milestones',
-      followers: '9.3k',
-    },
-  ];
+  // 1. Roadmap Data
+  let roadmaps = [];
+
+  try {
+    const response = await fetch('/api/roadmaps');
+    const result = await response.json();
+    if (result.success) {
+      roadmaps = result.data.map(r => ({ ...r, id: r.id || r._id }));
+    } else {
+      throw new Error('API invalid');
+    }
+  } catch (e) {
+    console.warn('Using sample roadmaps');
+    roadmaps = [
+      {
+        title: 'Software Engineering Career',
+        category: 'career',
+        icon: '💻',
+        description: 'From basics to senior engineer in the tech industry',
+        duration: '12-24 months',
+        milestones: '20 milestones',
+        followers: '15.4k',
+      },
+      {
+        title: 'Study Abroad Excellence',
+        category: 'academic',
+        icon: '🌎',
+        description: "Step-by-step guide to securing master's abroad",
+        duration: '12 months',
+        milestones: '12 milestones',
+        followers: '8.2k',
+      },
+      {
+        title: 'Data Science Specialization',
+        category: 'skills',
+        icon: '📊',
+        description: 'Master Python, Math and Machine Learning',
+        duration: '9-15 months',
+        milestones: '18 milestones',
+        followers: '11.1k',
+      },
+      {
+        title: 'Research Publication Pro',
+        category: 'research',
+        icon: '📝',
+        description: 'How to write and publish in top tier journals',
+        duration: '6-12 months',
+        milestones: '10 milestones',
+        followers: '5.7k',
+      },
+      {
+        title: 'E-commerce Startup Guide',
+        category: 'business',
+        icon: '🚀',
+        description: 'Launch your first online business from scratch',
+        duration: '3-6 months',
+        milestones: '15 milestones',
+        followers: '9.3k',
+      },
+    ];
+  }
 
   // 2. Initialize Filtering
   const filterTabs = document.querySelectorAll('.category-tab');

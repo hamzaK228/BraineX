@@ -54,7 +54,8 @@
         // Try API first
         response = await fetch('/api/programs');
         if (!response.ok) throw new Error('API not available');
-        programs = await response.json();
+        const result = await response.json();
+        programs = (result.data || result).map(p => ({ ...p, id: p.id || p._id }));
       } catch {
         try {
           // Fallback to static JSON
@@ -346,10 +347,9 @@
 
                 <div class="countdown-container" data-deadline="${prog.deadline}">
                     <div class="countdown-label">Application Deadline</div>
-                    ${
-                      countdown.expired
-                        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
-                        : `<div class="countdown-timer">
+                    ${countdown.expired
+        ? `<div class="countdown-expired">❌ Deadline Passed</div>`
+        : `<div class="countdown-timer">
                             <div class="countdown-unit">
                                 <span class="countdown-value" data-days>${countdown.days}</span>
                                 <span class="countdown-text">Days</span>
@@ -363,7 +363,7 @@
                                 <span class="countdown-text">Mins</span>
                             </div>
                         </div>`
-                    }
+      }
                 </div>
 
                 <div class="card-stats">
@@ -650,15 +650,15 @@
     elements.applicationBody.innerHTML = `
             <h3 style="margin-bottom: 1rem;">📚 ${prog.shortName || prog.name}</h3>
             ${steps
-              .map(
-                (step, i) => `
+        .map(
+          (step, i) => `
                 <div class="step-content ${i === currentStep ? 'active' : ''}" data-step="${i}">
                     <div class="step-title">${step.title}</div>
                     <div class="step-description">Complete these tasks to prepare your application</div>
                     <ul class="step-checklist">
                         ${step.items
-                          .map(
-                            (item) => `
+              .map(
+                (item) => `
                             <li>
                                 <input type="checkbox">
                                 <div class="item-text">
@@ -667,13 +667,13 @@
                                 </div>
                             </li>
                         `
-                          )
-                          .join('')}
+              )
+              .join('')}
                     </ul>
                 </div>
             `
-              )
-              .join('')}
+        )
+        .join('')}
         `;
 
     updateStepNavigation(steps.length);

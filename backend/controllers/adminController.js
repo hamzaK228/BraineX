@@ -3,7 +3,6 @@ import Scholarship from '../models/Scholarship.js';
 import Mentor from '../models/Mentor.js';
 import Field from '../models/Field.js';
 import Application from '../models/Application.js';
-import { pool } from '../config/database.js';
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/stats

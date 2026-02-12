@@ -1,91 +1,119 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import Project from '../models/Project.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Get all projects with filtering
+ * @route GET /api/projects
+ */
+export const getProjects = asyncHandler(async (req, res) => {
+  const { field, status, category, search, page = 1, limit = 20 } = req.query;
 
-// Load projects data from JSON
-function loadProjects() {
-  try {
-    const dataPath = path.join(__dirname, '../data/projects.json');
-    if (!fs.existsSync(dataPath)) {
-      return [];
-    }
-    const data = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading projects data:', error);
-    return [];
+  const query = {};
+  if (field) query.field = { $regex: field, $options: 'i' };
+  if (status) query.status = status;
+  if (category) query.category = { $regex: category, $options: 'i' };
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
   }
-}
 
-export const getProjects = async (req, res) => {
-  try {
-    const projects = loadProjects();
-    const { field, difficulty, status = 'active', page = 1, limit = 20 } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    let filtered = projects;
+  const [projects, total] = await Promise.all([
+    Project.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Project.countDocuments(query),
+  ]);
 
-    // Filter by status (if present in data)
-    if (status && status !== 'all') {
-      filtered = filtered.filter((p) => p.status === status);
-    }
+  res.json({
+    success: true,
+    data: projects,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / parseInt(limit)),
+    },
+  });
+});
 
-    // Filter by field
-    if (field) {
-      filtered = filtered.filter((p) => p.category === field || p.field === field);
-    }
+/**
+ * Get project by ID
+ * @route GET /api/projects/:id
+ */
+export const getProjectById = asyncHandler(async (req, res) => {
+  const project = await Project.findById(req.params.id);
 
-    // Filter by difficulty
-    if (difficulty) {
-      filtered = filtered.filter((p) => p.difficulty === difficulty);
-    }
-
-    // Pagination
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    const startIndex = (pageNum - 1) * limitNum;
-    const endIndex = startIndex + limitNum;
-
-    const paginatedResults = filtered.slice(startIndex, endIndex);
-
-    res.json({
-      success: true,
-      data: paginatedResults,
-      pagination: {
-        total: filtered.length,
-        page: pageNum,
-        pages: Math.ceil(filtered.length / limitNum),
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching projects:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch projects' });
+  if (!project) {
+    return res.status(404).json({ success: false, error: 'Project not found' });
   }
+
+  res.json({ success: true, data: project });
+});
+
+/**
+ * Create project
+ * @route POST /api/projects
+ */
+export const createProject = asyncHandler(async (req, res) => {
+  const projectData = { ...req.body };
+  if (req.user) projectData.author = req.user.id;
+
+  const project = await Project.create(projectData);
+
+  res.status(201).json({
+    success: true,
+    message: 'Project created successfully',
+    data: project,
+  });
+});
+
+/**
+ * Update project
+ * @route PUT /api/projects/:id
+ */
+export const updateProject = asyncHandler(async (req, res) => {
+  const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!project) {
+    return res.status(404).json({ success: false, error: 'Project not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Project updated successfully',
+    data: project,
+  });
+});
+
+/**
+ * Delete project
+ * @route DELETE /api/projects/:id
+ */
+export const deleteProject = asyncHandler(async (req, res) => {
+  const project = await Project.findByIdAndDelete(req.params.id);
+
+  if (!project) {
+    return res.status(404).json({ success: false, error: 'Project not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Project deleted successfully',
+  });
+});
+
+export default {
+  getProjects,
+  getProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
 };
-
-export const getProjectById = async (req, res) => {
-  try {
-    const projects = loadProjects();
-    const id = req.params.id;
-    // Handle both string and number IDs
-    const project = projects.find((p) => p.id == id);
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        error: 'Project not found',
-      });
-    }
-
-    res.json({
-      success: true,
-      data: project,
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Failed to fetch project' });
-  }
-};
-
-export default { getProjects, getProjectById };

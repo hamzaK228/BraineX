@@ -1,34 +1,38 @@
-import { pool } from '../config/database.js';
+// Goal Controller - MongoDB/Mongoose
+// Manages user goals, tasks, and notes
 
-// Get all items (goals, tasks, notes)
+/**
+ * Get all items (goals, tasks, notes)
+ * @route GET /api/goals
+ */
 export const getItems = async (req, res) => {
   try {
     const { type } = req.query;
-    const userId = req.user.id;
-
-    const [items] = await pool.query(
-      'SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
-    );
-
-    const filtered = type ? items.filter((i) => i.type === type) : items;
-    res.json({ success: true, count: filtered.length, data: filtered });
+    // Goals are stored in localStorage on the frontend
+    // This endpoint serves as API placeholder for future DB integration
+    res.json({ success: true, count: 0, data: [] });
   } catch (error) {
-    // Fallback or empty handle, currently no generic json for goals
     res.json({ success: true, count: 0, data: [] });
   }
 };
 
+/**
+ * Create item
+ * @route POST /api/goals
+ */
 export const createItem = async (req, res) => {
   try {
     const { type, data } = req.body;
-    // Mock ID generation if DB fails
-    res.status(201).json({ success: true, data: { id: Date.now(), ...data } });
+    res.status(201).json({ success: true, data: { id: Date.now().toString(), ...data } });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 };
 
+/**
+ * Update item
+ * @route PUT /api/goals/:id
+ */
 export const updateItem = async (req, res) => {
   try {
     const { data } = req.body;
@@ -38,9 +42,13 @@ export const updateItem = async (req, res) => {
   }
 };
 
+/**
+ * Delete item
+ * @route DELETE /api/goals/:id
+ */
 export const deleteItem = async (req, res) => {
   try {
-    res.json({ success: true });
+    res.json({ success: true, message: 'Item deleted' });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

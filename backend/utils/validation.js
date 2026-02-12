@@ -146,19 +146,22 @@ export const validate = (schema) => {
 };
 
 /**
- * ID parameter validation
+ * ID parameter validation - supports MongoDB ObjectIds and numeric IDs
  */
 export const validateId = (req, res, next) => {
-  const id = parseInt(req.params.id);
+  const id = req.params.id;
 
-  if (isNaN(id) || id <= 0) {
+  // Accept MongoDB ObjectId (24 hex chars) or numeric ID
+  const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+  const isValidNumeric = /^\d+$/.test(id) && parseInt(id) > 0;
+
+  if (!isValidObjectId && !isValidNumeric) {
     return res.status(400).json({
       success: false,
       error: 'Invalid ID parameter',
     });
   }
 
-  req.params.id = id;
   next();
 };
 

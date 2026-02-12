@@ -1,43 +1,56 @@
-import mysql from 'mysql2/promise';
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create connection pool for better performance
-export const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'brainex_db',
-  waitForConnections: true,
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-});
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/brainex_db';
 
-// Test database connection
-export const testConnection = async () => {
+/**
+ * Connect to MongoDB
+ */
+export const connectDB = async () => {
   try {
-    const connection = await pool.getConnection();
-    console.log('✅ Database connected successfully');
-    connection.release();
+    const conn = await mongoose.connect(MONGODB_URI, {
+      // Mongoose 7+ uses these defaults, but we set them explicitly for clarity
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+
+    console.log(`✅ Connected to MongoDB: ${conn.connection.host}`);
     return true;
   } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
+    console.error('❌ MongoDB connection failed:', error.message);
     return false;
   }
 };
 
-// Graceful shutdown
-export const closePool = async () => {
+// Connection event handlers
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected');
+});
+
+/**
+ * Test database connection (backward-compatible alias)
+ */
+export const testConnection = connectDB;
+
+/**
+ * Graceful shutdown
+ */
+export const closeDB = async () => {
   try {
-    await pool.end();
-    console.log('Database pool closed');
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed');
   } catch (error) {
-    console.error('Error closing database pool:', error);
+    console.error('Error closing MongoDB connection:', error);
   }
 };
 
-export default pool;
+// Backward-compatible alias
+export const closePool = closeDB;
+
+export default { connectDB, closeDB, testConnection, closePool };

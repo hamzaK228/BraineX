@@ -379,237 +379,559 @@
       </section>
     </main>
 
-    <!-- Add Scholarship Modal -->
-    <div class="modal" id="addScholarshipModal">
-      <div class="modal-content admin-modal">
-        <div class="modal-header">
-          <h2>💰 Add New Scholarship</h2>
-          <button class="close-modal js-close-admin-modal">&times;</button>
+    <!-- Users Management -->
+    <section class="admin-section" id="users">
+      <div class="section-header">
+        <h1>👥 User Management</h1>
+        <div class="header-actions">
+          <input type="text" placeholder="Search users..." class="search-input" id="userSearch" />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Date Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section class="admin-section" id="analytics">
+      <div class="section-header">
+        <h1>📊 System Analytics</h1>
+        <div class="date-range-selector">
+          <select>
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+            <option>This Year</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="chart-container"
+          style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+          <h3>User Growth</h3>
+          <canvas id="userGrowthChart" height="100"></canvas>
+          <!-- Fallback if no chart lib -->
+          <div class="chart-placeholder" style="display:none; text-align:center; padding: 2rem;">Chart visualization
+            would go here</div>
         </div>
 
-        <form id="addScholarshipForm" class="admin-form">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👤</div>
+            <div class="stat-content">
+              <h3>Active Users</h3>
+              <p class="stat-number" id="analyticsActiveUsers">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+              <h3>Total Applications</h3>
+              <p class="stat-number" id="analyticsApplications">0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section class="admin-section" id="settings">
+      <div class="section-header">
+        <h1>⚙️ Platform Settings</h1>
+      </div>
+      <div class="settings-container" style="background: var(--bg-secondary); padding: 2rem; border-radius: 12px;">
+        <form id="platformSettingsForm">
+          <div class="form-group">
+            <label>Site Name</label>
+            <input type="text" value="BraineX" disabled />
+          </div>
+          <div class="form-group">
+            <label>Maintenance Mode</label>
+            <select>
+              <option value="off">Off</option>
+              <option value="on">On</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Allow New Registrations</label>
+            <select>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <button type="button" class="btn-primary" onclick="alert('Settings saved (simulation)')">Save
+            Settings</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Reports Section (Placeholder) -->
+    <section class="admin-section" id="reports">
+      <div class="section-header">
+        <h1>📋 System Reports</h1>
+      </div>
+      <div class="empty-state"
+        style="text-align: center; padding: 3rem; background: var(--bg-secondary); border-radius: 12px;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+        <h3>Reports Module</h3>
+        <p>Generate and export system reports here.</p>
+        <button class="btn-primary" style="margin-top: 1rem;">Generate Monthly Report</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Scholarship Modal -->
+  <div class="modal" id="addScholarshipModal">
+    <div class="modal-content admin-modal">
+      <div class="modal-header">
+        <h2>💰 Add New Scholarship</h2>
+        <button class="close-modal js-close-admin-modal">&times;</button>
+      </div>
+
+      <form id="addScholarshipForm" class="admin-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Scholarship Name *</label>
+            <input type="text" name="name" required />
+          </div>
+          <div class="form-group">
+            <label>Organization *</label>
+            <input type="text" name="organization" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount *</label>
+            <input type="text" name="amount" placeholder="e.g., $50,000 or Full Funding" required />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select name="category" required>
+              <option value="">Select Category</option>
+              <option value="undergraduate">Undergraduate</option>
+              <option value="graduate">Graduate</option>
+              <option value="research">Research</option>
+              <option value="international">International</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Deadline *</label>
+            <input type="date" name="deadline" required />
+          </div>
+          <div class="form-group">
+            <label>Country/Region</label>
+            <input type="text" name="country" placeholder="e.g., USA, Global, Europe" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea name="description" rows="4" required
+            placeholder="Describe the scholarship, eligibility, and requirements..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Website URL</label>
+            <input type="url" name="website" placeholder="https://..." />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <option value="active">Active</option>
+              <option value="pending">Pending Review</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
+          <button type="submit" class="btn-primary">Add Scholarship</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Mentor Modal -->
+  <div class="modal" id="addMentorModal">
+    <div class="modal-content admin-modal">
+      <div class="modal-header">
+        <h2>👨‍🏫 Add New Mentor</h2>
+        <button class="close-modal js-close-admin-modal">&times;</button>
+      </div>
+
+      <form id="addMentorForm" class="admin-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" name="name" required />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Job Title *</label>
+            <input type="text" name="title" required placeholder="e.g., Senior Software Engineer" />
+          </div>
+          <div class="form-group">
+            <label>Company *</label>
+            <input type="text" name="company" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Field/Industry *</label>
+            <select name="field" required>
+              <option value="">Select Field</option>
+              <option value="technology">Technology</option>
+              <option value="business">Business</option>
+              <option value="medicine">Medicine</option>
+              <option value="engineering">Engineering</option>
+              <option value="arts">Arts & Design</option>
+              <option value="law">Law</option>
+              <option value="science">Science</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience Level</label>
+            <select name="experience">
+              <option value="entry">Entry (0-5 years)</option>
+              <option value="mid">Mid (5-10 years)</option>
+              <option value="senior">Senior (10+ years)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bio/Description *</label>
+          <textarea name="bio" rows="4" required
+            placeholder="Brief description of expertise and background..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Expertise Areas</label>
+          <input type="text" name="expertise"
+            placeholder="e.g., Machine Learning, Career Development, Interview Prep" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Hourly Rate ($)</label>
+            <input type="number" name="rate" placeholder="150" />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <option value="pending">Pending Review</option>
+              <option value="verified">Verified</option>
+              <option value="active">Active</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
+          <button type="submit" class="btn-primary">Add Mentor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Field Modal -->
+  <div class="modal" id="addFieldModal">
+    <div class="modal-content admin-modal">
+      <div class="modal-header">
+        <h2>🌍 Add Academic Field</h2>
+        <button class="close-modal js-close-admin-modal">&times;</button>
+      </div>
+
+      <form id="addFieldForm" class="admin-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Field Name *</label>
+            <input type="text" name="name" required placeholder="e.g., Computer Science" />
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select name="category" required>
+              <option value="">Select Category</option>
+              <option value="stem">STEM</option>
+              <option value="business">Business</option>
+              <option value="humanities">Humanities</option>
+              <option value="health">Health</option>
+              <option value="social">Social Sciences</option>
+              <option value="creative">Creative</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea name="description" rows="3" required placeholder="Brief description of the field..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Icon/Emoji</label>
+            <input type="text" name="icon" placeholder="🖥️" maxlength="2" />
+          </div>
+          <div class="form-group">
+            <label>Avg Salary Range</label>
+            <input type="text" name="salary" placeholder="$70K - $150K" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Common Career Paths</label>
+          <input type="text" name="careers" placeholder="e.g., Software Engineer, Data Scientist, Product Manager" />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
+          <button type="submit" class="btn-primary">Add Field</button>
+        </div>
+      </form>
+    </div>
+    <!-- Add University Modal -->
+    <div class="modal" id="addUniversityModal">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h2>🏛️ Add New University</h2>
+          <button class="close-modal js-close-admin-modal">&times;</button>
+        </div>
+        <form id="addUniversityForm" class="admin-form">
           <div class="form-row">
             <div class="form-group">
-              <label>Scholarship Name *</label>
+              <label>University Name *</label>
               <input type="text" name="name" required />
             </div>
             <div class="form-group">
-              <label>Organization *</label>
-              <input type="text" name="organization" required />
+              <label>Location *</label>
+              <input type="text" name="location" required />
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
-              <label>Amount *</label>
-              <input type="text" name="amount" placeholder="e.g., $50,000 or Full Funding" required />
+              <label>Ranking</label>
+              <input type="number" name="ranking" placeholder="e.g., 1" />
             </div>
             <div class="form-group">
-              <label>Category *</label>
-              <select name="category" required>
-                <option value="">Select Category</option>
-                <option value="undergraduate">Undergraduate</option>
-                <option value="graduate">Graduate</option>
-                <option value="research">Research</option>
-                <option value="international">International</option>
-              </select>
+              <label>Student Count</label>
+              <input type="text" name="website" placeholder="Website URL" />
             </div>
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Deadline *</label>
-              <input type="date" name="deadline" required />
-            </div>
-            <div class="form-group">
-              <label>Country/Region</label>
-              <input type="text" name="country" placeholder="e.g., USA, Global, Europe" />
-            </div>
-          </div>
-
           <div class="form-group">
-            <label>Description *</label>
-            <textarea name="description" rows="4" required
-              placeholder="Describe the scholarship, eligibility, and requirements..."></textarea>
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Website URL</label>
-              <input type="url" name="website" placeholder="https://..." />
-            </div>
-            <div class="form-group">
-              <label>Status</label>
-              <select name="status">
-                <option value="active">Active</option>
-                <option value="pending">Pending Review</option>
-                <option value="draft">Draft</option>
-              </select>
-            </div>
-          </div>
-
           <div class="form-actions">
             <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
-            <button type="submit" class="btn-primary">Add Scholarship</button>
+            <button type="submit" class="btn-primary">Save University</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Add Mentor Modal -->
-    <div class="modal" id="addMentorModal">
+    <!-- Add Program Modal -->
+    <div class="modal" id="addProgramModal">
       <div class="modal-content admin-modal">
         <div class="modal-header">
-          <h2>👨‍🏫 Add New Mentor</h2>
+          <h2>🌟 Add New Program</h2>
           <button class="close-modal js-close-admin-modal">&times;</button>
         </div>
-
-        <form id="addMentorForm" class="admin-form">
+        <form id="addProgramForm" class="admin-form">
           <div class="form-row">
             <div class="form-group">
-              <label>Full Name *</label>
+              <label>Program Name *</label>
               <input type="text" name="name" required />
             </div>
             <div class="form-group">
-              <label>Email *</label>
-              <input type="email" name="email" required />
+              <label>University</label>
+              <input type="text" name="university_name" placeholder="University Name" />
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
-              <label>Job Title *</label>
-              <input type="text" name="title" required placeholder="e.g., Senior Software Engineer" />
-            </div>
-            <div class="form-group">
-              <label>Company *</label>
-              <input type="text" name="company" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Field/Industry *</label>
-              <select name="field" required>
-                <option value="">Select Field</option>
-                <option value="technology">Technology</option>
-                <option value="business">Business</option>
-                <option value="medicine">Medicine</option>
-                <option value="engineering">Engineering</option>
-                <option value="arts">Arts & Design</option>
-                <option value="law">Law</option>
-                <option value="science">Science</option>
+              <label>Degree Level</label>
+              <select name="degree">
+                <option value="Bachelor">Bachelor</option>
+                <option value="Master">Master</option>
+                <option value="PhD">PhD</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Experience Level</label>
-              <select name="experience">
-                <option value="entry">Entry (0-5 years)</option>
-                <option value="mid">Mid (5-10 years)</option>
-                <option value="senior">Senior (10+ years)</option>
-              </select>
+              <label>Deadline</label>
+              <input type="date" name="applicationDeadline" />
             </div>
           </div>
-
           <div class="form-group">
-            <label>Bio/Description *</label>
-            <textarea name="bio" rows="4" required
-              placeholder="Brief description of expertise and background..."></textarea>
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
           </div>
-
-          <div class="form-group">
-            <label>Expertise Areas</label>
-            <input type="text" name="expertise"
-              placeholder="e.g., Machine Learning, Career Development, Interview Prep" />
+          <div class="form-actions">
+            <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
+            <button type="submit" class="btn-primary">Save Program</button>
           </div>
+        </form>
+      </div>
+    </div>
 
+    <!-- Add Project Modal -->
+    <div class="modal" id="addProjectModal">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h2>🚀 Add New Project</h2>
+          <button class="close-modal js-close-admin-modal">&times;</button>
+        </div>
+        <form id="addProjectForm" class="admin-form">
           <div class="form-row">
             <div class="form-group">
-              <label>Hourly Rate ($)</label>
-              <input type="number" name="rate" placeholder="150" />
+              <label>Title *</label>
+              <input type="text" name="title" required />
             </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input type="text" name="category" />
+            </div>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label>Status</label>
               <select name="status">
-                <option value="pending">Pending Review</option>
-                <option value="verified">Verified</option>
-                <option value="active">Active</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Difficulty</label>
+              <select name="difficulty">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
               </select>
             </div>
           </div>
-
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
+          </div>
           <div class="form-actions">
             <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
-            <button type="submit" class="btn-primary">Add Mentor</button>
+            <button type="submit" class="btn-primary">Save Project</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Add Field Modal -->
-    <div class="modal" id="addFieldModal">
+    <!-- Add Roadmap Modal -->
+    <div class="modal" id="addRoadmapModal">
       <div class="modal-content admin-modal">
         <div class="modal-header">
-          <h2>🌍 Add Academic Field</h2>
+          <h2>🗺️ Add New Roadmap</h2>
           <button class="close-modal js-close-admin-modal">&times;</button>
         </div>
-
-        <form id="addFieldForm" class="admin-form">
+        <form id="addRoadmapForm" class="admin-form">
           <div class="form-row">
             <div class="form-group">
-              <label>Field Name *</label>
-              <input type="text" name="name" required placeholder="e.g., Computer Science" />
+              <label>Title *</label>
+              <input type="text" name="title" required />
             </div>
             <div class="form-group">
-              <label>Category *</label>
-              <select name="category" required>
-                <option value="">Select Category</option>
-                <option value="stem">STEM</option>
-                <option value="business">Business</option>
-                <option value="humanities">Humanities</option>
-                <option value="health">Health</option>
-                <option value="social">Social Sciences</option>
-                <option value="creative">Creative</option>
-              </select>
+              <label>Category</label>
+              <input type="text" name="category" />
             </div>
           </div>
-
           <div class="form-group">
-            <label>Description *</label>
-            <textarea name="description" rows="3" required placeholder="Brief description of the field..."></textarea>
+            <label>Duration</label>
+            <input type="text" name="timeline" placeholder="e.g. 6 months" />
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Icon/Emoji</label>
-              <input type="text" name="icon" placeholder="🖥️" maxlength="2" />
-            </div>
-            <div class="form-group">
-              <label>Avg Salary Range</label>
-              <input type="text" name="salary" placeholder="$70K - $150K" />
-            </div>
-          </div>
-
           <div class="form-group">
-            <label>Common Career Paths</label>
-            <input type="text" name="careers" placeholder="e.g., Software Engineer, Data Scientist, Product Manager" />
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
           </div>
-
           <div class="form-actions">
             <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
-            <button type="submit" class="btn-primary">Add Field</button>
+            <button type="submit" class="btn-primary">Save Roadmap</button>
           </div>
         </form>
       </div>
     </div>
 
+    <!-- Add Event Modal -->
+    <div class="modal" id="addEventModal">
+      <div class="modal-content admin-modal">
+        <div class="modal-header">
+          <h2>🎪 Add New Event</h2>
+          <button class="close-modal js-close-admin-modal">&times;</button>
+        </div>
+        <form id="addEventForm" class="admin-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Event Title *</label>
+              <input type="text" name="title" required />
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" name="date" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type</label>
+              <select name="eventType">
+                <option value="webinar">Webinar</option>
+                <option value="workshop">Workshop</option>
+                <option value="conference">Conference</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Format</label>
+              <select name="format">
+                <option value="online">Online</option>
+                <option value="in_person">In Person</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="3"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary js-close-admin-modal">Cancel</button>
+            <button type="submit" class="btn-primary">Save Event</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <script defer src="/assets/js/auth-api.js"></script>
     <script defer src="/assets/js/global.js"></script>
     <script type="module" src="/assets/js/main.js"></script>
     <script defer src="/assets/js/performance.js"></script>
     <script defer src="/assets/js/interactions.js"></script>
     <script defer src="/assets/js/admin.js"></script>
-  </main>
+    </main>
 </body>
 
 </html>

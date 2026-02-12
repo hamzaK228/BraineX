@@ -28,9 +28,12 @@ export const errorHandler = (err, req, res, next) => {
   } else if (err.name === 'ForbiddenError') {
     statusCode = 403;
     message = 'Access forbidden';
-  } else if (err.code === 'ER_DUP_ENTRY') {
+  } else if (err.code === 'ER_DUP_ENTRY' || err.code === 11000) {
     statusCode = 409;
     message = 'Duplicate entry';
+  } else if (err.name === 'CastError') {
+    statusCode = 400;
+    message = 'Invalid ID format';
   }
 
   // Send error response

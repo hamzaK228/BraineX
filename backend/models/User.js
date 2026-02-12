@@ -1,8 +1,8 @@
 // User Model - Production-ready with bcrypt and JWT
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import validator from 'validator';
+import crypto from 'crypto';
 
 const UserSchema = new mongoose.Schema(
   {
@@ -24,64 +24,38 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      validate: [validator.isEmail, 'Please provide a valid email'],
+      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [8, 'Password must be at least 8 characters'],
+      minlength: [6, 'Password must be at least 6 characters'],
       select: false, // Don't include password in queries by default
+    },
+    googleId: {
+      type: String,
+      sparse: true,
     },
     role: {
       type: String,
-      enum: ['student', 'mentor', 'admin'],
-      default: 'student',
+      enum: ['user', 'moderator', 'content_manager', 'super_admin'],
+      default: 'user',
     },
-    field: {
+    fieldOfInterest: {
       type: String,
-      enum: [
-        'ai',
-        'biotech',
-        'climate',
-        'engineering',
-        'entrepreneurship',
-        'social',
-        'media',
-        'economics',
-        'other',
-      ],
-      default: 'other',
+      default: '',
     },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    emailVerificationToken: String,
-    emailVerificationExpires: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
     profilePicture: {
       type: String,
-      default: 'default-avatar.png',
+      default: '',
     },
     bio: {
       type: String,
       maxlength: [500, 'Bio cannot exceed 500 characters'],
     },
-    // For mentors
-    expertise: [String],
-    company: String,
-    title: String,
-    rate: Number,
-    rating: {
-      type: Number,
-      default: 0,
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
-    mentees: {
-      type: Number,
-      default: 0,
-    },
-    // Account status
     isActive: {
       type: Boolean,
       default: true,
@@ -91,6 +65,16 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    preferences: {
+      theme: { type: String, enum: ['light', 'dark'], default: 'light' },
+      emailNotifications: { type: Boolean, default: true },
+      language: { type: String, default: 'en' },
+    },
+    // Token fields
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
     refreshTokens: [
       {
         token: String,
@@ -113,10 +97,11 @@ UserSchema.virtual('name').get(function () {
 
 // Hash password before saving
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
 
   try {
-    const salt = await bcrypt.genSalt(12);
+    const rounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+    const salt = await bcrypt.genSalt(rounds);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
@@ -126,6 +111,7 @@ UserSchema.pre('save', async function (next) {
 
 // Method to compare password
 UserSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -133,24 +119,27 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
 UserSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
-      userId: this._id,
+      id: this._id,
       email: this.email,
       role: this.role,
-      name: this.name,
+      name: `${this.firstName} ${this.lastName}`,
     },
-    process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    process.env.JWT_SECRET || 'fallback-secret-key-for-dev-mode',
+    { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 };
 
 // Generate refresh token (long-lived)
 UserSchema.methods.generateRefreshToken = function () {
-  const token = jwt.sign({ userId: this._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign(
+    { id: this._id },
+    process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret-key',
+    { expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d' }
+  );
 
-  // Store refresh token
   this.refreshTokens.push({
     token,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   });
 
   return token;
@@ -158,7 +147,6 @@ UserSchema.methods.generateRefreshToken = function () {
 
 // Generate email verification token
 UserSchema.methods.generateEmailVerificationToken = function () {
-  const crypto = require('crypto');
   const token = crypto.randomBytes(32).toString('hex');
   this.emailVerificationToken = crypto.createHash('sha256').update(token).digest('hex');
   this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
@@ -167,7 +155,6 @@ UserSchema.methods.generateEmailVerificationToken = function () {
 
 // Generate password reset token
 UserSchema.methods.generatePasswordResetToken = function () {
-  const crypto = require('crypto');
   const token = crypto.randomBytes(32).toString('hex');
   this.passwordResetToken = crypto.createHash('sha256').update(token).digest('hex');
   this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
@@ -179,9 +166,10 @@ UserSchema.methods.cleanupRefreshTokens = function () {
   this.refreshTokens = this.refreshTokens.filter((t) => t.expiresAt > new Date());
 };
 
-// Indexes for performance (email index already created by unique: true)
+// Indexes
 UserSchema.index({ role: 1 });
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ 'refreshTokens.token': 1 });
+UserSchema.index({ googleId: 1 });
 
 export default mongoose.model('User', UserSchema);

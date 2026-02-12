@@ -1,110 +1,117 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import Program from '../models/Program.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Get all programs with filtering
+ * @route GET /api/programs
+ */
+export const getPrograms = asyncHandler(async (req, res) => {
+  const { university, degree, field, search, page = 1, limit = 20 } = req.query;
 
-// Load programs data from JSON
-function loadPrograms() {
-  try {
-    const dataPath = path.join(__dirname, '../data/programs.json');
-    const data = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading programs data:', error);
-    return [];
+  const query = {};
+  if (university) query.university = { $regex: university, $options: 'i' };
+  if (degree) query.degree = degree;
+  if (field) query.field = { $regex: field, $options: 'i' };
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { university: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
   }
-}
 
-// Get all programs
-export const getPrograms = async (req, res) => {
-  try {
-    const programs = loadPrograms();
+  const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Query parameters for filtering
-    const { category, age, locationType, cost, search, featured } = req.query;
+  const [programs, total] = await Promise.all([
+    Program.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Program.countDocuments(query),
+  ]);
 
-    let filtered = programs;
+  res.json({
+    success: true,
+    data: programs,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / parseInt(limit)),
+    },
+  });
+});
 
-    // Filter by category
-    if (category) {
-      const categories = category.split(',');
-      filtered = filtered.filter((p) => categories.includes(p.category));
-    }
+/**
+ * Get program by ID
+ * @route GET /api/programs/:id
+ */
+export const getProgramById = asyncHandler(async (req, res) => {
+  const program = await Program.findById(req.params.id);
 
-    // Filter by age
-    if (age) {
-      const minAge = parseInt(age);
-      filtered = filtered.filter((p) => p.ageMax >= minAge);
-    }
-
-    // Filter by location type
-    if (locationType) {
-      const types = locationType.split(',');
-      filtered = filtered.filter((p) => types.includes(p.locationType));
-    }
-
-    // Filter by cost
-    if (cost) {
-      switch (cost) {
-        case 'free':
-          filtered = filtered.filter((p) => p.cost === 0);
-          break;
-        case 'under5k':
-          filtered = filtered.filter((p) => p.cost < 5000);
-          break;
-        case 'under10k':
-          filtered = filtered.filter((p) => p.cost < 10000);
-          break;
-      }
-    }
-
-    // Filter by featured
-    if (featured === 'true') {
-      filtered = filtered.filter((p) => p.featured);
-    }
-
-    // Search filter
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(searchLower) ||
-          p.shortName.toLowerCase().includes(searchLower) ||
-          p.organization.toLowerCase().includes(searchLower) ||
-          p.category.toLowerCase().includes(searchLower) ||
-          p.location.toLowerCase().includes(searchLower)
-      );
-    }
-
-    res.json(filtered);
-  } catch (error) {
-    console.error('Error fetching programs:', error);
-    res.status(500).json({ error: 'Failed to fetch programs' });
+  if (!program) {
+    return res.status(404).json({ success: false, error: 'Program not found' });
   }
-};
 
-// Get program by ID
-export const getProgramById = async (req, res) => {
-  try {
-    const programs = loadPrograms();
-    const id = parseInt(req.params.id);
+  res.json({ success: true, data: program });
+});
 
-    const program = programs.find((p) => p.id === id);
+/**
+ * Create program
+ * @route POST /api/programs
+ */
+export const createProgram = asyncHandler(async (req, res) => {
+  const program = await Program.create(req.body);
 
-    if (!program) {
-      return res.status(404).json({ error: 'Program not found' });
-    }
+  res.status(201).json({
+    success: true,
+    message: 'Program created successfully',
+    data: program,
+  });
+});
 
-    res.json(program);
-  } catch (error) {
-    console.error('Error fetching program:', error);
-    res.status(500).json({ error: 'Failed to fetch program' });
+/**
+ * Update program
+ * @route PUT /api/programs/:id
+ */
+export const updateProgram = asyncHandler(async (req, res) => {
+  const program = await Program.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!program) {
+    return res.status(404).json({ success: false, error: 'Program not found' });
   }
-};
+
+  res.json({
+    success: true,
+    message: 'Program updated successfully',
+    data: program,
+  });
+});
+
+/**
+ * Delete program
+ * @route DELETE /api/programs/:id
+ */
+export const deleteProgram = asyncHandler(async (req, res) => {
+  const program = await Program.findByIdAndDelete(req.params.id);
+
+  if (!program) {
+    return res.status(404).json({ success: false, error: 'Program not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Program deleted successfully',
+  });
+});
 
 export default {
   getPrograms,
   getProgramById,
+  createProgram,
+  updateProgram,
+  deleteProgram,
 };

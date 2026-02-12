@@ -1,11 +1,11 @@
+import User from '../models/User.js';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import {
-  hashPassword,
-  comparePassword,
   generateToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from '../middleware/auth.js';
-import { pool } from '../config/database.js';
-import { validate, registerSchema, loginSchema } from '../utils/validation.js';
 
 /**
  * Register new user
@@ -13,34 +13,33 @@ import { validate, registerSchema, loginSchema } from '../utils/validation.js';
  */
 export const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, field } = req.body;
+    const { firstName, lastName, email, password, fieldOfInterest } = req.body;
 
     // Check if user already exists
-    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
-
-    if (existing.length > 0) {
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
       return res.status(400).json({
         success: false,
         error: 'Email already registered',
       });
     }
 
-    // Hash password
-    const passwordHash = await hashPassword(password);
-
-    // Insert new user
-    const [result] = await pool.query(
-      `INSERT INTO users (email, password_hash, first_name, last_name, field, role) 
-       VALUES (?, ?, ?, ?, ?, 'student')`,
-      [email, passwordHash, firstName, lastName, field]
-    );
+    // Create user
+    const user = await User.create({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password,
+      fieldOfInterest: fieldOfInterest || '',
+      role: 'user',
+    });
 
     // Generate tokens
-    const userId = result.insertId;
     const tokenPayload = {
-      id: userId,
-      email,
-      role: 'student',
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
     };
 
     const accessToken = generateToken(tokenPayload);
@@ -51,7 +50,7 @@ export const register = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     res.status(201).json({
@@ -59,18 +58,26 @@ export const register = async (req, res) => {
       message: 'Registration successful',
       data: {
         user: {
-          id: userId,
-          email,
-          firstName,
-          lastName,
-          role: 'student',
-          field,
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          name: user.name,
+          role: user.role,
+          fieldOfInterest: user.fieldOfInterest,
         },
         accessToken,
       },
     });
   } catch (error) {
     console.error('Registration error:', error);
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({
+        success: false,
+        error: messages.join(', '),
+      });
+    }
     res.status(500).json({
       success: false,
       error: 'Registration failed. Please try again.',
@@ -86,24 +93,26 @@ export const login = async (req, res) => {
   try {
     const { email, password, remember } = req.body;
 
-    // Find user
-    const [users] = await pool.query(
-      'SELECT id, email, password_hash, first_name, last_name, role, field, verified FROM users WHERE email = ?',
-      [email]
-    );
+    // Find user (include password for comparison)
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
-    if (users.length === 0) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         error: 'Invalid email or password',
       });
     }
 
-    const user = users[0];
+    // If user registered with Google only (no password set)
+    if (!user.password) {
+      return res.status(401).json({
+        success: false,
+        error: 'This account uses Google sign-in. Please login with Google.',
+      });
+    }
 
     // Verify password
-    const isValid = await comparePassword(password, user.password_hash);
-
+    const isValid = await user.comparePassword(password);
     if (!isValid) {
       return res.status(401).json({
         success: false,
@@ -112,13 +121,16 @@ export const login = async (req, res) => {
     }
 
     // Update last login
-    await pool.query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
+    user.lastLogin = new Date();
+    user.loginCount += 1;
+    await user.save();
 
     // Generate tokens
     const tokenPayload = {
-      id: user.id,
+      id: user._id,
       email: user.email,
       role: user.role,
+      name: user.name,
     };
 
     const accessToken = generateToken(tokenPayload);
@@ -126,7 +138,6 @@ export const login = async (req, res) => {
 
     // Set refresh token in httpOnly cookie
     const cookieMaxAge = remember ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
-
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -139,58 +150,23 @@ export const login = async (req, res) => {
       message: 'Login successful',
       data: {
         user: {
-          id: user.id,
+          id: user._id,
           email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          name: `${user.first_name} ${user.last_name}`,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          name: user.name,
           role: user.role,
-          field: user.field,
-          verified: user.verified,
+          fieldOfInterest: user.fieldOfInterest,
+          isVerified: user.isVerified,
         },
         accessToken,
       },
     });
   } catch (error) {
-    console.warn('Database login failed, checking JSON fallback:', error.message);
-
-    // --- Fallback Auth Logic ---
-    const { readJson } = await import('../utils/jsonHelper.js');
-    const { email, password } = req.body;
-
-    // Specific fallback check for admin
-    if (email === 'admin@brainex.com' && password === 'admin123') {
-      const tokenPayload = { id: 1, email: 'admin@brainex.com', role: 'admin' };
-      const accessToken = generateToken(tokenPayload);
-      const refreshToken = generateRefreshToken(tokenPayload);
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-      });
-
-      return res.json({
-        success: true,
-        message: 'Login successful (Fallback)',
-        data: {
-          user: {
-            id: 1,
-            email: 'admin@brainex.com',
-            firstName: 'Admin',
-            lastName: 'User',
-            name: 'Admin User',
-            role: 'admin',
-            field: 'General',
-            verified: true,
-          },
-          accessToken,
-        },
-      });
-    }
-
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      error: 'Login failed. Database unavailable and invalid fallback credentials.',
+      error: 'Login failed. Please try again.',
     });
   }
 };
@@ -213,33 +189,32 @@ export const logout = (req, res) => {
  */
 export const getCurrentUser = async (req, res) => {
   try {
-    const [users] = await pool.query(
-      'SELECT id, email, first_name, last_name, role, field, bio, avatar_url, verified FROM users WHERE id = ?',
-      [req.user.id]
+    const user = await User.findById(req.user.id).select(
+      '-password -emailVerificationToken -passwordResetToken -refreshTokens'
     );
 
-    if (users.length === 0) {
+    if (!user) {
       return res.status(404).json({
         success: false,
         error: 'User not found',
       });
     }
 
-    const user = users[0];
-
     res.json({
       success: true,
       data: {
-        id: user.id,
+        id: user._id,
         email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        name: `${user.first_name} ${user.last_name}`,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        name: user.name,
         role: user.role,
-        field: user.field,
+        fieldOfInterest: user.fieldOfInterest,
         bio: user.bio,
-        avatarUrl: user.avatar_url,
-        verified: user.verified,
+        profilePicture: user.profilePicture,
+        isVerified: user.isVerified,
+        preferences: user.preferences,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
@@ -257,9 +232,9 @@ export const getCurrentUser = async (req, res) => {
  */
 export const refreshAccessToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshTokenValue = req.cookies.refreshToken;
 
-    if (!refreshToken) {
+    if (!refreshTokenValue) {
       return res.status(401).json({
         success: false,
         error: 'No refresh token provided',
@@ -267,14 +242,23 @@ export const refreshAccessToken = async (req, res) => {
     }
 
     // Verify refresh token
-    const { verifyRefreshToken } = await import('../middleware/auth.js');
-    const decoded = verifyRefreshToken(refreshToken);
+    const decoded = verifyRefreshToken(refreshTokenValue);
+
+    // Find user
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
 
     // Generate new access token
     const tokenPayload = {
-      id: decoded.id,
-      email: decoded.email,
-      role: decoded.role,
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
     };
 
     const accessToken = generateToken(tokenPayload);
@@ -294,10 +278,263 @@ export const refreshAccessToken = async (req, res) => {
   }
 };
 
+/**
+ * Forgot password - send reset email
+ * @route POST /api/auth/forgot-password
+ */
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      // Don't reveal if email exists or not
+      return res.json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent.',
+      });
+    }
+
+    // Generate reset token
+    const resetToken = user.generatePasswordResetToken();
+    await user.save();
+
+    // Build reset URL
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    const resetUrl = `${clientUrl}/reset-password?token=${resetToken}`;
+
+    // Send email (if configured)
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.EMAIL_PORT) || 587,
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || 'noreply@brainex.com',
+        to: user.email,
+        subject: 'BraineX - Password Reset',
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>Hi ${user.firstName},</p>
+          <p>You requested a password reset. Click the link below to reset your password:</p>
+          <a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background:#667eea;color:white;text-decoration:none;border-radius:8px;">Reset Password</a>
+          <p>This link expires in 1 hour.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.warn('Email sending failed (SMTP not configured):', emailError.message);
+      // Still return success - in development, log the token
+      console.log('Password reset token (dev):', resetToken);
+    }
+
+    res.json({
+      success: true,
+      message: 'If an account with that email exists, a password reset link has been sent.',
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process password reset request.',
+    });
+  }
+};
+
+/**
+ * Reset password
+ * @route POST /api/auth/reset-password
+ */
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token and new password are required.',
+      });
+    }
+
+    // Hash the token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired reset token.',
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password reset successful. You can now login with your new password.',
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to reset password.',
+    });
+  }
+};
+
+/**
+ * Verify email
+ * @route POST /api/auth/verify-email
+ */
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        error: 'Verification token is required.',
+      });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired verification token.',
+      });
+    }
+
+    user.isVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully.',
+    });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to verify email.',
+    });
+  }
+};
+
+/**
+ * Google OAuth callback handler
+ * @route GET /api/auth/google/callback
+ */
+export const googleCallback = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+      return res.redirect(`${clientUrl}?auth=error`);
+    }
+
+    // Generate tokens
+    const tokenPayload = {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
+
+    const accessToken = generateToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    // Set refresh token cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    // Redirect to frontend with token
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    res.redirect(`${clientUrl}?token=${accessToken}&auth=success`);
+  } catch (error) {
+    console.error('Google callback error:', error);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+    res.redirect(`${clientUrl}?auth=error`);
+  }
+};
+
+/**
+ * Update user profile
+ * @route PUT /api/auth/profile
+ */
+export const updateProfile = async (req, res) => {
+  try {
+    const allowedFields = ['firstName', 'lastName', 'bio', 'fieldOfInterest', 'profilePicture', 'preferences'];
+    const updates = {};
+
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+      runValidators: true,
+    }).select('-password -refreshTokens -emailVerificationToken -passwordResetToken');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+      message: 'Profile updated successfully',
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update profile.',
+    });
+  }
+};
+
 export default {
   register,
   login,
   logout,
   getCurrentUser,
   refreshAccessToken,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  googleCallback,
+  updateProfile,
 };

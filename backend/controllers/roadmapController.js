@@ -1,55 +1,115 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import Roadmap from '../models/Roadmap.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Get all roadmaps with filtering
+ * @route GET /api/roadmaps
+ */
+export const getRoadmaps = asyncHandler(async (req, res) => {
+  const { category, field, search, page = 1, limit = 20 } = req.query;
 
-const loadRoadmaps = () => {
-  try {
-    const dataPath = path.join(__dirname, '../data/roadmaps.json');
-    const data = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading roadmaps:', error);
-    return [];
+  const query = {};
+  if (category) query.category = { $regex: category, $options: 'i' };
+  if (field) query.field = { $regex: field, $options: 'i' };
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+    ];
   }
-};
 
-export const getRoadmaps = async (req, res) => {
-  try {
-    const roadmaps = loadRoadmaps();
-    const { category, difficulty } = req.query;
+  const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    let filtered = roadmaps;
+  const [roadmaps, total] = await Promise.all([
+    Roadmap.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit)),
+    Roadmap.countDocuments(query),
+  ]);
 
-    if (category) {
-      filtered = filtered.filter((r) => r.category.toLowerCase() === category.toLowerCase());
-    }
+  res.json({
+    success: true,
+    data: roadmaps,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / parseInt(limit)),
+    },
+  });
+});
 
-    if (difficulty) {
-      filtered = filtered.filter((r) => r.difficulty.toLowerCase() === difficulty.toLowerCase());
-    }
+/**
+ * Get roadmap by ID
+ * @route GET /api/roadmaps/:id
+ */
+export const getRoadmapById = asyncHandler(async (req, res) => {
+  const roadmap = await Roadmap.findById(req.params.id);
 
-    res.json(filtered);
-  } catch (error) {
-    console.error('Error fetching roadmaps:', error);
-    res.status(500).json({ error: 'Failed to fetch roadmaps' });
+  if (!roadmap) {
+    return res.status(404).json({ success: false, error: 'Roadmap not found' });
   }
-};
 
-export const getRoadmapBySlug = async (req, res) => {
-  try {
-    const roadmaps = loadRoadmaps();
-    const roadmap = roadmaps.find((r) => r.slug === req.params.slug);
+  res.json({ success: true, data: roadmap });
+});
 
-    if (!roadmap) {
-      return res.status(404).json({ error: 'Roadmap not found' });
-    }
+/**
+ * Create roadmap
+ * @route POST /api/roadmaps
+ */
+export const createRoadmap = asyncHandler(async (req, res) => {
+  const roadmap = await Roadmap.create(req.body);
 
-    res.json(roadmap);
-  } catch (error) {
-    console.error('Error fetching roadmap:', error);
-    res.status(500).json({ error: 'Failed to fetch roadmap' });
+  res.status(201).json({
+    success: true,
+    message: 'Roadmap created successfully',
+    data: roadmap,
+  });
+});
+
+/**
+ * Update roadmap
+ * @route PUT /api/roadmaps/:id
+ */
+export const updateRoadmap = asyncHandler(async (req, res) => {
+  const roadmap = await Roadmap.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!roadmap) {
+    return res.status(404).json({ success: false, error: 'Roadmap not found' });
   }
+
+  res.json({
+    success: true,
+    message: 'Roadmap updated successfully',
+    data: roadmap,
+  });
+});
+
+/**
+ * Delete roadmap
+ * @route DELETE /api/roadmaps/:id
+ */
+export const deleteRoadmap = asyncHandler(async (req, res) => {
+  const roadmap = await Roadmap.findByIdAndDelete(req.params.id);
+
+  if (!roadmap) {
+    return res.status(404).json({ success: false, error: 'Roadmap not found' });
+  }
+
+  res.json({
+    success: true,
+    message: 'Roadmap deleted successfully',
+  });
+});
+
+export default {
+  getRoadmaps,
+  getRoadmapById,
+  createRoadmap,
+  updateRoadmap,
+  deleteRoadmap,
 };
