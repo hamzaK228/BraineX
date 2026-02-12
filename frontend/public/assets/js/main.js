@@ -37,18 +37,39 @@ window.app = {
 window.appState = appStore.state;
 
 // Global Modal Helpers
-window.closeModal = function () {
-  document.querySelectorAll('.modal').forEach((modal) => {
-    modal.style.display = 'none';
-    modal.classList.remove('show');
-  });
+// Global Modal Helpers
+window.closeModal = function (id) {
+  if (id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  } else {
+    document.querySelectorAll('.modal').forEach((modal) => {
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+      modal.classList.remove('active');
+    });
+    document.body.style.overflow = '';
+  }
 };
 
-window.openModal = function (id) {
+window.openModal = function (idOrType) {
+  let id = idOrType;
+  if (idOrType === 'login') id = 'loginModal';
+  if (idOrType === 'signup') id = 'signupModal';
+
   const modal = document.getElementById(id);
   if (modal) {
-    modal.style.display = 'block';
-    setTimeout(() => modal.classList.add('show'), 10);
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  } else {
+    console.warn('Modal not found:', id);
   }
 };
 
@@ -371,13 +392,13 @@ function setupTracksSlider() {
 }
 
 // Dummy/Stub functions for others to prevent crashes
-function setupMobileMenu() {}
-function setupSmoothScroll() {}
-function setupIntersectionObservers() {}
-function animateStatsInit() {}
-function setupServiceWorker() {}
-function setupMultiSelect() {}
-function setupFormValidation() {}
+function setupMobileMenu() { }
+function setupSmoothScroll() { }
+function setupIntersectionObservers() { }
+function animateStatsInit() { }
+function setupServiceWorker() { }
+function setupMultiSelect() { }
+function setupFormValidation() { }
 
 // --- Data Loading (Mock) ---
 
@@ -447,6 +468,114 @@ document.addEventListener('DOMContentLoaded', () => {
   setupServiceWorker();
   setupMultiSelect();
   setupFormValidation();
+
+  // Fix Bug #1 - Event Listeners
+  // Get Started & Sign Up buttons (All matching links)
+  // Get Started & Sign Up buttons (All matching links)
+  const signupBtns = document.querySelectorAll('a[href="#signup"]');
+  signupBtns.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      openModal('signupModal'); // Use full ID for InteractionHandler compatibility
+    });
+  });
+
+  // Log In buttons (All matching links)
+  // Log In buttons (All matching links)
+  const loginBtns = document.querySelectorAll('a[href="#login"]');
+  loginBtns.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      openModal('loginModal'); // Use full ID for InteractionHandler compatibility
+    });
+  });
+
+  // Navigation links
+  const navLinks = document.querySelectorAll('nav a[href^="/"]');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      // Let browser handle navigation normally
+      console.log('Navigating to:', this.getAttribute('href'));
+    });
+  });
+
+  // Mobile Menu Toggle (Bug #4 Fix)
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const navMenu = document.querySelector('.nav-menu');
+  if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+      mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+    });
+  }
+
+  // Explore Track buttons
+  const exploreButtons = document.querySelectorAll('.track-card button, .track-card a');
+  exploreButtons.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const card = this.closest('.track-card');
+      if (card) {
+        const trackName = card.querySelector('h3').textContent;
+        console.log('Exploring track:', trackName);
+        // Navigate to fields page as per verification steps
+        window.location.href = '/fields';
+      }
+    });
+  });
+
+  // View Details buttons (scholarships)
+  const viewDetailsButtons = document.querySelectorAll('[href*="scholarships"]');
+  viewDetailsButtons.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      // Let navigation work normally or add modal logic
+      console.log('View scholarship details');
+    });
+  });
+
+  // Connect buttons (mentors)
+  const connectButtons = document.querySelectorAll('.mentor-card .btn-connect, .mentor-card button');
+  connectButtons.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const card = this.closest('.mentor-card');
+      if (card) {
+        const mentorName = card.querySelector('h3').textContent;
+        alert(`Connecting with ${mentorName}. This will integrate with booking system.`);
+      }
+    });
+  });
+
+  // Close buttons (X)
+  const closeButtons = document.querySelectorAll('.modal .close, .modal-close');
+  closeButtons.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const modal = this.closest('.modal');
+      if (modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+
+  // Close on backdrop click (click outside modal)
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    modal.addEventListener('click', function (e) {
+      // Only close if clicking the backdrop, not modal content
+      if (e.target === modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+
+  // Prevent modal content clicks from closing
+  const modalContents = document.querySelectorAll('.modal-content');
+  modalContents.forEach(content => {
+    content.addEventListener('click', function (e) {
+      e.stopPropagation(); // Prevent click from reaching backdrop
+    });
+  });
 
   console.log('Main.js initialized successfully.');
 });

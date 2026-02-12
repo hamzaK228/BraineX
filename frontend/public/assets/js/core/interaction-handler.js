@@ -239,6 +239,7 @@ const InteractionHandler = (function () {
 
     modal.style.display = 'flex';
     modal.classList.add('active');
+    modal.classList.add('show'); // Fix: Add 'show' class for visibility (opacity: 1)
     activeModal = modal;
     document.body.style.overflow = 'hidden';
 
@@ -260,6 +261,7 @@ const InteractionHandler = (function () {
     if (activeModal) {
       activeModal.style.display = 'none';
       activeModal.classList.remove('active');
+      activeModal.classList.remove('show'); // Fix: Remove 'show' class
       activeModal = null;
       document.body.style.overflow = '';
     }
@@ -273,6 +275,7 @@ const InteractionHandler = (function () {
     if (modal) {
       modal.style.display = 'none';
       modal.classList.remove('active');
+      modal.classList.remove('show'); // Fix: Remove 'show' class
       if (activeModal === modal) {
         activeModal = null;
         document.body.style.overflow = '';
